@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="pt-br" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dra. Nome da Advogada | Gestão Processual</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        pearl: '#FDFCF8',
+                        softBlack: '#1A1A1A',
+                        satinGold: '#C5A059',
+                        darkGold: '#A37E3B'
+                    },
+                    fontFamily: {
+                        serif: ['Cinzel', 'serif'],
+                        sans: ['Montserrat', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        .timeline-line::before {
+            content: '';
+            position: absolute;
+            left: 20px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #C5A059;
+            opacity: 0.3;
+        }
+        .modal-blur { backdrop-filter: blur(8px); }
+        .gold-gradient { background: linear-gradient(135deg, #C5A059 0%, #A37E3B 100%); }
+        .finished-card { filter: grayscale(1); opacity: 0.7; border-color: #666 !important; }
+    </style>
+</head>
+<body class="bg-pearl dark:bg-softBlack text-softBlack dark:text-pearl min-h-screen font-sans transition-colors duration-300">
+
+    <header class="fixed top-0 w-full z-50 p-4 flex justify-between items-center bg-pearl/80 dark:bg-softBlack/80 backdrop-blur-md border-b border-satinGold/20">
+        <button id="installApp" class="hidden bg-satinGold hover:bg-darkGold text-white px-4 py-2 rounded-full text-xs font-bold transition-all shadow-lg animate-bounce">
+            <i class="fas fa-download mr-2"></i>INSTALAR APP
+        </button>
+        
+        <div class="flex gap-4 items-center ml-auto">
+            <button onclick="toggleDarkMode()" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-800 transition-all">
+                <i id="themeIcon" class="fas fa-moon text-satinGold text-xl"></i>
+            </button>
+            <button onclick="openAdminLogin()" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-800 transition-all">
+                <i class="fas fa-cog text-satinGold text-xl"></i>
+            </button>
+        </div>
+    </header>
+
+    <main class="pt-28 pb-12 px-4 max-w-lg mx-auto">
+        
+        <section id="view-bio" class="text-center mb-16">
+            <div class="w-48 h-48 mx-auto mb-6">
+                <img id="bio-img" src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=400" alt="Advogada" class="rounded-full w-full h-full object-cover border-[6px] border-satinGold shadow-2xl">
+            </div>
+            
+            <h1 id="bio-name" class="font-serif text-3xl font-bold tracking-widest text-darkGold mb-1 uppercase">Carregando...</h1>
+            <p id="bio-oab" class="text-sm font-semibold opacity-70 mb-3">OAB/SP 000.000</p>
+            <p id="bio-desc" class="text-sm italic px-4 mb-5 max-w-sm mx-auto">Sincronizando dados...</p>
+            
+            <div class="flex justify-center gap-6 text-satinGold text-lg">
+                <a id="bio-phone" href="#"><i class="fas fa-phone hover:scale-110 transition-transform"></i></a>
+                <a id="bio-email" href="#"><i class="fas fa-envelope hover:scale-110 transition-transform"></i></a>
+            </div>
+        </section>
+
+        <section id="view-client-search" class="bg-white dark:bg-zinc-900 p-10 rounded-[30px] shadow-xl border border-satinGold/10">
+            <h3 class="font-serif text-2xl mb-8 text-center text-softBlack dark:text-pearl tracking-wide">Consultar meu Processo</h3>
+            <div class="space-y-6">
+                <div>
+                    <label class="text-xs uppercase font-bold text-satinGold tracking-wider">CPF do Reclamante</label>
+                    <input type="text" id="searchCpf" placeholder="000.000.000-00" class="w-full bg-transparent border-b-2 border-gray-300 dark:border-zinc-700 py-3 outline-none focus:border-satinGold transition-all text-base">
+                </div>
+                <button onclick="handleClientSearch()" class="w-full gold-gradient text-white font-bold py-4 rounded-xl shadow-lg hover:scale-[1.03] transition-transform tracking-wider text-sm">
+                    ACESSAR LINHA DO TEMPO
+                </button>
+            </div>
+        </section>
+
+        <section id="view-timeline" class="hidden space-y-6">
+            <button onclick="showView('view-client-search')" class="text-satinGold font-bold text-sm mb-4"><i class="fas fa-arrow-left mr-2"></i>Voltar</button>
+            <div id="timeline-status-info" class="text-center hidden p-4 rounded-xl bg-gray-200 dark:bg-zinc-800 mb-4 italic text-sm">Este processo foi finalizado.</div>
+            <div class="border-l-4 border-satinGold pl-6 ml-2 space-y-8" id="timeline-content"></div>
+        </section>
+
+        <section id="view-admin-dash" class="hidden">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="font-serif text-xl">Painel de Gestão</h2>
+                <button onclick="openBioSettings()" class="text-satinGold"><i class="fas fa-user-shield text-xl"></i></button>
+            </div>
+            <input type="text" id="adminSearch" onkeyup="filterAdminList()" placeholder="Buscar Nome ou CPF..." class="w-full mb-6 p-3 rounded-xl bg-white dark:bg-zinc-900 border border-satinGold/20 outline-none">
+            <div id="admin-client-list" class="space-y-4"></div>
+        </section>
+
+    </main>
+
+    <button id="fab-add" onclick="openClientModal()" class="hidden fixed bottom-8 right-8 w-14 h-14 rounded-full gold-gradient text-white shadow-2xl flex items-center justify-center text-2xl">
+        <i class="fas fa-plus"></i>
+    </button>
+
+    <div id="modal-login" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4 modal-blur bg-black/50">
+        <div class="bg-pearl dark:bg-zinc-900 w-full max-w-sm p-8 rounded-3xl border border-satinGold/30">
+            <h3 class="font-serif text-2xl mb-6 text-center">Acesso Restrito</h3>
+            <input type="text" id="userLogin" placeholder="Usuário" class="w-full mb-4 p-3 rounded-lg border dark:bg-zinc-800 outline-none focus:border-satinGold">
+            <input type="password" id="passLogin" placeholder="Senha" class="w-full mb-6 p-3 rounded-lg border dark:bg-zinc-800 outline-none focus:border-satinGold">
+            <div class="flex gap-2">
+                <button onclick="closeModal('modal-login')" class="flex-1 py-3 font-bold opacity-50">Cancelar</button>
+                <button onclick="handleLogin()" class="flex-1 gold-gradient text-white py-3 rounded-xl font-bold">Entrar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-client" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4 modal-blur bg-black/50 overflow-y-auto">
+        <div class="bg-pearl dark:bg-zinc-900 w-full max-w-md p-8 my-auto rounded-3xl border border-satinGold/30">
+            <h3 id="modal-title" class="font-serif text-xl mb-6">Novo Cliente</h3>
+            <div class="space-y-4 text-sm">
+                <input type="hidden" id="edit-client-id">
+                <input type="text" id="c-nome" placeholder="Nome Completo" class="w-full p-3 rounded-lg border dark:bg-zinc-800">
+                <div class="grid grid-cols-2 gap-2">
+                    <input type="text" id="c-cpf" placeholder="CPF" class="w-full p-3 rounded-lg border dark:bg-zinc-800">
+                    <input type="text" id="c-senha" placeholder="Senha de Acesso" class="w-full p-3 rounded-lg border dark:bg-zinc-800">
+                </div>
+                <input type="email" id="c-email" placeholder="E-mail" class="w-full p-3 rounded-lg border dark:bg-zinc-800">
+                <input type="text" id="c-tel" placeholder="WhatsApp" class="w-full p-3 rounded-lg border dark:bg-zinc-800">
+                
+                <div class="flex items-center gap-2 p-2 bg-gray-100 dark:bg-zinc-800 rounded-lg">
+                    <input type="checkbox" id="c-notif" class="accent-satinGold w-4 h-4">
+                    <label for="c-notif" class="text-[10px] uppercase font-bold">Autorizar notificações por e-mail</label>
+                </div>
+
+                <div id="area-atualizacao" class="hidden pt-4 border-t border-satinGold/20">
+                    <div class="flex items-center justify-between mb-2">
+                        <label class="text-xs font-bold text-satinGold uppercase">Atualização</label>
+                        <div class="flex items-center gap-1">
+                             <input type="checkbox" id="a-new-card" class="w-3 h-3 accent-satinGold" checked>
+                             <label for="a-new-card" class="text-[9px] font-bold opacity-70">NOVO CARD HISTÓRICO</label>
+                        </div>
+                    </div>
+                    <select id="a-status" class="w-full p-3 rounded-lg border dark:bg-zinc-800">
+                        <option value="Petição Inicial">Petição Inicial</option>
+                        <option value="Citação da Reclamada">Citação</option>
+                        <option value="Audiência de Conciliação">Audiência de Conciliação</option>
+                        <option value="Audiência de Instrução">Instrução</option>
+                        <option value="Alegações Finais">Alegações Finais</option>
+                        <option value="Sentença">Sentença</option>
+                        <option value="Recurso Ordinário">Recurso Ordinário</option>
+                        <option value="Processo Finalizado">Processo Finalizado</option>
+                    </select>
+                    <textarea id="a-desc" placeholder="Descrição dos detalhes..." class="w-full p-3 mt-2 rounded-lg border dark:bg-zinc-800 h-20"></textarea>
+                </div>
+            </div>
+            <div class="flex gap-2 mt-6">
+                <button onclick="closeModal('modal-client')" class="flex-1 py-3 font-bold opacity-50">Sair</button>
+                <button onclick="saveClient()" class="flex-1 gold-gradient text-white py-3 rounded-xl font-bold shadow-lg">Salvar Dados</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-bio" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4 modal-blur bg-black/50 overflow-y-auto">
+        <div class="bg-pearl dark:bg-zinc-900 w-full max-w-sm p-8 rounded-3xl border border-satinGold/30 my-auto">
+            <h3 class="font-serif text-xl mb-6 border-b border-satinGold/20 pb-2">Configurações Master</h3>
+            <div class="space-y-4 mb-6 text-xs">
+                <p class="font-bold text-satinGold uppercase">Perfil Público</p>
+                <input type="text" id="config-name" placeholder="Nome da Advogada" class="w-full p-3 rounded-lg border dark:bg-zinc-800">
+                <input type="text" id="config-oab" placeholder="OAB" class="w-full p-3 rounded-lg border dark:bg-zinc-800">
+                <textarea id="config-desc" placeholder="Bio Curta" class="w-full p-3 rounded-lg border dark:bg-zinc-800"></textarea>
+                <input type="text" id="config-phone" placeholder="Telefone Comercial" class="w-full p-3 rounded-lg border dark:bg-zinc-800">
+                <input type="text" id="config-email" placeholder="E-mail Comercial" class="w-full p-3 rounded-lg border dark:bg-zinc-800">
+                <input type="text" id="config-img" placeholder="URL da Foto" class="w-full p-3 rounded-lg border dark:bg-zinc-800">
+            </div>
+            <div class="space-y-4 mb-6 border-t border-satinGold/20 pt-4 text-xs">
+                <p class="font-bold text-satinGold uppercase">Login Admin</p>
+                <input type="text" id="config-login" placeholder="Usuário" class="w-full p-3 rounded-lg border dark:bg-zinc-800">
+                <input type="password" id="config-pass" placeholder="Senha" class="w-full p-3 rounded-lg border dark:bg-zinc-800">
+            </div>
+            <div class="space-y-4 mb-6 border-t border-satinGold/20 pt-4 text-xs">
+                <p class="font-bold text-satinGold uppercase">Reset de Cliente</p>
+                <input type="text" id="reset-client-cpf" placeholder="CPF Cliente" class="w-full p-3 rounded-lg border dark:bg-zinc-800">
+                <input type="text" id="reset-client-pass" placeholder="Nova Senha" class="w-full p-3 rounded-lg border dark:bg-zinc-800">
+                <button onclick="handleResetClientPassword()" class="w-full bg-softBlack text-white py-2 rounded-lg font-bold">Alterar Senha Cliente</button>
+            </div>
+            <div class="border-t-2 border-darkGold pt-4">
+                <input type="password" id="config-secret" placeholder="PALAVRA SECRETA" class="w-full p-3 rounded-lg border-2 border-satinGold dark:bg-zinc-800 font-bold text-center mb-4">
+                <div class="flex gap-2">
+                    <button onclick="closeModal('modal-bio')" class="flex-1 py-3 text-sm font-bold opacity-50">Sair</button>
+                    <button onclick="saveBio()" class="flex-1 gold-gradient text-white py-3 rounded-xl font-bold shadow-lg text-sm">Salvar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let dbClients = [];
+        let bioData = { name: "", oab: "", desc: "", img: "", phone: "", email: "", login_adv: "admin", pass_adv: "admin" };
+
+        window.onload = () => { syncData(); };
+
+        function syncData() {
+            google.script.run.withSuccessHandler(data => {
+                dbClients = data;
+                if (data.length > 0) {
+                    const first = data[0]; 
+                    bioData = {
+                        name: first.Adv || "Nome da Advogada",
+                        oab: first.OAB || "OAB/SP 000.000",
+                        desc: first.Descricacao_adv || "Especialista Jurídica",
+                        img: first.ID || "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=400",
+                        phone: first.telefone || "",
+                        email: first.e_mail || "",
+                        login_adv: first.login_advogado || "admin",
+                        pass_adv: first.senha || "admin"
+                    };
+                    renderBio();
+                }
+                if(!document.getElementById('view-admin-dash').classList.contains('hidden')) renderAdminList();
+            }).getAppData();
+        }
+
+        function showView(viewId) {
+            ['view-client-search', 'view-timeline', 'view-admin-dash'].forEach(v => document.getElementById(v).classList.add('hidden'));
+            document.getElementById(viewId).classList.remove('hidden');
+            document.getElementById('fab-add').classList.toggle('hidden', viewId !== 'view-admin-dash');
+        }
+
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+        function toggleDarkMode() { document.documentElement.classList.toggle('dark'); }
+
+        function renderBio() {
+            document.getElementById('bio-name').innerText = bioData.name;
+            document.getElementById('bio-oab').innerText = bioData.oab;
+            document.getElementById('bio-desc').innerText = bioData.desc;
+            document.getElementById('bio-img').src = bioData.img;
+            document.getElementById('bio-phone').href = `tel:${bioData.phone}`;
+            document.getElementById('bio-email').href = `mailto:${bioData.email}`;
+        }
+
+        function openBioSettings() {
+            document.getElementById('config-name').value = bioData.name;
+            document.getElementById('config-oab').value = bioData.oab;
+            document.getElementById('config-desc').value = bioData.desc;
+            document.getElementById('config-phone').value = bioData.phone;
+            document.getElementById('config-email').value = bioData.email;
+            document.getElementById('config-img').value = bioData.img;
+            document.getElementById('config-login').value = bioData.login_adv;
+            document.getElementById('modal-bio').classList.remove('hidden');
+        }
+
+        function saveBio() {
+            const secret = document.getElementById('config-secret').value;
+            if(!secret) return alert("Digite a palavra secreta!");
+            const config = {
+                palavraSecreta: secret,
+                novoLogin: document.getElementById('config-login').value,
+                novaSenha: document.getElementById('config-pass').value || bioData.pass_adv,
+                nome_adv: document.getElementById('config-name').value,
+                oab: document.getElementById('config-oab').value,
+                desc_adv: document.getElementById('config-desc').value,
+                telefone_adv: document.getElementById('config-phone').value,
+                email_adv: document.getElementById('config-email').value
+            };
+            google.script.run.withSuccessHandler(() => { syncData(); closeModal('modal-bio'); alert("Perfil e Segurança atualizados!"); }).withFailureHandler(err => alert(err)).atualizarConfigAdv(config);
+        }
+
+        function handleResetClientPassword() {
+            const secret = document.getElementById('config-secret').value;
+            google.script.run.withSuccessHandler(msg => { alert(msg); syncData(); }).withFailureHandler(err => alert(err)).resetarSenhaCliente({
+                palavraSecretaAdv: secret,
+                cpfCliente: document.getElementById('reset-client-cpf').value,
+                novaSenhaCliente: document.getElementById('reset-client-pass').value
+            });
+        }
+
+        function handleClientSearch() {
+            const cpf = document.getElementById('searchCpf').value;
+            const client = dbClients.find(c => c.CPF == cpf);
+            if (client) {
+                const pass = prompt("Senha:");
+                if (pass === client.Senha) { renderTimeline(client); showView('view-timeline'); }
+                else { alert("Senha incorreta."); }
+            } else { alert("Cliente não encontrado."); }
+        }
+
+        function renderTimeline(client) {
+            const container = document.getElementById('timeline-content');
+            container.innerHTML = '';
+            const eventos = client.Atualizacoes || [];
+            document.getElementById('timeline-status-info').classList.toggle('hidden', !eventos.some(e => e.status === "Processo Finalizado"));
+            [...eventos].reverse().forEach(ev => {
+                container.innerHTML += `
+                    <div class="relative bg-white dark:bg-zinc-800 p-5 rounded-2xl shadow-md border-l-4 border-satinGold">
+                        <p class="text-[10px] font-bold text-satinGold uppercase mb-1">${ev.data}</p>
+                        <h4 class="font-serif font-bold text-lg">${ev.status}</h4>
+                        <p class="text-sm opacity-80 mt-2">${ev.descricao}</p>
+                    </div>`;
+            });
+        }
+
+        function handleLogin() {
+            if(document.getElementById('userLogin').value === bioData.login_adv && document.getElementById('passLogin').value === bioData.pass_adv) {
+                closeModal('modal-login'); showView('view-admin-dash'); renderAdminList();
+            } else { alert("Acesso negado."); }
+        }
+
+        function renderAdminList() {
+            const list = document.getElementById('admin-client-list');
+            list.innerHTML = '';
+            dbClients.forEach(c => {
+                const isFinished = (c.Atualizacoes || []).some(e => e.status === "Processo Finalizado");
+                list.innerHTML += `
+                    <div class="bg-white dark:bg-zinc-800 p-4 rounded-2xl flex justify-between items-center shadow-sm ${isFinished ? 'finished-card' : ''}">
+                        <div><p class="font-bold">${c.Nome}</p><p class="text-xs opacity-50">${c.CPF}</p></div>
+                        <div class="flex gap-2">
+                            ${isFinished ? `<button onclick="confirmDelete('${c.CPF}')" class="text-red-500"><i class="fas fa-trash"></i></button>` : ''}
+                            <button onclick="editClientByCpf('${c.CPF}')" class="text-satinGold"><i class="fas fa-edit"></i></button>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        function editClientByCpf(cpf) {
+            const c = dbClients.find(i => i.CPF == cpf);
+            document.getElementById('edit-client-id').value = c.CPF;
+            document.getElementById('c-nome').value = c.Nome;
+            document.getElementById('c-cpf').value = c.CPF;
+            document.getElementById('c-senha').value = c.Senha;
+            document.getElementById('c-email').value = c.Email;
+            document.getElementById('c-tel').value = c.Telefone;
+            document.getElementById('c-notif').checked = c.Notificar == true;
+            document.getElementById('area-atualizacao').classList.remove('hidden');
+            document.getElementById('modal-client').classList.remove('hidden');
+        }
+
+        function saveClient() {
+            const cpfKey = document.getElementById('edit-client-id').value;
+            const isNewCard = document.getElementById('a-new-card').checked;
+            let current = dbClients.find(c => c.CPF == cpfKey) || { Atualizacoes: [], ID: Date.now() };
+
+            const clientObj = {
+                ID: current.ID,
+                Nome: document.getElementById('c-nome').value,
+                CPF: document.getElementById('c-cpf').value,
+                Senha: document.getElementById('c-senha').value,
+                Email: document.getElementById('c-email').value,
+                Telefone: document.getElementById('c-tel').value,
+                Notificar: document.getElementById('c-notif').checked,
+                Atualizacoes: current.Atualizacoes
+            };
+
+            const status = document.getElementById('a-status').value;
+            const desc = document.getElementById('a-desc').value;
+
+            if (desc.trim() !== "") {
+                const payload = { data: new Date().toLocaleDateString('pt-BR'), status: status, descricao: desc };
+                if (isNewCard || clientObj.Atualizacoes.length === 0) {
+                    clientObj.Atualizacoes.push(payload);
+                } else {
+                    clientObj.Atualizacoes[clientObj.Atualizacoes.length - 1] = payload;
+                }
+            }
+
+            google.script.run.withSuccessHandler(() => { syncData(); closeModal('modal-client'); }).salvarClientePlanilha(clientObj);
+        }
+
+        function confirmDelete(cpf) {
+            if(confirm("Deseja realmente excluir este cliente?")) google.script.run.withSuccessHandler(() => syncData()).excluirClientePlanilha(cpf);
+        }
+
+        function openAdminLogin() { document.getElementById('modal-login').classList.remove('hidden'); }
+        function openClientModal() { 
+            document.getElementById('edit-client-id').value = ""; 
+            document.getElementById('area-atualizacao').classList.add('hidden');
+            document.getElementById('modal-client').classList.remove('hidden'); 
+        }
+        function filterAdminList() {
+            const q = document.getElementById('adminSearch').value.toLowerCase();
+            const cards = document.getElementById('admin-client-list').children;
+            Array.from(cards).forEach(card => card.style.display = card.innerText.toLowerCase().includes(q) ? 'flex' : 'none');
+        }
+        function checkPWA() {}
+    </script>
+</body>
+</html>
