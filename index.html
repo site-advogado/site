@@ -203,36 +203,48 @@
         </div>
     </div>
 
+<!-- TODO O SEU HTML PERMANECE IGUAL ATÉ O SCRIPT -->
+
 <script>
-    const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbxtuvdRirUaUtEeSzSDwPQVs4D8o0X9FyPP_cAYj1vdFY-3s_X6WbBAsbWbXDu13z1jbg/exec";
+    const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbzcqoFDf-6QF5iOHTPBroLBLw-wvr_DifXXj4e6ad9qPf85WZFi546D5K7O2c_GJc_vsA/exec";
     let dbClients = [];
     let bioData = { name: "", oab: "", desc: "", img: "", phone: "", email: "", login_adv: "", pass_adv: "" };
 
     window.onload = () => { syncData(); };
 
+    // ✅ ALTERAÇÃO AQUI (única modificação feita)
     function syncData() {
-        google.script.run.withSuccessHandler(data => {
-            if (!data || data.length === 0) return;
+        fetch(URL_SCRIPT)
+            .then(res => res.json())
+            .then(data => {
 
-            // Linha 2 da Planilha (Índice 0 no array data) é exclusiva para a ADVOGADA
-            const master = data[0]; 
-            bioData = {
-                name: master.Adv || "Nome da Advogada",
-                oab: master.OAB || "OAB/SP 000.000",
-                desc: master.Descricacao_adv || "Sincronizando...",
-                img: master.ID && master.ID.toString().startsWith('http') ? master.ID : "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=400",
-                phone: master.telefone || "",
-                email: master.e_mail || "",
-                login_adv: master.login_advogado || "", 
-                pass_adv: master.senha || ""           
-            };
-            
-            // Clientes começam a partir da Linha 3 (Índice 1 em diante no array data)
-            dbClients = data.slice(1);
+                if (!data || data.length === 0) return;
 
-            renderBio();
-            if(!document.getElementById('view-admin-dash').classList.contains('hidden')) renderAdminList();
-        }).getAppData();
+                const master = data[0]; 
+                bioData = {
+                    name: master.Adv || "Nome da Advogada",
+                    oab: master.OAB || "OAB/SP 000.000",
+                    desc: master.Descricacao_adv || "Sincronizando...",
+                    img: master.ID && master.ID.toString().startsWith('http') 
+                        ? master.ID 
+                        : "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=400",
+                    phone: master.telefone || "",
+                    email: master.e_mail || "",
+                    login_adv: master.login_advogado || "", 
+                    pass_adv: master.senha || ""           
+                };
+                
+                dbClients = data.slice(1);
+
+                renderBio();
+                if(!document.getElementById('view-admin-dash').classList.contains('hidden')) {
+                    renderAdminList();
+                }
+
+            })
+            .catch(err => {
+                console.error("Erro ao buscar dados:", err);
+            });
     }
 
     function renderBio() {
@@ -404,5 +416,6 @@
         Array.from(cards).forEach(card => card.style.display = card.innerText.toLowerCase().includes(q) ? 'flex' : 'none');
     }
 </script>
+
 </body>
 </html>
