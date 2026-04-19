@@ -203,10 +203,8 @@
         </div>
     </div>
 
-  <script>
+<script>
     const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbxBHhTkyD-nvQOGq0oZuq0J0dGvS3jkxK7DJGi0KCYt8NRc18HsmNQo3e2_GAFzKLmXSQ/exec";
-    let sistemaVazio = false; 
-
     let dbClients = [];
     let bioData = { name: "", oab: "", desc: "", img: "", phone: "", email: "", login_adv: "", pass_adv: "" };
 
@@ -214,27 +212,36 @@
 
     function syncData() {
         google.script.run.withSuccessHandler(data => {
-            dbClients = data;
-            // Busca dados da advogada na primeira linha de dados (index 0)
-            if (data && data.length > 0) {
-                const master = data[0]; 
-                bioData = {
-                    name: master.Adv || "Nome da Advogada",
-                    oab: master.OAB || "OAB/SP 000.000",
-                    desc: master.Descricacao_adv || "Bem-vinda!",
-                    img: master.ID && master.ID.toString().startsWith('http') ? master.ID : "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=400",
-                    phone: master.telefone || "",
-                    email: master.e_mail || "",
-                    login_adv: master.login_advogado || "", 
-                    pass_adv: master.senha || ""           
-                };
-                renderBio();
-                sistemaVazio = false;
-            } else {
-                sistemaVazio = true;
-            }
+            if (!data || data.length === 0) return;
+
+            // Linha 2 da Planilha (Índice 0 no array data) é exclusiva para a ADVOGADA
+            const master = data[0]; 
+            bioData = {
+                name: master.Adv || "Nome da Advogada",
+                oab: master.OAB || "OAB/SP 000.000",
+                desc: master.Descricacao_adv || "Sincronizando...",
+                img: master.ID && master.ID.toString().startsWith('http') ? master.ID : "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=400",
+                phone: master.telefone || "",
+                email: master.e_mail || "",
+                login_adv: master.login_advogado || "", 
+                pass_adv: master.senha || ""           
+            };
+            
+            // Clientes começam a partir da Linha 3 (Índice 1 em diante no array data)
+            dbClients = data.slice(1);
+
+            renderBio();
             if(!document.getElementById('view-admin-dash').classList.contains('hidden')) renderAdminList();
         }).getAppData();
+    }
+
+    function renderBio() {
+        document.getElementById('bio-name').innerText = bioData.name;
+        document.getElementById('bio-oab').innerText = bioData.oab;
+        document.getElementById('bio-desc').innerText = bioData.desc;
+        document.getElementById('bio-img').src = bioData.img;
+        document.getElementById('bio-phone').href = `tel:${bioData.phone}`;
+        document.getElementById('bio-email').href = `mailto:${bioData.email}`;
     }
 
     function showView(viewId) {
@@ -246,48 +253,33 @@
     function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
     function toggleDarkMode() { document.documentElement.classList.toggle('dark'); }
 
-    function renderBio() {
-        document.getElementById('bio-name').innerText = bioData.name;
-        document.getElementById('bio-oab').innerText = bioData.oab;
-        document.getElementById('bio-desc').innerText = bioData.desc;
-        document.getElementById('bio-img').src = bioData.img;
-        document.getElementById('bio-phone').href = `tel:${bioData.phone}`;
-        document.getElementById('bio-email').href = `mailto:${bioData.email}`;
+    function openAdminLogin() { document.getElementById('modal-login').classList.remove('hidden'); }
+
+    function handleLogin() {
+        const userIn = document.getElementById('userLogin').value;
+        const passIn = document.getElementById('passLogin').value;
+        if(userIn === bioData.login_adv && passIn === bioData.pass_adv && bioData.login_adv !== "") {
+            closeModal('modal-login'); 
+            showView('view-admin-dash'); 
+            renderAdminList();
+        } else { 
+            alert("Acesso negado. Verifique os dados na planilha."); 
+        }
     }
 
-    function openBioSettings() {
-        document.getElementById('config-name').value = bioData.name;
-        document.getElementById('config-oab').value = bioData.oab;
-        document.getElementById('config-desc').value = bioData.desc;
-        document.getElementById('config-phone').value = bioData.phone;
-        document.getElementById('config-email').value = bioData.email;
-        document.getElementById('config-img').value = bioData.img;
-        document.getElementById('config-login').value = bioData.login_adv;
-        document.getElementById('modal-bio').classList.remove('hidden');
-    }
-
-    function saveBio() {
-        const secret = document.getElementById('config-secret').value;
-        if(!secret) return alert("Digite a palavra secreta!");
-        const config = {
-            palavraSecreta: secret,
-            novoLogin: document.getElementById('config-login').value,
-            novaSenha: document.getElementById('config-pass').value || bioData.pass_adv,
-            nome_adv: document.getElementById('config-name').value,
-            oab: document.getElementById('config-oab').value,
-            desc_adv: document.getElementById('config-desc').value,
-            telefone_adv: document.getElementById('config-phone').value,
-            email_adv: document.getElementById('config-email').value
-        };
-        google.script.run.withSuccessHandler(() => { syncData(); closeModal('modal-bio'); alert("Perfil atualizado!"); }).withFailureHandler(err => alert(err)).atualizarConfigAdv(config);
-    }
-
-    function handleResetClientPassword() {
-        const secret = document.getElementById('config-secret').value;
-        google.script.run.withSuccessHandler(msg => { alert(msg); syncData(); }).withFailureHandler(err => alert(err)).resetarSenhaCliente({
-            palavraSecretaAdv: secret,
-            cpfCliente: document.getElementById('reset-client-cpf').value,
-            novaSenhaCliente: document.getElementById('reset-client-pass').value
+    function renderAdminList() {
+        const list = document.getElementById('admin-client-list');
+        list.innerHTML = '';
+        dbClients.filter(c => c.Nome && c.CPF).forEach(c => {
+            const isFinished = (c.Atualizacoes || []).some(e => e.status === "Processo Finalizado");
+            list.innerHTML += `
+                <div class="bg-white dark:bg-zinc-800 p-4 rounded-2xl flex justify-between items-center shadow-sm ${isFinished ? 'finished-card' : ''}">
+                    <div><p class="font-bold">${c.Nome}</p><p class="text-xs opacity-50">${c.CPF}</p></div>
+                    <div class="flex gap-2">
+                        ${isFinished ? `<button onclick="confirmDelete('${c.CPF}')" class="text-red-500"><i class="fas fa-trash"></i></button>` : ''}
+                        <button onclick="editClientByCpf('${c.CPF}')" class="text-satinGold"><i class="fas fa-edit"></i></button>
+                    </div>
+                </div>`;
         });
     }
 
@@ -314,48 +306,6 @@
                     <p class="text-sm opacity-80 mt-2">${ev.descricao}</p>
                 </div>`;
         });
-    }
-
-    function handleLogin() {
-        const userIn = document.getElementById('userLogin').value;
-        const passIn = document.getElementById('passLogin').value;
-        
-        if(userIn === bioData.login_adv && passIn === bioData.pass_adv && bioData.login_adv !== "") {
-            closeModal('modal-login'); 
-            showView('view-admin-dash'); 
-            renderAdminList();
-        } else { 
-            alert("Acesso negado. Verifique os dados na planilha."); 
-        }
-    }
-
-    function renderAdminList() {
-        const list = document.getElementById('admin-client-list');
-        list.innerHTML = '';
-        dbClients.filter(c => c.CPF && c.Nome).forEach(c => {
-            const isFinished = (c.Atualizacoes || []).some(e => e.status === "Processo Finalizado");
-            list.innerHTML += `
-                <div class="bg-white dark:bg-zinc-800 p-4 rounded-2xl flex justify-between items-center shadow-sm ${isFinished ? 'finished-card' : ''}">
-                    <div><p class="font-bold">${c.Nome}</p><p class="text-xs opacity-50">${c.CPF}</p></div>
-                    <div class="flex gap-2">
-                        ${isFinished ? `<button onclick="confirmDelete('${c.CPF}')" class="text-red-500"><i class="fas fa-trash"></i></button>` : ''}
-                        <button onclick="editClientByCpf('${c.CPF}')" class="text-satinGold"><i class="fas fa-edit"></i></button>
-                    </div>
-                </div>`;
-        });
-    }
-
-    function editClientByCpf(cpf) {
-        const c = dbClients.find(i => i.CPF == cpf);
-        document.getElementById('edit-client-id').value = c.CPF;
-        document.getElementById('c-nome').value = c.Nome;
-        document.getElementById('c-cpf').value = c.CPF;
-        document.getElementById('c-senha').value = c.Senha;
-        document.getElementById('c-email').value = c.Email;
-        document.getElementById('c-tel').value = c.Telefone;
-        document.getElementById('c-notif').checked = c.Notificar == true;
-        document.getElementById('area-atualizacao').classList.remove('hidden');
-        document.getElementById('modal-client').classList.remove('hidden');
     }
 
     function saveClient() {
@@ -388,16 +338,66 @@
         google.script.run.withSuccessHandler(() => { syncData(); closeModal('modal-client'); }).salvarClientePlanilha(clientObj);
     }
 
-    function confirmDelete(cpf) {
-        if(confirm("Deseja realmente excluir este cliente?")) google.script.run.withSuccessHandler(() => syncData()).excluirClientePlanilha(cpf);
+    function editClientByCpf(cpf) {
+        const c = dbClients.find(i => i.CPF == cpf);
+        document.getElementById('edit-client-id').value = c.CPF;
+        document.getElementById('c-nome').value = c.Nome;
+        document.getElementById('c-cpf').value = c.CPF;
+        document.getElementById('c-senha').value = c.Senha;
+        document.getElementById('c-email').value = c.Email;
+        document.getElementById('c-tel').value = c.Telefone;
+        document.getElementById('c-notif').checked = c.Notificar == true;
+        document.getElementById('area-atualizacao').classList.remove('hidden');
+        document.getElementById('modal-client').classList.remove('hidden');
     }
 
-    function openAdminLogin() { document.getElementById('modal-login').classList.remove('hidden'); }
     function openClientModal() { 
         document.getElementById('edit-client-id').value = ""; 
         document.getElementById('area-atualizacao').classList.add('hidden');
         document.getElementById('modal-client').classList.remove('hidden'); 
     }
+
+    function openBioSettings() {
+        document.getElementById('config-name').value = bioData.name;
+        document.getElementById('config-oab').value = bioData.oab;
+        document.getElementById('config-desc').value = bioData.desc;
+        document.getElementById('config-phone').value = bioData.phone;
+        document.getElementById('config-email').value = bioData.email;
+        document.getElementById('config-img').value = bioData.img;
+        document.getElementById('config-login').value = bioData.login_adv;
+        document.getElementById('modal-bio').classList.remove('hidden');
+    }
+
+    function saveBio() {
+        const secret = document.getElementById('config-secret').value;
+        if(!secret) return alert("Digite a palavra secreta!");
+        const config = {
+            palavraSecreta: secret,
+            novoLogin: document.getElementById('config-login').value,
+            novaSenha: document.getElementById('config-pass').value || bioData.pass_adv,
+            nome_adv: document.getElementById('config-name').value,
+            oab: document.getElementById('config-oab').value,
+            desc_adv: document.getElementById('config-desc').value,
+            telefone_adv: document.getElementById('config-phone').value,
+            email_adv: document.getElementById('config-email').value,
+            foto_id: document.getElementById('config-img').value
+        };
+        google.script.run.withSuccessHandler(() => { syncData(); closeModal('modal-bio'); alert("Perfil atualizado!"); }).withFailureHandler(err => alert(err)).atualizarConfigAdv(config);
+    }
+
+    function handleResetClientPassword() {
+        const secret = document.getElementById('config-secret').value;
+        google.script.run.withSuccessHandler(msg => { alert(msg); syncData(); }).withFailureHandler(err => alert(err)).resetarSenhaCliente({
+            palavraSecretaAdv: secret,
+            cpfCliente: document.getElementById('reset-client-cpf').value,
+            novaSenhaCliente: document.getElementById('reset-client-pass').value
+        });
+    }
+
+    function confirmDelete(cpf) {
+        if(confirm("Deseja realmente excluir este cliente?")) google.script.run.withSuccessHandler(() => syncData()).excluirClientePlanilha(cpf);
+    }
+
     function filterAdminList() {
         const q = document.getElementById('adminSearch').value.toLowerCase();
         const cards = document.getElementById('admin-client-list').children;
