@@ -204,7 +204,6 @@
     </div>
 
   <script>
-    // AJUSTE SOLICITADO: URL e Controle de Sistema
     const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbxBHhTkyD-nvQOGq0oZuq0J0dGvS3jkxK7DJGi0KCYt8NRc18HsmNQo3e2_GAFzKLmXSQ/exec";
     let sistemaVazio = false; 
 
@@ -213,35 +212,17 @@
 
     window.onload = () => { syncData(); };
 
-    // Função auxiliar para comunicação via URL externa
-    async function callBackend(method, data = {}) {
-        try {
-            const response = await fetch(URL_SCRIPT, {
-                method: 'POST',
-                mode: 'no-cors', // Necessário para Web Apps do Google externos
-                cache: 'no-cache',
-                body: JSON.stringify({ method: method, data: data })
-            });
-            // Como Web Apps no-cors não retornam o corpo da resposta facilmente via fetch direto,
-            // o ideal para sincronização completa é manter o sync via google.script.run 
-            // se estiver dentro do Google. Se estiver fora, o syncData chamará a função abaixo:
-            return response;
-        } catch (e) {
-            console.error("Erro na comunicação:", e);
-        }
-    }
-
     function syncData() {
-        // Mantendo a estrutura original, mas pronta para receber os dados
         google.script.run.withSuccessHandler(data => {
             dbClients = data;
-            if (data.length > 0) {
+            // Busca dados da advogada na primeira linha de dados (index 0)
+            if (data && data.length > 0) {
                 const master = data[0]; 
                 bioData = {
                     name: master.Adv || "Nome da Advogada",
                     oab: master.OAB || "OAB/SP 000.000",
-                    desc: master.Descricacao_adv || "Sincronizando...",
-                    img: master.ID || "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=400",
+                    desc: master.Descricacao_adv || "Bem-vinda!",
+                    img: master.ID && master.ID.toString().startsWith('http') ? master.ID : "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=400",
                     phone: master.telefone || "",
                     email: master.e_mail || "",
                     login_adv: master.login_advogado || "", 
@@ -312,7 +293,7 @@
 
     function handleClientSearch() {
         const cpf = document.getElementById('searchCpf').value;
-        const client = dbClients.find(c => c.CPF == cpf);
+        const client = dbClients.find(c => c.CPF && c.CPF.toString() === cpf.toString());
         if (client) {
             const pass = prompt("Senha:");
             if (pass == client.Senha) { renderTimeline(client); showView('view-timeline'); }
@@ -351,7 +332,7 @@
     function renderAdminList() {
         const list = document.getElementById('admin-client-list');
         list.innerHTML = '';
-        dbClients.filter(c => c.CPF).forEach(c => {
+        dbClients.filter(c => c.CPF && c.Nome).forEach(c => {
             const isFinished = (c.Atualizacoes || []).some(e => e.status === "Processo Finalizado");
             list.innerHTML += `
                 <div class="bg-white dark:bg-zinc-800 p-4 rounded-2xl flex justify-between items-center shadow-sm ${isFinished ? 'finished-card' : ''}">
