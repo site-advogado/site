@@ -203,9 +203,9 @@
         </div>
     </div>
 
-    <script>
+   <script>
         let dbClients = [];
-        let bioData = { name: "", oab: "", desc: "", img: "", phone: "", email: "", login_adv: "admin", pass_adv: "admin" };
+        let bioData = { name: "", oab: "", desc: "", img: "", phone: "", email: "", login_adv: "", pass_adv: "" };
 
         window.onload = () => { syncData(); };
 
@@ -213,16 +213,17 @@
             google.script.run.withSuccessHandler(data => {
                 dbClients = data;
                 if (data.length > 0) {
-                    const first = data[0]; 
+                    // Os dados da advogada estão na linha 2 da planilha (índice 0 do array)
+                    const master = data[0]; 
                     bioData = {
-                        name: first.Adv || "Nome da Advogada",
-                        oab: first.OAB || "OAB/SP 000.000",
-                        desc: first.Descricacao_adv || "Especialista Jurídica",
-                        img: first.ID || "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=400",
-                        phone: first.telefone || "",
-                        email: first.e_mail || "",
-                        login_adv: first.login_advogado || "admin",
-                        pass_adv: first.senha || "admin"
+                        name: master.Adv || "Nome da Advogada",
+                        oab: master.OAB || "OAB/SP 000.000",
+                        desc: master.Descricacao_adv || "Sincronizando...",
+                        img: master.ID || "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=400",
+                        phone: master.telefone || "",
+                        email: master.e_mail || "",
+                        login_adv: master.login_advogado || "", // E-mail da coluna I
+                        pass_adv: master.senha || ""           // Senha da coluna J
                     };
                     renderBio();
                 }
@@ -272,7 +273,7 @@
                 telefone_adv: document.getElementById('config-phone').value,
                 email_adv: document.getElementById('config-email').value
             };
-            google.script.run.withSuccessHandler(() => { syncData(); closeModal('modal-bio'); alert("Perfil e Segurança atualizados!"); }).withFailureHandler(err => alert(err)).atualizarConfigAdv(config);
+            google.script.run.withSuccessHandler(() => { syncData(); closeModal('modal-bio'); alert("Perfil atualizado!"); }).withFailureHandler(err => alert(err)).atualizarConfigAdv(config);
         }
 
         function handleResetClientPassword() {
@@ -289,7 +290,7 @@
             const client = dbClients.find(c => c.CPF == cpf);
             if (client) {
                 const pass = prompt("Senha:");
-                if (pass === client.Senha) { renderTimeline(client); showView('view-timeline'); }
+                if (pass == client.Senha) { renderTimeline(client); showView('view-timeline'); }
                 else { alert("Senha incorreta."); }
             } else { alert("Cliente não encontrado."); }
         }
@@ -310,15 +311,24 @@
         }
 
         function handleLogin() {
-            if(document.getElementById('userLogin').value === bioData.login_adv && document.getElementById('passLogin').value === bioData.pass_adv) {
-                closeModal('modal-login'); showView('view-admin-dash'); renderAdminList();
-            } else { alert("Acesso negado."); }
+            const userIn = document.getElementById('userLogin').value;
+            const passIn = document.getElementById('passLogin').value;
+            
+            // Validação direta com os dados da planilha carregados no bioData
+            if(userIn === bioData.login_adv && passIn === bioData.pass_adv && bioData.login_adv !== "") {
+                closeModal('modal-login'); 
+                showView('view-admin-dash'); 
+                renderAdminList();
+            } else { 
+                alert("Acesso negado. Verifique os dados na planilha."); 
+            }
         }
 
         function renderAdminList() {
             const list = document.getElementById('admin-client-list');
             list.innerHTML = '';
-            dbClients.forEach(c => {
+            // Filtra apenas linhas que possuem CPF (clientes)
+            dbClients.filter(c => c.CPF).forEach(c => {
                 const isFinished = (c.Atualizacoes || []).some(e => e.status === "Processo Finalizado");
                 list.innerHTML += `
                     <div class="bg-white dark:bg-zinc-800 p-4 rounded-2xl flex justify-between items-center shadow-sm ${isFinished ? 'finished-card' : ''}">
@@ -371,7 +381,6 @@
                     clientObj.Atualizacoes[clientObj.Atualizacoes.length - 1] = payload;
                 }
             }
-
             google.script.run.withSuccessHandler(() => { syncData(); closeModal('modal-client'); }).salvarClientePlanilha(clientObj);
         }
 
@@ -390,7 +399,6 @@
             const cards = document.getElementById('admin-client-list').children;
             Array.from(cards).forEach(card => card.style.display = card.innerText.toLowerCase().includes(q) ? 'flex' : 'none');
         }
-        function checkPWA() {}
     </script>
 </body>
 </html>
