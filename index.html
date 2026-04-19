@@ -73,7 +73,7 @@
             <p id="bio-desc" class="text-sm italic px-4 mb-5 max-w-sm mx-auto">Sincronizando dados...</p>
             
             <div class="flex justify-center gap-6 text-satinGold text-lg">
-                <a id="bio-phone" href="#"><i class="fas fa-phone hover:scale-110 transition-transform"></i></a>
+                <a id="bio-phone" href="#" target="_blank"><i class="fab fa-whatsapp hover:scale-110 transition-transform"></i></a>
                 <a id="bio-email" href="#"><i class="fas fa-envelope hover:scale-110 transition-transform"></i></a>
             </div>
         </section>
@@ -216,7 +216,6 @@
             .then(data => {
                 if (!data || data.length === 0) return;
 
-                // Conexão direta com as chaves da planilha (Sem intermediários)
                 const adv = data[0]; 
                 bioData = {
                     name: adv["Adv"] || "Nome da Advogada",
@@ -248,7 +247,11 @@
         document.getElementById('bio-oab').innerText = bioData.oab;
         document.getElementById('bio-desc').innerText = bioData.desc;
         document.getElementById('bio-img').src = bioData.img;
-        document.getElementById('bio-phone').href = `tel:${bioData.phone}`;
+        
+        // Formatar numero para WhatsApp (remover caracteres não numéricos)
+        const cleanPhone = bioData.phone.replace(/\D/g, '');
+        document.getElementById('bio-phone').href = `https://wa.me/55${cleanPhone}`;
+        
         document.getElementById('bio-email').href = `mailto:${bioData.email}`;
     }
 
