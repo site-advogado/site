@@ -203,35 +203,32 @@
         </div>
     </div>
 
-<!-- TODO O SEU HTML PERMANECE IGUAL ATÉ O SCRIPT -->
-
 <script>
-    const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbzcqoFDf-6QF5iOHTPBroLBLw-wvr_DifXXj4e6ad9qPf85WZFi546D5K7O2c_GJc_vsA/exec";
+    const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbzqUIEd4GEdWRQNPi1R-J4NmJG3kQcP03UazhrpbC4JwOFTt3xeWo3KHXETpV-QtPmpFA/exec";
     let dbClients = [];
     let bioData = { name: "", oab: "", desc: "", img: "", phone: "", email: "", login_adv: "", pass_adv: "" };
 
     window.onload = () => { syncData(); };
 
-    // ✅ ALTERAÇÃO AQUI (única modificação feita)
     function syncData() {
         fetch(URL_SCRIPT)
             .then(res => res.json())
             .then(data => {
-
                 if (!data || data.length === 0) return;
 
-                const master = data[0]; 
+                // Conexão direta com as chaves da planilha (Sem intermediários)
+                const adv = data[0]; 
                 bioData = {
-                    name: master.Adv || "Nome da Advogada",
-                    oab: master.OAB || "OAB/SP 000.000",
-                    desc: master.Descricacao_adv || "Sincronizando...",
-                    img: master.ID && master.ID.toString().startsWith('http') 
-                        ? master.ID 
+                    name: adv["Adv"] || "Nome da Advogada",
+                    oab: adv["OAB"] || "OAB/SP 000.000",
+                    desc: adv["Descricacao_adv"] || "Sem descrição disponível",
+                    img: adv["ID"] && adv["ID"].toString().startsWith('http') 
+                        ? adv["ID"] 
                         : "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=400",
-                    phone: master.telefone || "",
-                    email: master.e_mail || "",
-                    login_adv: master.login_advogado || "", 
-                    pass_adv: master.senha || ""           
+                    phone: adv["telefone"] || "",
+                    email: adv["e_mail"] || "",
+                    login_adv: adv["login_advogado"] || "", 
+                    pass_adv: adv["senha"] || ""            
                 };
                 
                 dbClients = data.slice(1);
@@ -240,7 +237,6 @@
                 if(!document.getElementById('view-admin-dash').classList.contains('hidden')) {
                     renderAdminList();
                 }
-
             })
             .catch(err => {
                 console.error("Erro ao buscar dados:", err);
