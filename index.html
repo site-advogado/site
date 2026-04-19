@@ -55,7 +55,7 @@
             <button onclick="toggleDarkMode()" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-800 transition-all">
                 <i id="themeIcon" class="fas fa-moon text-satinGold text-xl"></i>
             </button>
-            <button onclick="window.location.href='configuracao.html'" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-800 transition-all">
+            <button onclick="openAdminLogin()" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-800 transition-all">
                 <i class="fas fa-cog text-satinGold text-xl"></i>
             </button>
         </div>
@@ -100,7 +100,7 @@
         <section id="view-admin-dash" class="hidden">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="font-serif text-xl">Painel de Gestão</h2>
-                <button onclick="openBioSettings()" class="text-satinGold"><i class="fas fa-user-shield text-xl"></i></button>
+                <button onclick="window.location.href='configuracao.html'" class="text-satinGold"><i class="fas fa-cog text-xl"></i></button>
             </div>
             <input type="text" id="adminSearch" onkeyup="filterAdminList()" placeholder="Buscar Nome ou CPF..." class="w-full mb-6 p-3 rounded-xl bg-white dark:bg-zinc-900 border border-satinGold/20 outline-none">
             <div id="admin-client-list" class="space-y-4"></div>
@@ -170,41 +170,8 @@
         </div>
     </div>
 
-    <div id="modal-bio" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4 modal-blur bg-black/50 overflow-y-auto">
-        <div class="bg-pearl dark:bg-zinc-900 w-full max-w-sm p-8 rounded-3xl border border-satinGold/30 my-auto">
-            <h3 class="font-serif text-xl mb-6 border-b border-satinGold/20 pb-2">Configurações Master</h3>
-            <div class="space-y-4 mb-6 text-xs">
-                <p class="font-bold text-satinGold uppercase">Perfil Público</p>
-                <input type="text" id="config-name" placeholder="Nome da Advogada" class="w-full p-3 rounded-lg border dark:bg-zinc-800">
-                <input type="text" id="config-oab" placeholder="OAB" class="w-full p-3 rounded-lg border dark:bg-zinc-800">
-                <textarea id="config-desc" placeholder="Bio Curta" class="w-full p-3 rounded-lg border dark:bg-zinc-800"></textarea>
-                <input type="text" id="config-phone" placeholder="Telefone Comercial" class="w-full p-3 rounded-lg border dark:bg-zinc-800">
-                <input type="text" id="config-email" placeholder="E-mail Comercial" class="w-full p-3 rounded-lg border dark:bg-zinc-800">
-                <input type="text" id="config-img" placeholder="URL da Foto" class="w-full p-3 rounded-lg border dark:bg-zinc-800">
-            </div>
-            <div class="space-y-4 mb-6 border-t border-satinGold/20 pt-4 text-xs">
-                <p class="font-bold text-satinGold uppercase">Login Admin (Linha 1)</p>
-                <input type="text" id="config-login" placeholder="Usuário" class="w-full p-3 rounded-lg border dark:bg-zinc-800">
-                <input type="password" id="config-pass" placeholder="Senha" class="w-full p-3 rounded-lg border dark:bg-zinc-800">
-            </div>
-            <div class="space-y-4 mb-6 border-t border-satinGold/20 pt-4 text-xs">
-                <p class="font-bold text-satinGold uppercase">Reset de Cliente</p>
-                <input type="text" id="reset-client-cpf" placeholder="CPF Cliente" class="w-full p-3 rounded-lg border dark:bg-zinc-800">
-                <input type="text" id="reset-client-pass" placeholder="Nova Senha" class="w-full p-3 rounded-lg border dark:bg-zinc-800">
-                <button onclick="handleResetClientPassword()" class="w-full bg-softBlack text-white py-2 rounded-lg font-bold">Alterar Senha Cliente</button>
-            </div>
-            <div class="border-t-2 border-darkGold pt-4">
-                <input type="password" id="config-secret" placeholder="PALAVRA SECRETA" class="w-full p-3 rounded-lg border-2 border-satinGold dark:bg-zinc-800 font-bold text-center mb-4">
-                <div class="flex gap-2">
-                    <button onclick="closeModal('modal-bio')" class="flex-1 py-3 text-sm font-bold opacity-50">Sair</button>
-                    <button onclick="saveBio()" class="flex-1 gold-gradient text-white py-3 rounded-xl font-bold shadow-lg text-sm">Salvar</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
 <script>
-    const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbxZFwDcecacQipWo-Rz7TAW38vRqvmbC2L-wBzZyreIp66iYB6wYd7gXp1AXEGCIQfKZQ/exec";
+    const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbyqBKaLYrff8kJfS5qdrQc7l2gFgvKsckxHgUSgcCoVemZtDGLtbOUEyTpjRZ8dKx04LQ/exec";
     let dbClients = [];
     let dbFullData = [];
     let bioData = { name: "", oab: "", desc: "", img: "", phone: "", email: "", login_adv: "", pass_adv: "" };
@@ -257,6 +224,7 @@
 
     function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
     function toggleDarkMode() { document.documentElement.classList.toggle('dark'); }
+    function openAdminLogin() { document.getElementById('modal-login').classList.remove('hidden'); }
 
     function handleLogin() {
         const userIn = document.getElementById('userLogin').value;
@@ -361,43 +329,6 @@
         document.getElementById('edit-client-id').value = ""; 
         document.getElementById('area-atualizacao').classList.add('hidden');
         document.getElementById('modal-client').classList.remove('hidden'); 
-    }
-
-    function openBioSettings() {
-        document.getElementById('config-name').value = bioData.name;
-        document.getElementById('config-oab').value = bioData.oab;
-        document.getElementById('config-desc').value = bioData.desc;
-        document.getElementById('config-phone').value = bioData.phone;
-        document.getElementById('config-email').value = bioData.email;
-        document.getElementById('config-img').value = bioData.img;
-        document.getElementById('config-login').value = bioData.login_adv;
-        document.getElementById('modal-bio').classList.remove('hidden');
-    }
-
-    function saveBio() {
-        const secret = document.getElementById('config-secret').value;
-        if(!secret) return alert("Digite a palavra secreta!");
-        const config = {
-            palavraSecreta: secret,
-            novoLogin: document.getElementById('config-login').value,
-            novaSenha: document.getElementById('config-pass').value || bioData.pass_adv,
-            nome_adv: document.getElementById('config-name').value,
-            oab: document.getElementById('config-oab').value,
-            desc_adv: document.getElementById('config-desc').value,
-            telefone_adv: document.getElementById('config-phone').value,
-            email_adv: document.getElementById('config-email').value,
-            foto_id: document.getElementById('config-img').value
-        };
-        google.script.run.withSuccessHandler(() => { syncData(); closeModal('modal-bio'); alert("Perfil atualizado!"); }).withFailureHandler(err => alert(err)).atualizarConfigAdv(config);
-    }
-
-    function handleResetClientPassword() {
-        const secret = document.getElementById('config-secret').value;
-        google.script.run.withSuccessHandler(msg => { alert(msg); syncData(); }).withFailureHandler(err => alert(err)).resetarSenhaCliente({
-            palavraSecretaAdv: secret,
-            cpfCliente: document.getElementById('reset-client-cpf').value,
-            novaSenhaCliente: document.getElementById('reset-client-pass').value
-        });
     }
 
     function confirmDelete(cpf) {
