@@ -203,202 +203,225 @@
         </div>
     </div>
 
-   <script>
-        let dbClients = [];
-        let bioData = { name: "", oab: "", desc: "", img: "", phone: "", email: "", login_adv: "", pass_adv: "" };
+  <script>
+    // AJUSTE SOLICITADO: URL e Controle de Sistema
+    const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbxBHhTkyD-nvQOGq0oZuq0J0dGvS3jkxK7DJGi0KCYt8NRc18HsmNQo3e2_GAFzKLmXSQ/exec";
+    let sistemaVazio = false; 
 
-        window.onload = () => { syncData(); };
+    let dbClients = [];
+    let bioData = { name: "", oab: "", desc: "", img: "", phone: "", email: "", login_adv: "", pass_adv: "" };
 
-        function syncData() {
-            google.script.run.withSuccessHandler(data => {
-                dbClients = data;
-                if (data.length > 0) {
-                    // Os dados da advogada estão na linha 2 da planilha (índice 0 do array)
-                    const master = data[0]; 
-                    bioData = {
-                        name: master.Adv || "Nome da Advogada",
-                        oab: master.OAB || "OAB/SP 000.000",
-                        desc: master.Descricacao_adv || "Sincronizando...",
-                        img: master.ID || "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=400",
-                        phone: master.telefone || "",
-                        email: master.e_mail || "",
-                        login_adv: master.login_advogado || "", // E-mail da coluna I
-                        pass_adv: master.senha || ""           // Senha da coluna J
-                    };
-                    renderBio();
-                }
-                if(!document.getElementById('view-admin-dash').classList.contains('hidden')) renderAdminList();
-            }).getAppData();
-        }
+    window.onload = () => { syncData(); };
 
-        function showView(viewId) {
-            ['view-client-search', 'view-timeline', 'view-admin-dash'].forEach(v => document.getElementById(v).classList.add('hidden'));
-            document.getElementById(viewId).classList.remove('hidden');
-            document.getElementById('fab-add').classList.toggle('hidden', viewId !== 'view-admin-dash');
-        }
-
-        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
-        function toggleDarkMode() { document.documentElement.classList.toggle('dark'); }
-
-        function renderBio() {
-            document.getElementById('bio-name').innerText = bioData.name;
-            document.getElementById('bio-oab').innerText = bioData.oab;
-            document.getElementById('bio-desc').innerText = bioData.desc;
-            document.getElementById('bio-img').src = bioData.img;
-            document.getElementById('bio-phone').href = `tel:${bioData.phone}`;
-            document.getElementById('bio-email').href = `mailto:${bioData.email}`;
-        }
-
-        function openBioSettings() {
-            document.getElementById('config-name').value = bioData.name;
-            document.getElementById('config-oab').value = bioData.oab;
-            document.getElementById('config-desc').value = bioData.desc;
-            document.getElementById('config-phone').value = bioData.phone;
-            document.getElementById('config-email').value = bioData.email;
-            document.getElementById('config-img').value = bioData.img;
-            document.getElementById('config-login').value = bioData.login_adv;
-            document.getElementById('modal-bio').classList.remove('hidden');
-        }
-
-        function saveBio() {
-            const secret = document.getElementById('config-secret').value;
-            if(!secret) return alert("Digite a palavra secreta!");
-            const config = {
-                palavraSecreta: secret,
-                novoLogin: document.getElementById('config-login').value,
-                novaSenha: document.getElementById('config-pass').value || bioData.pass_adv,
-                nome_adv: document.getElementById('config-name').value,
-                oab: document.getElementById('config-oab').value,
-                desc_adv: document.getElementById('config-desc').value,
-                telefone_adv: document.getElementById('config-phone').value,
-                email_adv: document.getElementById('config-email').value
-            };
-            google.script.run.withSuccessHandler(() => { syncData(); closeModal('modal-bio'); alert("Perfil atualizado!"); }).withFailureHandler(err => alert(err)).atualizarConfigAdv(config);
-        }
-
-        function handleResetClientPassword() {
-            const secret = document.getElementById('config-secret').value;
-            google.script.run.withSuccessHandler(msg => { alert(msg); syncData(); }).withFailureHandler(err => alert(err)).resetarSenhaCliente({
-                palavraSecretaAdv: secret,
-                cpfCliente: document.getElementById('reset-client-cpf').value,
-                novaSenhaCliente: document.getElementById('reset-client-pass').value
+    // Função auxiliar para comunicação via URL externa
+    async function callBackend(method, data = {}) {
+        try {
+            const response = await fetch(URL_SCRIPT, {
+                method: 'POST',
+                mode: 'no-cors', // Necessário para Web Apps do Google externos
+                cache: 'no-cache',
+                body: JSON.stringify({ method: method, data: data })
             });
+            // Como Web Apps no-cors não retornam o corpo da resposta facilmente via fetch direto,
+            // o ideal para sincronização completa é manter o sync via google.script.run 
+            // se estiver dentro do Google. Se estiver fora, o syncData chamará a função abaixo:
+            return response;
+        } catch (e) {
+            console.error("Erro na comunicação:", e);
         }
+    }
 
-        function handleClientSearch() {
-            const cpf = document.getElementById('searchCpf').value;
-            const client = dbClients.find(c => c.CPF == cpf);
-            if (client) {
-                const pass = prompt("Senha:");
-                if (pass == client.Senha) { renderTimeline(client); showView('view-timeline'); }
-                else { alert("Senha incorreta."); }
-            } else { alert("Cliente não encontrado."); }
+    function syncData() {
+        // Mantendo a estrutura original, mas pronta para receber os dados
+        google.script.run.withSuccessHandler(data => {
+            dbClients = data;
+            if (data.length > 0) {
+                const master = data[0]; 
+                bioData = {
+                    name: master.Adv || "Nome da Advogada",
+                    oab: master.OAB || "OAB/SP 000.000",
+                    desc: master.Descricacao_adv || "Sincronizando...",
+                    img: master.ID || "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=400",
+                    phone: master.telefone || "",
+                    email: master.e_mail || "",
+                    login_adv: master.login_advogado || "", 
+                    pass_adv: master.senha || ""           
+                };
+                renderBio();
+                sistemaVazio = false;
+            } else {
+                sistemaVazio = true;
+            }
+            if(!document.getElementById('view-admin-dash').classList.contains('hidden')) renderAdminList();
+        }).getAppData();
+    }
+
+    function showView(viewId) {
+        ['view-client-search', 'view-timeline', 'view-admin-dash'].forEach(v => document.getElementById(v).classList.add('hidden'));
+        document.getElementById(viewId).classList.remove('hidden');
+        document.getElementById('fab-add').classList.toggle('hidden', viewId !== 'view-admin-dash');
+    }
+
+    function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+    function toggleDarkMode() { document.documentElement.classList.toggle('dark'); }
+
+    function renderBio() {
+        document.getElementById('bio-name').innerText = bioData.name;
+        document.getElementById('bio-oab').innerText = bioData.oab;
+        document.getElementById('bio-desc').innerText = bioData.desc;
+        document.getElementById('bio-img').src = bioData.img;
+        document.getElementById('bio-phone').href = `tel:${bioData.phone}`;
+        document.getElementById('bio-email').href = `mailto:${bioData.email}`;
+    }
+
+    function openBioSettings() {
+        document.getElementById('config-name').value = bioData.name;
+        document.getElementById('config-oab').value = bioData.oab;
+        document.getElementById('config-desc').value = bioData.desc;
+        document.getElementById('config-phone').value = bioData.phone;
+        document.getElementById('config-email').value = bioData.email;
+        document.getElementById('config-img').value = bioData.img;
+        document.getElementById('config-login').value = bioData.login_adv;
+        document.getElementById('modal-bio').classList.remove('hidden');
+    }
+
+    function saveBio() {
+        const secret = document.getElementById('config-secret').value;
+        if(!secret) return alert("Digite a palavra secreta!");
+        const config = {
+            palavraSecreta: secret,
+            novoLogin: document.getElementById('config-login').value,
+            novaSenha: document.getElementById('config-pass').value || bioData.pass_adv,
+            nome_adv: document.getElementById('config-name').value,
+            oab: document.getElementById('config-oab').value,
+            desc_adv: document.getElementById('config-desc').value,
+            telefone_adv: document.getElementById('config-phone').value,
+            email_adv: document.getElementById('config-email').value
+        };
+        google.script.run.withSuccessHandler(() => { syncData(); closeModal('modal-bio'); alert("Perfil atualizado!"); }).withFailureHandler(err => alert(err)).atualizarConfigAdv(config);
+    }
+
+    function handleResetClientPassword() {
+        const secret = document.getElementById('config-secret').value;
+        google.script.run.withSuccessHandler(msg => { alert(msg); syncData(); }).withFailureHandler(err => alert(err)).resetarSenhaCliente({
+            palavraSecretaAdv: secret,
+            cpfCliente: document.getElementById('reset-client-cpf').value,
+            novaSenhaCliente: document.getElementById('reset-client-pass').value
+        });
+    }
+
+    function handleClientSearch() {
+        const cpf = document.getElementById('searchCpf').value;
+        const client = dbClients.find(c => c.CPF == cpf);
+        if (client) {
+            const pass = prompt("Senha:");
+            if (pass == client.Senha) { renderTimeline(client); showView('view-timeline'); }
+            else { alert("Senha incorreta."); }
+        } else { alert("Cliente não encontrado."); }
+    }
+
+    function renderTimeline(client) {
+        const container = document.getElementById('timeline-content');
+        container.innerHTML = '';
+        const eventos = client.Atualizacoes || [];
+        document.getElementById('timeline-status-info').classList.toggle('hidden', !eventos.some(e => e.status === "Processo Finalizado"));
+        [...eventos].reverse().forEach(ev => {
+            container.innerHTML += `
+                <div class="relative bg-white dark:bg-zinc-800 p-5 rounded-2xl shadow-md border-l-4 border-satinGold">
+                    <p class="text-[10px] font-bold text-satinGold uppercase mb-1">${ev.data}</p>
+                    <h4 class="font-serif font-bold text-lg">${ev.status}</h4>
+                    <p class="text-sm opacity-80 mt-2">${ev.descricao}</p>
+                </div>`;
+        });
+    }
+
+    function handleLogin() {
+        const userIn = document.getElementById('userLogin').value;
+        const passIn = document.getElementById('passLogin').value;
+        
+        if(userIn === bioData.login_adv && passIn === bioData.pass_adv && bioData.login_adv !== "") {
+            closeModal('modal-login'); 
+            showView('view-admin-dash'); 
+            renderAdminList();
+        } else { 
+            alert("Acesso negado. Verifique os dados na planilha."); 
         }
+    }
 
-        function renderTimeline(client) {
-            const container = document.getElementById('timeline-content');
-            container.innerHTML = '';
-            const eventos = client.Atualizacoes || [];
-            document.getElementById('timeline-status-info').classList.toggle('hidden', !eventos.some(e => e.status === "Processo Finalizado"));
-            [...eventos].reverse().forEach(ev => {
-                container.innerHTML += `
-                    <div class="relative bg-white dark:bg-zinc-800 p-5 rounded-2xl shadow-md border-l-4 border-satinGold">
-                        <p class="text-[10px] font-bold text-satinGold uppercase mb-1">${ev.data}</p>
-                        <h4 class="font-serif font-bold text-lg">${ev.status}</h4>
-                        <p class="text-sm opacity-80 mt-2">${ev.descricao}</p>
-                    </div>`;
-            });
-        }
+    function renderAdminList() {
+        const list = document.getElementById('admin-client-list');
+        list.innerHTML = '';
+        dbClients.filter(c => c.CPF).forEach(c => {
+            const isFinished = (c.Atualizacoes || []).some(e => e.status === "Processo Finalizado");
+            list.innerHTML += `
+                <div class="bg-white dark:bg-zinc-800 p-4 rounded-2xl flex justify-between items-center shadow-sm ${isFinished ? 'finished-card' : ''}">
+                    <div><p class="font-bold">${c.Nome}</p><p class="text-xs opacity-50">${c.CPF}</p></div>
+                    <div class="flex gap-2">
+                        ${isFinished ? `<button onclick="confirmDelete('${c.CPF}')" class="text-red-500"><i class="fas fa-trash"></i></button>` : ''}
+                        <button onclick="editClientByCpf('${c.CPF}')" class="text-satinGold"><i class="fas fa-edit"></i></button>
+                    </div>
+                </div>`;
+        });
+    }
 
-        function handleLogin() {
-            const userIn = document.getElementById('userLogin').value;
-            const passIn = document.getElementById('passLogin').value;
-            
-            // Validação direta com os dados da planilha carregados no bioData
-            if(userIn === bioData.login_adv && passIn === bioData.pass_adv && bioData.login_adv !== "") {
-                closeModal('modal-login'); 
-                showView('view-admin-dash'); 
-                renderAdminList();
-            } else { 
-                alert("Acesso negado. Verifique os dados na planilha."); 
+    function editClientByCpf(cpf) {
+        const c = dbClients.find(i => i.CPF == cpf);
+        document.getElementById('edit-client-id').value = c.CPF;
+        document.getElementById('c-nome').value = c.Nome;
+        document.getElementById('c-cpf').value = c.CPF;
+        document.getElementById('c-senha').value = c.Senha;
+        document.getElementById('c-email').value = c.Email;
+        document.getElementById('c-tel').value = c.Telefone;
+        document.getElementById('c-notif').checked = c.Notificar == true;
+        document.getElementById('area-atualizacao').classList.remove('hidden');
+        document.getElementById('modal-client').classList.remove('hidden');
+    }
+
+    function saveClient() {
+        const cpfKey = document.getElementById('edit-client-id').value;
+        const isNewCard = document.getElementById('a-new-card').checked;
+        let current = dbClients.find(c => c.CPF == cpfKey) || { Atualizacoes: [], ID: Date.now() };
+
+        const clientObj = {
+            ID: current.ID,
+            Nome: document.getElementById('c-nome').value,
+            CPF: document.getElementById('c-cpf').value,
+            Senha: document.getElementById('c-senha').value,
+            Email: document.getElementById('c-email').value,
+            Telefone: document.getElementById('c-tel').value,
+            Notificar: document.getElementById('c-notif').checked,
+            Atualizacoes: current.Atualizacoes
+        };
+
+        const status = document.getElementById('a-status').value;
+        const desc = document.getElementById('a-desc').value;
+
+        if (desc.trim() !== "") {
+            const payload = { data: new Date().toLocaleDateString('pt-BR'), status: status, descricao: desc };
+            if (isNewCard || clientObj.Atualizacoes.length === 0) {
+                clientObj.Atualizacoes.push(payload);
+            } else {
+                clientObj.Atualizacoes[clientObj.Atualizacoes.length - 1] = payload;
             }
         }
+        google.script.run.withSuccessHandler(() => { syncData(); closeModal('modal-client'); }).salvarClientePlanilha(clientObj);
+    }
 
-        function renderAdminList() {
-            const list = document.getElementById('admin-client-list');
-            list.innerHTML = '';
-            // Filtra apenas linhas que possuem CPF (clientes)
-            dbClients.filter(c => c.CPF).forEach(c => {
-                const isFinished = (c.Atualizacoes || []).some(e => e.status === "Processo Finalizado");
-                list.innerHTML += `
-                    <div class="bg-white dark:bg-zinc-800 p-4 rounded-2xl flex justify-between items-center shadow-sm ${isFinished ? 'finished-card' : ''}">
-                        <div><p class="font-bold">${c.Nome}</p><p class="text-xs opacity-50">${c.CPF}</p></div>
-                        <div class="flex gap-2">
-                            ${isFinished ? `<button onclick="confirmDelete('${c.CPF}')" class="text-red-500"><i class="fas fa-trash"></i></button>` : ''}
-                            <button onclick="editClientByCpf('${c.CPF}')" class="text-satinGold"><i class="fas fa-edit"></i></button>
-                        </div>
-                    </div>`;
-            });
-        }
+    function confirmDelete(cpf) {
+        if(confirm("Deseja realmente excluir este cliente?")) google.script.run.withSuccessHandler(() => syncData()).excluirClientePlanilha(cpf);
+    }
 
-        function editClientByCpf(cpf) {
-            const c = dbClients.find(i => i.CPF == cpf);
-            document.getElementById('edit-client-id').value = c.CPF;
-            document.getElementById('c-nome').value = c.Nome;
-            document.getElementById('c-cpf').value = c.CPF;
-            document.getElementById('c-senha').value = c.Senha;
-            document.getElementById('c-email').value = c.Email;
-            document.getElementById('c-tel').value = c.Telefone;
-            document.getElementById('c-notif').checked = c.Notificar == true;
-            document.getElementById('area-atualizacao').classList.remove('hidden');
-            document.getElementById('modal-client').classList.remove('hidden');
-        }
-
-        function saveClient() {
-            const cpfKey = document.getElementById('edit-client-id').value;
-            const isNewCard = document.getElementById('a-new-card').checked;
-            let current = dbClients.find(c => c.CPF == cpfKey) || { Atualizacoes: [], ID: Date.now() };
-
-            const clientObj = {
-                ID: current.ID,
-                Nome: document.getElementById('c-nome').value,
-                CPF: document.getElementById('c-cpf').value,
-                Senha: document.getElementById('c-senha').value,
-                Email: document.getElementById('c-email').value,
-                Telefone: document.getElementById('c-tel').value,
-                Notificar: document.getElementById('c-notif').checked,
-                Atualizacoes: current.Atualizacoes
-            };
-
-            const status = document.getElementById('a-status').value;
-            const desc = document.getElementById('a-desc').value;
-
-            if (desc.trim() !== "") {
-                const payload = { data: new Date().toLocaleDateString('pt-BR'), status: status, descricao: desc };
-                if (isNewCard || clientObj.Atualizacoes.length === 0) {
-                    clientObj.Atualizacoes.push(payload);
-                } else {
-                    clientObj.Atualizacoes[clientObj.Atualizacoes.length - 1] = payload;
-                }
-            }
-            google.script.run.withSuccessHandler(() => { syncData(); closeModal('modal-client'); }).salvarClientePlanilha(clientObj);
-        }
-
-        function confirmDelete(cpf) {
-            if(confirm("Deseja realmente excluir este cliente?")) google.script.run.withSuccessHandler(() => syncData()).excluirClientePlanilha(cpf);
-        }
-
-        function openAdminLogin() { document.getElementById('modal-login').classList.remove('hidden'); }
-        function openClientModal() { 
-            document.getElementById('edit-client-id').value = ""; 
-            document.getElementById('area-atualizacao').classList.add('hidden');
-            document.getElementById('modal-client').classList.remove('hidden'); 
-        }
-        function filterAdminList() {
-            const q = document.getElementById('adminSearch').value.toLowerCase();
-            const cards = document.getElementById('admin-client-list').children;
-            Array.from(cards).forEach(card => card.style.display = card.innerText.toLowerCase().includes(q) ? 'flex' : 'none');
-        }
-    </script>
+    function openAdminLogin() { document.getElementById('modal-login').classList.remove('hidden'); }
+    function openClientModal() { 
+        document.getElementById('edit-client-id').value = ""; 
+        document.getElementById('area-atualizacao').classList.add('hidden');
+        document.getElementById('modal-client').classList.remove('hidden'); 
+    }
+    function filterAdminList() {
+        const q = document.getElementById('adminSearch').value.toLowerCase();
+        const cards = document.getElementById('admin-client-list').children;
+        Array.from(cards).forEach(card => card.style.display = card.innerText.toLowerCase().includes(q) ? 'flex' : 'none');
+    }
+</script>
 </body>
 </html>
