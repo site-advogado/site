@@ -220,7 +220,10 @@
                 bioData = {
                     name: adv["Adv"] || "Nome da Advogada",
                     oab: adv["OAB"] || "OAB/SP 000.000",
-                    desc: adv["Descricacao_adv"] || "Sem descrição disponível",
+                    
+                    // ✅ CORREÇÃO AQUI
+                    desc: adv["Descricao_adv"] || "Sem descrição disponível",
+                    
                     img: adv["ID"] && adv["ID"].toString().startsWith('http') 
                         ? adv["ID"] 
                         : "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=400",
@@ -248,7 +251,6 @@
         document.getElementById('bio-desc').innerText = bioData.desc;
         document.getElementById('bio-img').src = bioData.img;
         
-        // Formatar numero para WhatsApp (remover caracteres não numéricos)
         const cleanPhone = bioData.phone.replace(/\D/g, '');
         document.getElementById('bio-phone').href = `https://wa.me/55${cleanPhone}`;
         
@@ -415,6 +417,7 @@
         Array.from(cards).forEach(card => card.style.display = card.innerText.toLowerCase().includes(q) ? 'flex' : 'none');
     }
 </script>
+
 
 </body>
 </html>
