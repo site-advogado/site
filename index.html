@@ -55,7 +55,7 @@
             <button onclick="toggleDarkMode()" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-800 transition-all">
                 <i id="themeIcon" class="fas fa-moon text-satinGold text-xl"></i>
             </button>
-            <button onclick="openAdminLogin()" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-800 transition-all">
+            <button onclick="window.location.href='configuracao.html'" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-800 transition-all">
                 <i class="fas fa-cog text-satinGold text-xl"></i>
             </button>
         </div>
@@ -204,9 +204,9 @@
     </div>
 
 <script>
-    const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbwiNqbWfDfY9xHzqvUbRMnyJzx22bWPu5KK-cKCj75n0BnL15a0HKn5mGfa2lYhe1DmHQ/exec";
+    const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbxZFwDcecacQipWo-Rz7TAW38vRqvmbC2L-wBzZyreIp66iYB6wYd7gXp1AXEGCIQfKZQ/exec";
     let dbClients = [];
-    let dbFullData = []; // Armazena todos os dados brutos para busca de logins
+    let dbFullData = [];
     let bioData = { name: "", oab: "", desc: "", img: "", phone: "", email: "", login_adv: "", pass_adv: "" };
 
     window.onload = () => { syncData(); };
@@ -216,9 +216,7 @@
             .then(res => res.json())
             .then(data => {
                 if (!data || data.length === 0) return;
-
-                dbFullData = data; // Guarda a lista completa para o login múltiplo
-
+                dbFullData = data;
                 const adv = data[0]; 
                 bioData = {
                     name: adv["Adv"] || "Nome da Advogada",
@@ -232,17 +230,13 @@
                     login_adv: adv["login_advogado"] || "", 
                     pass_adv: adv["senha"] || ""            
                 };
-                
                 dbClients = data.slice(1);
-
                 renderBio();
                 if(!document.getElementById('view-admin-dash').classList.contains('hidden')) {
                     renderAdminList();
                 }
             })
-            .catch(err => {
-                console.error("Erro ao buscar dados:", err);
-            });
+            .catch(err => { console.error("Erro ao buscar dados:", err); });
     }
 
     function renderBio() {
@@ -250,10 +244,8 @@
         document.getElementById('bio-oab').innerText = bioData.oab;
         document.getElementById('bio-desc').innerText = bioData.desc;
         document.getElementById('bio-img').src = bioData.img;
-        
         const cleanPhone = bioData.phone.replace(/\D/g, '');
         document.getElementById('bio-phone').href = `https://wa.me/55${cleanPhone}`;
-        
         document.getElementById('bio-email').href = `mailto:${bioData.email}`;
     }
 
@@ -266,28 +258,19 @@
     function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
     function toggleDarkMode() { document.documentElement.classList.toggle('dark'); }
 
-    function openAdminLogin() { document.getElementById('modal-login').classList.remove('hidden'); }
-
-    // MODIFICADO: Agora procura em todas as linhas pelas colunas login_advogado (I) e senha (J)
     function handleLogin() {
         const userIn = document.getElementById('userLogin').value;
         const passIn = document.getElementById('passLogin').value;
-        
-        // Percorre todas as linhas vindas da planilha procurando correspondência em I e J
         const authorized = dbFullData.find(row => 
-            row["login_advogado"] && 
-            row["senha"] && 
+            row["login_advogado"] && row["senha"] && 
             row["login_advogado"].toString() === userIn && 
             row["senha"].toString() === passIn
         );
-
         if(authorized) {
             closeModal('modal-login'); 
             showView('view-admin-dash'); 
             renderAdminList();
-        } else { 
-            alert("Acesso negado. Login ou Senha de advogado não encontrados."); 
-        }
+        } else { alert("Acesso negado."); }
     }
 
     function renderAdminList() {
