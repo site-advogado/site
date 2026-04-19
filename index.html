@@ -183,7 +183,7 @@
                 <input type="text" id="config-img" placeholder="URL da Foto" class="w-full p-3 rounded-lg border dark:bg-zinc-800">
             </div>
             <div class="space-y-4 mb-6 border-t border-satinGold/20 pt-4 text-xs">
-                <p class="font-bold text-satinGold uppercase">Login Admin</p>
+                <p class="font-bold text-satinGold uppercase">Login Admin (Linha 1)</p>
                 <input type="text" id="config-login" placeholder="Usuário" class="w-full p-3 rounded-lg border dark:bg-zinc-800">
                 <input type="password" id="config-pass" placeholder="Senha" class="w-full p-3 rounded-lg border dark:bg-zinc-800">
             </div>
@@ -204,8 +204,9 @@
     </div>
 
 <script>
-    const URL_SCRIPT = "https://script.google.com/macros/s/AKfycby2DBZ8iaIGX1BRAZH-qffFIbHm26SCMhEVpJrzXbHMIhRvpOoTMGeKqnD1laVGUkFLcQ/exec";
+    const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbwiNqbWfDfY9xHzqvUbRMnyJzx22bWPu5KK-cKCj75n0BnL15a0HKn5mGfa2lYhe1DmHQ/exec";
     let dbClients = [];
+    let dbFullData = []; // Armazena todos os dados brutos para busca de logins
     let bioData = { name: "", oab: "", desc: "", img: "", phone: "", email: "", login_adv: "", pass_adv: "" };
 
     window.onload = () => { syncData(); };
@@ -216,14 +217,13 @@
             .then(data => {
                 if (!data || data.length === 0) return;
 
+                dbFullData = data; // Guarda a lista completa para o login múltiplo
+
                 const adv = data[0]; 
                 bioData = {
                     name: adv["Adv"] || "Nome da Advogada",
                     oab: adv["OAB"] || "OAB/SP 000.000",
-                    
-                    // ✅ CORREÇÃO AQUI
                     desc: adv["Descricao_adv"] || "Sem descrição disponível",
-                    
                     img: adv["ID"] && adv["ID"].toString().startsWith('http') 
                         ? adv["ID"] 
                         : "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=400",
@@ -268,15 +268,25 @@
 
     function openAdminLogin() { document.getElementById('modal-login').classList.remove('hidden'); }
 
+    // MODIFICADO: Agora procura em todas as linhas pelas colunas login_advogado (I) e senha (J)
     function handleLogin() {
         const userIn = document.getElementById('userLogin').value;
         const passIn = document.getElementById('passLogin').value;
-        if(userIn === bioData.login_adv && passIn === bioData.pass_adv && bioData.login_adv !== "") {
+        
+        // Percorre todas as linhas vindas da planilha procurando correspondência em I e J
+        const authorized = dbFullData.find(row => 
+            row["login_advogado"] && 
+            row["senha"] && 
+            row["login_advogado"].toString() === userIn && 
+            row["senha"].toString() === passIn
+        );
+
+        if(authorized) {
             closeModal('modal-login'); 
             showView('view-admin-dash'); 
             renderAdminList();
         } else { 
-            alert("Acesso negado. Verifique os dados na planilha."); 
+            alert("Acesso negado. Login ou Senha de advogado não encontrados."); 
         }
     }
 
@@ -417,7 +427,6 @@
         Array.from(cards).forEach(card => card.style.display = card.innerText.toLowerCase().includes(q) ? 'flex' : 'none');
     }
 </script>
-
 
 </body>
 </html>
