@@ -35,9 +35,9 @@
     <style>
         .modal-blur { backdrop-filter: blur(8px); }
         .gold-gradient { background: linear-gradient(135deg, #C5A059 0%, #A37E3B 100%); }
-        .client-card { transition: all 0.3s ease; border: 2px solid #C5A059; }
-        .client-card:hover { transform: translateY(-2px); }
-        .card-finalizado { filter: grayscale(1); opacity: 0.8; background-color: #e5e7eb !important; border-color: #9ca3af !important; }
+        .client-card { transition: all 0.3s ease; }
+        .client-card:hover { transform: translateY(-2px); border-color: #C5A059; }
+        .card-finalizado { filter: grayscale(1); opacity: 0.8; background-color: #e5e7eb !important; }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: #C5A059; border-radius: 10px; }
     </style>
@@ -81,7 +81,8 @@
             </button>
         </div>
 
-        <div id="admin-client-list" class="grid grid-cols-1 gap-4"></div>
+        <div id="admin-client-list" class="grid grid-cols-1 gap-4">
+            </div>
     </section>
 
     <section id="tab-perfil" class="hidden">
@@ -217,10 +218,9 @@
     const URL_SCRIPT = "SEU_WEB_APP_URL_DO_GOOGLE"; 
     const API_KEY_SECRET = "ADV_SISTEMA_SEGURO_2026_X9"; 
     
-    // Simulação de dados com data de finalização para teste (Formato ISO)
     let dbClients = [
-        {name: "João da Silva", email: "joao@email.com", status: "Audiência de Conciliação Designada", dataFinalizado: null},
-        {name: "Maria Oliveira", email: "maria@email.com", status: "Processo Finalizado / Arquivado", dataFinalizado: "2026-04-18T10:00:00"} 
+        {name: "João da Silva", email: "joao@email.com", status: "Audiência de Conciliação Designada", finalizado: false},
+        {name: "Maria Oliveira", email: "maria@email.com", status: "Processo Finalizado / Arquivado", finalizado: true}
     ];
     let tempoInatividade;
 
@@ -278,6 +278,7 @@
             closeModal('modal-confirm');
             if(tipo === 'cliente') saveClientData();
             if(tipo === 'perfil') saveProfileData();
+            
             setTimeout(() => openModal('modal-success'), 500);
         };
     }
@@ -290,36 +291,22 @@
     function renderClients() {
         const list = document.getElementById('admin-client-list');
         list.innerHTML = '';
-        const agora = new Date();
         
-        [...dbClients].reverse().forEach((c) => {
+        // Simulação de ordenação: os mais recentes (últimos adicionados) ficam no topo
+        [...dbClients].reverse().forEach((c, index) => {
             const isFinalizado = c.status.includes("Finalizado");
-            let liberadoExcluir = false;
-            let avisoExclusao = "";
-
-            if (isFinalizado && c.dataFinalizado) {
-                const dataFim = new Date(c.dataFinalizado);
-                const diffHoras = (agora - dataFim) / (1000 * 60 * 60);
-                if (diffHoras >= 48) {
-                    liberadoExcluir = true;
-                } else {
-                    avisoExclusao = "Exclusão disponível em breve (48h de segurança)";
-                }
-            }
-
             list.innerHTML += `
-                <div class="bg-white dark:bg-zinc-900 p-6 rounded-[25px] client-card shadow-sm flex justify-between items-center ${isFinalizado ? 'card-finalizado' : ''}">
+                <div class="bg-white dark:bg-zinc-900 p-6 rounded-[25px] border border-satinGold/10 client-card shadow-sm flex justify-between items-center ${isFinalizado ? 'card-finalizado' : ''}">
                     <div>
                         <h4 class="font-bold text-darkGold text-lg">${c.name}</h4>
                         <p class="text-xs opacity-60 uppercase font-bold tracking-tight">${c.status}</p>
                         <p class="text-[10px] opacity-40 font-bold">${c.email}</p>
-                        ${isFinalizado && !liberadoExcluir ? `<p class="text-[9px] text-red-500 font-bold mt-2 uppercase tracking-tighter">${avisoExclusao}</p>` : ''}
                     </div>
                     <div class="flex gap-2">
                         <button onclick="openClientModal(true)" class="w-10 h-10 rounded-full bg-gray-100 dark:bg-zinc-800 text-satinGold hover:bg-satinGold hover:text-white transition-all">
                             <i class="fas fa-pen text-sm"></i>
                         </button>
-                        ${liberadoExcluir ? `
+                        ${isFinalizado ? `
                             <button onclick="triggerConfirm('excluir')" class="w-10 h-10 rounded-full bg-red-100 text-red-600 hover:bg-red-600 hover:text-white transition-all">
                                 <i class="fas fa-trash-alt text-sm"></i>
                             </button>
