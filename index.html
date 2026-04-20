@@ -232,8 +232,8 @@ function closeAdminModal() {
 
 async function realizarLoginAdmin() {
     const user = document.getElementById('adminUser').value
-        .replace(/\s+/g, '') // REMOVE QUALQUER ESPAÇO
-        .toLowerCase();      // PADRONIZA
+        .replace(/\s+/g, '')
+        .toLowerCase();
 
     const pass = document.getElementById('adminPass').value;
     const btn = document.getElementById('btnAdminLogin');
@@ -258,11 +258,19 @@ async function realizarLoginAdmin() {
         const data = await response.json();
 
         if(data.status === "sucesso") {
+
+            // ✅ GARANTE QUE FOI SALVO
             sessionStorage.setItem('ADV_ADMIN_AUTH', 'true');
-            window.location.href = "c-onfi-gura-cao.html"; 
+
+            // pequena garantia de persistência
+            setTimeout(() => {
+                window.location.href = "c-onfi-gura-cao.html";
+            }, 100);
+
         } else {
             alert(data.message || "Acesso negado.");
         }
+
     } catch (e) {
         alert("Erro de conexão com o servidor.");
     } finally {
