@@ -33,6 +33,29 @@
     </script>
 
     <style>
+/* Bloqueia a seleção de texto e o arraste de imagens */
+body {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+/* Mantém os campos de texto funcionando (senão você não consegue digitar o login) */
+input, select, textarea {
+    -webkit-user-select: text !important;
+    -moz-user-select: text !important;
+    -ms-user-select: text !important;
+    user-select: text !important;
+}
+
+/* Proteção extra para imagens */
+img {
+    pointer-events: none !important;
+    -webkit-user-drag: none !important;
+}
+
+        
         .modal-blur { backdrop-filter: blur(8px); }
         .gold-gradient { background: linear-gradient(135deg, #C5A059 0%, #A37E3B 100%); }
         .client-card { transition: all 0.3s ease; }
@@ -251,6 +274,60 @@
 </div>
 
 <script>
+
+// 🚫 Bloquear botão direito
+document.addEventListener('contextmenu', function(e) {
+    e.preventDefault();
+});
+
+// 🚫 Bloquear atalhos de teclado
+document.addEventListener('keydown', function(e) {
+
+    // Lista de bloqueios
+    if (
+        // Ctrl + C, U, S, P
+        (e.ctrlKey && ['c','u','s','p'].includes(e.key.toLowerCase())) ||
+
+        // Ctrl + Shift + I, J, C
+        (e.ctrlKey && e.shiftKey && ['i','j','c'].includes(e.key.toLowerCase())) ||
+
+        // F12
+        e.key === "F12"
+    ) {
+        e.preventDefault();
+        alert('Ação protegida pelo sistema.');
+        return false;
+    }
+});
+
+// 🚫 Bloquear seleção via JavaScript (extra)
+document.addEventListener('selectstart', function(e) {
+    e.preventDefault();
+});
+
+// 🚫 Bloquear cópia direta
+document.addEventListener('copy', function(e) {
+    e.preventDefault();
+});
+
+// 🚫 Bloquear corte
+document.addEventListener('cut', function(e) {
+    e.preventDefault();
+});
+
+// 🚫 Bloquear arrastar elementos
+document.addEventListener('dragstart', function(e) {
+    e.preventDefault();
+});
+
+// 🚫 Tentar detectar DevTools aberto (básico)
+setInterval(function() {
+    if (window.outerWidth - window.innerWidth > 160 || 
+        window.outerHeight - window.innerHeight > 160) {
+        document.body.innerHTML = "<h1 style='color:red;text-align:center;margin-top:20%;'>Acesso bloqueado</h1>";
+    }
+}, 1000);
+    
     const URL_SCRIPT = "SEU_WEB_APP_URL_DO_GOOGLE"; 
     const API_KEY_SECRET = "ADV_SISTEMA_SEGURO_2026_X9"; 
     
@@ -370,6 +447,7 @@
 
     function saveClientData() { closeModal('modal-client'); }
     function saveProfileData() { /* Lógica de perfil */ }
+    
 </script>
 
 </body>
