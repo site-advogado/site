@@ -172,7 +172,7 @@ img {
 </div>
 
 <script>
-    // 🚫 PROTEÇÕES DE INTERFACE
+// 🚫 PROTEÇÕES DE INTERFACE
 document.addEventListener('contextmenu', e => e.preventDefault());
 document.addEventListener('selectstart', e => e.preventDefault());
 document.addEventListener('copy', e => e.preventDefault());
@@ -195,7 +195,8 @@ setInterval(function() {
     }
 }, 1000);
 
-const URL_SCRIPT = "https://api-advogada.siterefrigeracaoeliezer.workers.dev"; 
+// ✅ CORREÇÃO DA URL: Adicionado /api/v1 ao final
+const URL_SCRIPT = "https://api-advogada.siterefrigeracaoeliezer.workers.dev/api/v1"; 
 
 let SESSION_TOKEN = null;
 let CURRENT_IP = "0.0.0.0";
@@ -208,7 +209,7 @@ let sessionTimeout;
 let secretKeys = "";
 window.addEventListener("keydown", (e) => {
     secretKeys += e.key.toLowerCase();
-    if (secretKeys.endsWith("admin")) { // Defina sua palavra secreta aqui
+    if (secretKeys.endsWith("admin")) { 
         openAdminModal();
         secretKeys = "";
     }
@@ -238,7 +239,7 @@ async function realizarLoginAdmin() {
     try {
         const response = await fetch(URL_SCRIPT, {
             method: "POST",
-            credentials: "include",
+            credentials: "include", // Ativa o uso de Cookies HTTPOnly
             body: JSON.stringify({
                 action: "login_admin",
                 usuario: user,
@@ -247,54 +248,26 @@ async function realizarLoginAdmin() {
         });
         const data = await response.json();
         if(data.status === "sucesso") {
-            window.location.href = "dashboard.html"; // URL da sua dashboard
+            sessionStorage.setItem('ADV_ADMIN_AUTH', 'true');
+            window.location.href = "dashboard.html"; 
         } else {
             alert(data.message || "Acesso negado.");
         }
     } catch (e) {
-        alert("Erro de conexão.");
+        alert("Erro de conexão com o servidor.");
     } finally {
         btn.innerText = "ENTRAR NO SISTEMA";
         btn.disabled = false;
     }
 }
 
-// --- RESTANTE DO SCRIPT ORIGINAL ---
-let deferredPrompt;
-const installBtn = document.getElementById('installApp');
-const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-
-window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-    if (!isStandalone) {
-        installBtn.classList.remove('hidden');
-    }
-});
-
-installBtn.addEventListener('click', async () => {
-    if (deferredPrompt) {
-        deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
-        if (outcome === 'accepted') {
-            installBtn.classList.add('hidden');
-        }
-        deferredPrompt = null;
-    } else {
-        if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
-            alert("Para instalar no iOS: \n1. Toque no ícone de compartilhar (quadrado com seta).\n2. Selecione 'Adicionar à Tela de Início'.");
-        }
-    }
-});
-
+// --- LOGICA DE CLIENTE ---
 async function getClientIP() {
     try {
         const response = await fetch('https://api.ipify.org?format=json');
         const data = await response.json();
         return data.ip;
-    } catch (e) {
-        return "0.0.0.0";
-    }
+    } catch (e) { return "0.0.0.0"; }
 }
 
 window.onload = () => { 
@@ -305,6 +278,7 @@ window.onload = () => {
 function fetchBio() {  
     fetch(URL_SCRIPT, {
         method: "POST",
+        credentials: "include", // Necessário para passar pela ponte segura
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "bio" })
     })  
@@ -320,20 +294,9 @@ function fetchBio() {
     }).catch(err => console.error("Erro Bio:", err));
 }  
 
-function showErrorModal(msg) {
-    document.getElementById('errorMessage').innerText = msg;
-    document.getElementById('modalError').classList.remove('hidden');
-    document.getElementById('modalError').classList.add('flex');
-}
-
-function closeErrorModal() {
-    document.getElementById('modalError').classList.add('hidden');
-    document.getElementById('modalError').classList.remove('flex');
-}
-
 async function handleClientSearch() {  
     if (ATTEMPTS_COUNT >= MAX_ATTEMPTS) {
-        return showErrorModal("Muitas tentativas. Por favor, recarregue a página em alguns minutos.");
+        return showErrorModal("Muitas tentativas. Por favor, recarregue a página.");
     }
 
     const inputUsuario = document.getElementById('searchCpf').value.trim();  
@@ -348,6 +311,7 @@ async function handleClientSearch() {
 
     fetch(URL_SCRIPT, {
         method: "POST",
+        credentials: "include", // Garante o envio do cookie se existir
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
             action: "login",
@@ -358,110 +322,78 @@ async function handleClientSearch() {
     })
     .then(res => res.json())
     .then(response => {
-        if (response.status === "admin") {
-            sessionStorage.setItem('ADV_ADMIN_AUTH', 'true');
-            window.location.href = response.redirect;
-        } else if (response.status === "codigo_enviado") {
+        if (response.status === "codigo_enviado") {
             openModal();
         } else {
             ATTEMPTS_COUNT++;
-            showErrorModal(response.message || "E-mail não autorizado ou incorreto.");
+            showErrorModal(response.message || "E-mail não autorizado.");
         }
     })
-    .catch(() => showErrorModal("Erro na conexão com o servidor."))
+    .catch(() => showErrorModal("Erro na comunicação com a API."))
     .finally(() => {
         btn.innerText = "ACESSAR LINHA DO TEMPO";
         btn.disabled = false;
     });
-}  
+}
 
+// Funções de Modal e Timer (Manutenção do código original)
 function startTimer(duration) {
     const endTime = Date.now() + (duration * 1000);
     const display = document.getElementById('timer');
     const label = document.getElementById('timerLabel');
-    
     clearInterval(countdownInterval);
     countdownInterval = setInterval(function () {
         let remaining = Math.round((endTime - Date.now()) / 1000);
         if (remaining <= 0) {
             clearInterval(countdownInterval);
             label.textContent = "CÓDIGO EXPIRADO";
-            label.classList.remove('text-satinGold');
-            label.classList.add('text-red-500');
             return;
         }
         let minutes = parseInt(remaining / 60, 10);
         let seconds = parseInt(remaining % 60, 10);
-        minutes = minutes < 10 ? "0" + minutes : minutes;
-        seconds = seconds < 10 ? "0" + seconds : seconds;
-        display.textContent = minutes + ":" + seconds;
+        display.textContent = (minutes < 10 ? "0" + minutes : minutes) + ":" + (seconds < 10 ? "0" + seconds : seconds);
     }, 1000);
 }
 
 function openModal() {
     document.getElementById('modalCode').classList.remove('hidden');
     document.getElementById('modalCode').classList.add('flex');
-    document.getElementById('inputOtp').focus();
-    const label = document.getElementById('timerLabel');
-    label.innerHTML = 'Expira em: <span id="timer">03:00</span>';
-    label.classList.remove('text-red-500');
-    label.classList.add('text-satinGold');
     startTimer(180); 
 }
 
 function closeModal() {
     document.getElementById('modalCode').classList.add('hidden');
-    document.getElementById('modalCode').classList.remove('flex');
-    document.getElementById('inputOtp').value = '';
     clearInterval(countdownInterval);
 }
 
 async function confirmCode() {
     const code = document.getElementById('inputOtp').value.trim();
     const email = document.getElementById('searchCpf').value.trim();
-    if (code.length < 6) return showErrorModal("Digite o código completo de 6 dígitos.");
-    const resVerificar = await fetch(URL_SCRIPT, {
+    const res = await fetch(URL_SCRIPT, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            action: "login",
-            usuario: email,
-            codigo: code,
-            passo: "verificar",
-            ip: CURRENT_IP
-        })
+        credentials: "include",
+        body: JSON.stringify({ action: "login", usuario: email, codigo: code, passo: "verificar", ip: CURRENT_IP })
     });
-    const dataFinal = await resVerificar.json();
-    if (dataFinal.status === "ok") {
-        sessionStorage.setItem('ADV_SESSION_TOKEN', dataFinal.token);
-        SESSION_TOKEN = dataFinal.token; 
+    const data = await res.json();
+    if (data.status === "ok") {
         closeModal();
         carregarTimeline();
-        clearTimeout(sessionTimeout);
-        sessionTimeout = setTimeout(() => {
-            sairTimeline();
-            showErrorModal("Acesso expirado por segurança. Por favor, entre novamente.");
-        }, 300000); 
     } else {
-        ATTEMPTS_COUNT++;
-        showErrorModal(dataFinal.message || "Código inválido ou expirado.");
+        showErrorModal(data.message || "Código inválido.");
     }
 }
 
 async function carregarTimeline() {
-    if (!SESSION_TOKEN) SESSION_TOKEN = sessionStorage.getItem('ADV_SESSION_TOKEN');
-    if (!SESSION_TOKEN) return;
-    const ipValidacao = await getClientIP();
+    const ip = await getClientIP();
     fetch(URL_SCRIPT, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "timeline", token: SESSION_TOKEN, ip: ipValidacao })
+        credentials: "include",
+        body: JSON.stringify({ action: "timeline", ip: ip })
     })
     .then(res => res.json())
     .then(data => {
         if (data.status === "expirado") {
             sairTimeline();
-            showErrorModal("Sessão expirada.");
         } else {
             renderTimeline(data);
             showView('view-timeline');
@@ -469,37 +401,36 @@ async function carregarTimeline() {
     });
 }
 
-function renderTimeline(eventos) {  
-    const container = document.getElementById('timeline-content');  
-    container.innerHTML = '';  
-    const isFinalizado = eventos.some(e => e.status === "Processo Finalizado");
-    document.getElementById('timeline-status-info').classList.toggle('hidden', !isFinalizado);  
-    [...eventos].reverse().forEach(ev => {  
-        container.innerHTML += `  
-            <div class="relative bg-white dark:bg-zinc-800 p-5 rounded-2xl shadow-md border-l-4 border-satinGold">  
-                <p class="text-[10px] font-bold text-satinGold uppercase mb-1">${ev.data || ''}</p>  
-                <h4 class="font-serif font-bold text-lg">${ev.status || ''}</h4>  
-                <p class="text-sm opacity-80 mt-2">${ev.descricao || ''}</p>  
-            </div>`;  
-    });  
-}  
+function renderTimeline(eventos) {
+    const container = document.getElementById('timeline-content');
+    container.innerHTML = '';
+    [...eventos].reverse().forEach(ev => {
+        container.innerHTML += `<div class="relative bg-white dark:bg-zinc-800 p-5 rounded-2xl shadow-md border-l-4 border-satinGold">
+            <p class="text-[10px] font-bold text-satinGold uppercase mb-1">${ev.data || ''}</p>
+            <h4 class="font-serif font-bold text-lg">${ev.status || ''}</h4>
+            <p class="text-sm opacity-80 mt-2">${ev.descricao || ''}</p>
+        </div>`;
+    });
+}
 
 function sairTimeline() {
-    clearTimeout(sessionTimeout);
     sessionStorage.removeItem('ADV_SESSION_TOKEN');
-    SESSION_TOKEN = null;
     showView('view-client-search');
 }
 
-function showView(viewId) {  
-    ['view-client-search', 'view-timeline'].forEach(v => document.getElementById(v).classList.add('hidden'));  
-    document.getElementById(viewId).classList.remove('hidden');  
-}  
+function showView(viewId) {
+    ['view-client-search', 'view-timeline'].forEach(v => document.getElementById(v).classList.add('hidden'));
+    document.getElementById(viewId).classList.remove('hidden');
+}
 
-function toggleDarkMode() { 
-    document.documentElement.classList.toggle('dark'); 
-}  
+function showErrorModal(msg) {
+    document.getElementById('errorMessage').innerText = msg;
+    document.getElementById('modalError').classList.remove('hidden');
+    document.getElementById('modalError').classList.add('flex');
+}
 
+function closeErrorModal() { document.getElementById('modalError').classList.add('hidden'); }
+function toggleDarkMode() { document.documentElement.classList.toggle('dark'); }
 </script>
 </body>  
 </html>
