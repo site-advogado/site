@@ -262,26 +262,29 @@ async function handleClientSearch() {
 }  
 
 function startTimer(duration) {
-    let timer = duration, minutes, seconds;
+    const endTime = Date.now() + (duration * 1000);
     const display = document.getElementById('timer');
     const label = document.getElementById('timerLabel');
     
     clearInterval(countdownInterval);
     countdownInterval = setInterval(function () {
-        minutes = parseInt(timer / 60, 10);
-        seconds = parseInt(timer % 60, 10);
+        let remaining = Math.round((endTime - Date.now()) / 1000);
+
+        if (remaining <= 0) {
+            clearInterval(countdownInterval);
+            label.textContent = "CÓDIGO EXPIRADO";
+            label.classList.remove('text-satinGold');
+            label.classList.add('text-red-500');
+            return;
+        }
+
+        let minutes = parseInt(remaining / 60, 10);
+        let seconds = parseInt(remaining % 60, 10);
 
         minutes = minutes < 10 ? "0" + minutes : minutes;
         seconds = seconds < 10 ? "0" + seconds : seconds;
 
         display.textContent = minutes + ":" + seconds;
-
-        if (--timer < 0) {
-            clearInterval(countdownInterval);
-            label.textContent = "CÓDIGO EXPIRADO";
-            label.classList.remove('text-satinGold');
-            label.classList.add('text-red-500');
-        }
     }, 1000);
 }
 
