@@ -79,7 +79,7 @@
         <div class="space-y-6">  
             <div>  
                 <label class="text-xs uppercase font-bold text-satinGold tracking-wider">Reclamante</label>  
-                <input type="text" id="searchCpf" placeholder="E-mail" class="w-full bg-transparent border-b-2 border-gray-300 dark:border-zinc-700 py-3 outline-none focus:border-satinGold transition-all text-base">  
+                <input type="email" id="searchCpf" autocomplete="username" placeholder="E-mail" class="w-full bg-transparent border-b-2 border-gray-300 dark:border-zinc-700 py-3 outline-none focus:border-satinGold transition-all text-base">  
             </div>  
             <button onclick="handleClientSearch()" id="btnSearch" class="w-full gold-gradient text-white font-bold py-4 rounded-xl shadow-lg hover:scale-[1.03] transition-transform tracking-wider text-sm">  
                 ACESSAR LINHA DO TEMPO  
@@ -150,9 +150,6 @@ async function handleClientSearch() {
 
     CURRENT_IP = await getClientIP();
 
-    // LÓGICA INTELIGENTE:
-    // Se a entrada for apenas números (CPF) ou tiver @ (E-mail), ele pede a senha.
-    // Se for um texto (como a sua Palavra Secreta), ele tenta logar direto sem pedir senha.
     let senhaHash = "";
     const ehCliente = /\d/.test(inputUsuario) || inputUsuario.includes('@');
 
