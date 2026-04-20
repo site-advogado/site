@@ -100,7 +100,6 @@
 const URL_SCRIPT = "https://api-advogada.siterefrigeracaoeliezer.workers.dev"; 
 
 let SESSION_TOKEN = null;
-
 let CURRENT_IP = "0.0.0.0";
 
 async function getClientIP() {
@@ -125,20 +124,19 @@ window.onload = () => { fetchBio(); };
 function fetchBio() {  
     fetch(URL_SCRIPT, {
         method: "POST",
-        body: JSON.stringify({ 
-            action: "bio"
-        })
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "bio" })
     })  
     .then(res => res.json())  
     .then(data => {  
-        document.getElementById('bio-name').innerText = data.name;  
-        document.getElementById('bio-oab').innerText = data.oab;  
-        document.getElementById('bio-desc').innerText = data.desc;  
-        document.getElementById('bio-img').src = data.img;  
+        document.getElementById('bio-name').innerText = data.name || "Nome não definido";  
+        document.getElementById('bio-oab').innerText = data.oab || "";  
+        document.getElementById('bio-desc').innerText = data.desc || "";  
+        document.getElementById('bio-img').src = data.img || "https://via.placeholder.com/150";  
         const cleanPhone = (data.phone || "").toString().replace(/\D/g, '');  
         document.getElementById('bio-phone').href = `https://wa.me/55${cleanPhone}`;  
         document.getElementById('bio-email').href = `mailto:${data.email}`;  
-    });
+    }).catch(err => console.error("Erro Bio:", err));
 }  
 
 async function handleClientSearch() {  
@@ -215,7 +213,7 @@ function renderTimeline(eventos) {
     const container = document.getElementById('timeline-content');  
     container.innerHTML = '';  
     
-    if (!eventos || eventos.length === 0) {
+    if (!Array.isArray(eventos) || eventos.length === 0) {
         container.innerHTML = '<p class="text-center opacity-50">Nenhuma atualização encontrada.</p>';
         return;
     }
@@ -223,12 +221,13 @@ function renderTimeline(eventos) {
     const isFinalizado = eventos.some(e => e.status === "Processo Finalizado");
     document.getElementById('timeline-status-info').classList.toggle('hidden', !isFinalizado);  
     
+    // Inverte a ordem para mostrar o mais recente primeiro
     [...eventos].reverse().forEach(ev => {  
         container.innerHTML += `  
             <div class="relative bg-white dark:bg-zinc-800 p-5 rounded-2xl shadow-md border-l-4 border-satinGold">  
-                <p class="text-[10px] font-bold text-satinGold uppercase mb-1">${ev.data}</p>  
-                <h4 class="font-serif font-bold text-lg">${ev.status}</h4>  
-                <p class="text-sm opacity-80 mt-2">${ev.descricao}</p>  
+                <p class="text-[10px] font-bold text-satinGold uppercase mb-1">${ev.data || ''}</p>  
+                <h4 class="font-serif font-bold text-lg">${ev.status || ''}</h4>  
+                <p class="text-sm opacity-80 mt-2">${ev.descricao || ''}</p>  
             </div>`;  
     });  
 }  
