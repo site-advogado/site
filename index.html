@@ -97,20 +97,23 @@
 
 <script>  
 /**
- * SEGURANÇA OFUSCADA
- * As variáveis abaixo foram codificadas para não ficarem legíveis em texto puro.
+ * SISTEMA DE SEGURANÇA E DECODIFICAÇÃO
  */
-const _0x4f2a = ["\x68\x74\x74\x70\x73\x3a\x2f\x2f\x73\x63\x72\x69\x70\x74\x2e\x67\x6f\x6f\x67\x6c\x65\x2e\x63\x6f\x6d\x2f\x6d\x61\x63\x72\x6f\x73\x2f\x73\x2f\x41\x4b\x66\x79\x63\x62\x77\x2d\x34\x50\x42\x4e\x77\x7a\x49\x59\x32\x42\x31\x52\x54\x2d\x68\x32\x74\x4b\x44\x51\x31\x79\x50\x2d\x67\x68\x65\x76\x35\x4c\x2d\x71\x79\x37\x41\x57\x4c\x68\x43\x65\x45\x6e\x66\x6e\x51\x35\x62\x4d\x37\x72\x38\x74\x64\x43\x7a\x4c\x47\x76\x74\x5a\x57\x68\x58\x6c\x51\x2f\x65\x78\x65\x63", "\x41\x44\x56\x5f\x53\x49\x53\x54\x45\x4d\x41\x5f\x53\x45\x47\x55\x52\x4f\x5f\x32\x30\x32\x36\x5f\x58\x39"];
+const _vData = {
+    u: "aHR0cHM6Ly9zY3JpcHQuZ29vZ2xlLmNvbS9tYWNyb3Mvcy9BS2Z5Y2J3LTRQQk53eklZMkIxUlQtaDJ0S0RRMXlQLWdoZXY1TC1xeTdBV0xoQ2VFbmZuUTViTTdyOHRkQ3pMR1Z0WldoWGxRL2V4ZWM=",
+    k: "QURWX1NJU1RFTUFfU0VHVVJPXzIwMjZfWDk="
+};
 
-const URL_SCRIPT = _0x4f2a[0]; 
-const API_KEY = _0x4f2a[1]; 
+// Decodificação em tempo de execução
+const URL_SCRIPT = atob(_vData.u);
+const API_KEY = atob(_vData.k);
 
 let SESSION_TOKEN = null;
 let CURRENT_IP = "0.0.0.0";
 
 async function getClientIP() {
     try {
-        const response = await fetch('\x68\x74\x74\x70\x73\x3a\x2f\x2f\x61\x70\x69\x2e\x69\x70\x69\x66\x79\x2e\x6f\x72\x67\x3f\x66\x6f\x72\x6d\x61\x74\x3d\x6a\x73\x6f\x6e');
+        const response = await fetch('https://api.ipify.org?format=json');
         const data = await response.json();
         return data.ip;
     } catch (e) {
@@ -131,7 +134,7 @@ function fetchBio() {
     fetch(URL_SCRIPT, {
         method: "POST",
         body: JSON.stringify({ 
-            action: "\x62\x69\x6f",
+            action: "bio",
             api_key: API_KEY 
         })
     })  
@@ -144,7 +147,8 @@ function fetchBio() {
         const cleanPhone = (data.phone || "").toString().replace(/\D/g, '');  
         document.getElementById('bio-phone').href = `https://wa.me/55${cleanPhone}`;  
         document.getElementById('bio-email').href = `mailto:${data.email}`;  
-    });
+    })
+    .catch(err => console.error("Erro de conexão. Verifique a URL do Script."));
 }  
 
 async function handleClientSearch() {  
@@ -166,7 +170,7 @@ async function handleClientSearch() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-            action: "\x6c\x6f\x67\x69\x6e",
+            action: "login",
             api_key: API_KEY,
             cpf: inputCpf,
             senha: senhaHash,
@@ -184,7 +188,7 @@ async function handleClientSearch() {
             alert("CPF ou Senha incorretos.");
         }
     })
-    .catch(() => alert("Erro na conexão com o servidor."))
+    .catch(() => alert("Erro na comunicação com o servidor."))
     .finally(() => {
         btn.innerText = "ACESSAR LINHA DO TEMPO";
         btn.disabled = false;
@@ -198,7 +202,7 @@ async function carregarTimeline() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-            action: "\x74\x69\x6d\x65\x6c\x69\x6e\x65",
+            action: "timeline",
             api_key: API_KEY,
             token: SESSION_TOKEN,
             ip: ipValidacao 
