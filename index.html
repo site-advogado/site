@@ -107,7 +107,7 @@
                
         <p class="text-base text-center mb-2 opacity-70">Insira o código de 6 dígitos para acessar.</p>
         <div id="timerContainer" class="text-center mb-6">
-            <span class="text-xs font-bold text-satinGold bg-satinGold/10 px-3 py-1 rounded-full">Expira em: <span id="timer">03:00</span></span>
+            <span class="text-xs font-bold text-satinGold bg-satinGold/10 px-3 py-1 rounded-full" id="timerLabel">Expira em: <span id="timer">03:00</span></span>
         </div>
 
       
@@ -264,6 +264,7 @@ async function handleClientSearch() {
 function startTimer(duration) {
     let timer = duration, minutes, seconds;
     const display = document.getElementById('timer');
+    const label = document.getElementById('timerLabel');
     
     clearInterval(countdownInterval);
     countdownInterval = setInterval(function () {
@@ -277,8 +278,9 @@ function startTimer(duration) {
 
         if (--timer < 0) {
             clearInterval(countdownInterval);
-            display.textContent = "00:00";
-            display.classList.add('text-red-500');
+            label.textContent = "CÓDIGO EXPIRADO";
+            label.classList.remove('text-satinGold');
+            label.classList.add('text-red-500');
         }
     }, 1000);
 }
@@ -287,7 +289,12 @@ function openModal() {
     document.getElementById('modalCode').classList.remove('hidden');
     document.getElementById('modalCode').classList.add('flex');
     document.getElementById('inputOtp').focus();
-    document.getElementById('timer').classList.remove('text-red-500');
+    
+    const label = document.getElementById('timerLabel');
+    label.innerHTML = 'Expira em: <span id="timer">03:00</span>';
+    label.classList.remove('text-red-500');
+    label.classList.add('text-satinGold');
+    
     startTimer(180); 
 }
 
