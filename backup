@@ -52,13 +52,38 @@ function login(data) {
   const dados = sheet.getDataRange().getValues();
   const cache = CacheService.getScriptCache();
 
-  // --- 1. VALIDAÇÃO DA PALAVRA SECRETA DO ADVOGADO ---
-  const palavraSecretaPlanilha = String(dados[1][10]).trim().toLowerCase();
-  if (entradaUsuario !== "" && entradaUsuario === palavraSecretaPlanilha) {
-    return resposta({
-      status: "admin",
-      redirect: "URL_DA_SUA_PAGINA_DE_CONFIGURACAO"
-    });
+  // --- 1. SOLICITAÇÃO DE CÓDIGO (PASSO 1) ---
+  if (data.passo === "solicitar") {
+    let linhaUsuario = -1;
+    
+    // Procura o e-mail na planilha antes de qualquer outra ação
+    for (let i = 1; i < dados.length; i++) {
+      if (String(dados[i][4]).trim().toLowerCase() === entradaUsuario) {
+        linhaUsuario = i + 1;
+        break;
+      }
+    }
+
+    // BLOQUEIO TOTAL: Se o e-mail não existe na lista, o script para aqui
+    // Ele não gera código, não salva no cache e NÃO envia o e-mail.
+    if (linhaUsuario === -1) {
+      return resposta({ status: "erro", message: "E-mail não cadastrado." });
+    }
+
+    // O código abaixo só é executado se o e-mail for VÁLIDO e CADASTRADO
+    const codigoOTP = Math.floor(100000 + Math.random() * 900000).toString();
+    cache.put("otp_" + entradaUsuario, codigoOTP, 300);
+
+    try {
+      MailApp.sendEmail({
+        to: entradaUsuario,
+        subject: "Seu Código de Acesso - Dra. Caroline Bogado",
+        body: "Olá! Seu código de acesso ao sistema é: " + codigoOTP + "\nEste código expira em 5 minutos."
+      });
+      return resposta({ status: "codigo_enviado" });
+    } catch (e) {
+      return resposta({ status: "erro", message: "Falha ao enviar e-mail." });
+    }
   }
 
   // --- 2. SOLICITAÇÃO DE CÓDIGO (PASSO 1) ---
