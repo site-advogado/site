@@ -113,7 +113,7 @@
       
             <input type="text" id="inputOtp" maxlength="6" placeholder="000000" class="w-full bg-transparent border-b-2 border-satinGold text-center text-2xl tracking-[0.5em] font-bold outline-none py-2 mb-8 dark:text-pearl">
         <div class="flex flex-col gap-3">
-            <button onclick="confirmCode()" class="w-full gold-gradient text-white font-bold py-3 rounded-xl shadow-md text-sm tracking-widest uppercase">Validar Acesso</button>
+            <button onclick="confirmCode()" class="w-full gold-gradient text-white font-bold py-3 rounded-xl shadow-md hover:scale-[1.03] transition-transform text-sm tracking-widest uppercase">Validar Acesso</button>
             <button onclick="closeModal()" class="w-full py-2 text-xs font-bold opacity-50 hover:opacity-100 uppercase tracking-tighter">Cancelar</button>
         </div>
     </div>
@@ -139,6 +139,7 @@ let CURRENT_IP = "0.0.0.0";
 let ATTEMPTS_COUNT = 0;
 const MAX_ATTEMPTS = 5;
 let countdownInterval;
+let sessionTimeout; // Controle da expiração absoluta de 5 min
 
 // --- LÓGICA DE INSTALAÇÃO PWA ---
 let deferredPrompt;
@@ -186,7 +187,11 @@ async function getClientIP() {
     }
 }
 
-window.onload = () => { fetchBio(); };  
+// Removida a verificação automática de token no onload para forçar novo acesso sempre
+window.onload = () => { 
+    fetchBio(); 
+    sessionStorage.removeItem('ADV_SESSION_TOKEN'); // Garante que comece limpo
+};  
 
 function fetchBio() {  
     fetch(URL_SCRIPT, {
@@ -332,6 +337,14 @@ async function confirmCode() {
         SESSION_TOKEN = dataFinal.token; 
         closeModal();
         carregarTimeline();
+        
+        // Inicia expiração absoluta de 5 minutos ao entrar na timeline
+        clearTimeout(sessionTimeout);
+        sessionTimeout = setTimeout(() => {
+            sairTimeline();
+            showErrorModal("Acesso expirado por segurança. Por favor, entre novamente.");
+        }, 300000); // 5 minutos = 300.000ms
+        
     } else {
         ATTEMPTS_COUNT++;
         showErrorModal(dataFinal.message || "Código inválido ou expirado.");
@@ -359,26 +372,16 @@ async function carregarTimeline() {
     .then(res => res.json())
     .then(data => {
         if (data.status === "expirado") {
-            sessionStorage.removeItem('ADV_SESSION_TOKEN');
+            sairTimeline();
             showErrorModal("Sessão expirada. Por favor, peça um novo código.");
-            showView('view-client-search');
         } else if (data.status === "erro") {
-            showView('view-client-search');
+            sairTimeline();
         } else {
             renderTimeline(data);
             showView('view-timeline');
         }
     });
 }
-
-window.onload = () => { 
-    fetchBio(); 
-    const savedToken = sessionStorage.getItem('ADV_SESSION_TOKEN');
-    if (savedToken) {
-        SESSION_TOKEN = savedToken;
-        carregarTimeline();
-    }
-};
 
 function renderTimeline(eventos) {  
     const container = document.getElementById('timeline-content');  
@@ -403,9 +406,12 @@ function renderTimeline(eventos) {
 }  
 
 function sairTimeline() {
+    clearTimeout(sessionTimeout);
     sessionStorage.removeItem('ADV_SESSION_TOKEN');
     SESSION_TOKEN = null;
     showView('view-client-search');
+    // Limpa o campo de email para forçar nova identificação
+    document.getElementById('searchCpf').value = '';
 }
 
 function showView(viewId) {  
