@@ -274,219 +274,125 @@ img {
 </div>
 
 <script>
-// URL OCULTA (Aponta para o Worker, escondendo o Google)
-const URL_SCRIPT = "https://api-advogada.siterefrigeracaoeliezer.workers.dev/api/v1"; 
+// 🚫 PROTEÇÕES DE INTERFACE
+document.addEventListener('contextmenu', e => e.preventDefault());
+document.addEventListener('selectstart', e => e.preventDefault());
+document.addEventListener('copy', e => e.preventDefault());
+document.addEventListener('cut', e => e.preventDefault());
+document.addEventListener('dragstart', e => e.preventDefault());
 
-let SESSION_TOKEN = null;
-let CURRENT_IP = "0.0.0.0";
-let ATTEMPTS_COUNT = 0;
-const MAX_ATTEMPTS = 5;
-let countdownInterval;
-let sessionTimeout; 
-
-// --- LÓGICA PALAVRA SECRETA ---
-let secretKeys = "";
-window.addEventListener("keydown", (e) => {
-    secretKeys += e.key.toLowerCase();
-    if (secretKeys.endsWith("admin")) { 
-        openAdminModal();
-        secretKeys = "";
+document.addEventListener('keydown', function(e) {
+    if ((e.ctrlKey && ['c','u','s','p'].includes(e.key.toLowerCase())) ||
+        (e.ctrlKey && e.shiftKey && ['i','j','c'].includes(e.key.toLowerCase())) ||
+        e.key === "F12") {
+        e.preventDefault();
+        alert('Sistema protegido.');
+        return false;
     }
-    if (secretKeys.length > 20) secretKeys = secretKeys.substring(10);
 });
 
-function openAdminModal() {
-    document.getElementById('modalAdmin').classList.remove('hidden');
-    document.getElementById('modalAdmin').classList.add('flex');
+setInterval(function() {
+    if (window.outerWidth - window.innerWidth > 160 || window.outerHeight - window.innerHeight > 160) {
+        document.body.innerHTML = "<h1 style='color:red;text-align:center;margin-top:20%;'>Acesso bloqueado</h1>";
+    }
+}, 1000);
+
+// 🛡️ LÓGICA DE COMUNICAÇÃO SEGURA
+const URL_SCRIPT = "https://api-advogada.siterefrigeracaoeliezer.workers.dev/api/v1";
+
+let dbClients = [
+    {name: "João da Silva", email: "joao@email.com", status: "Audiência de Conciliação Designada", finalizado: false},
+    {name: "Maria Oliveira", email: "maria@email.com", status: "Processo Finalizado / Arquivado", finalizado: true}
+];
+
+let tempoInatividade;
+function resetarCronometro() {
+    clearTimeout(tempoInatividade);
+    tempoInatividade = setTimeout(logoutAdmin, 5 * 60 * 1000); 
 }
 
-function closeAdminModal() {
-    document.getElementById('modalAdmin').classList.add('hidden');
-    document.getElementById('modalAdmin').classList.remove('flex');
-}
+window.onmousemove = resetarCronometro;
+window.onload = () => {
+    if (!sessionStorage.getItem('ADV_ADMIN_AUTH')) {
+        window.location.href = "https://site-advogado.github.io/site/";
+    }
+    resetarCronometro();
+    renderClients();
+};
 
-async function realizarLoginAdmin() {
-    const user = document.getElementById('adminUser').value;
-    const pass = document.getElementById('adminPass').value;
-    const btn = document.getElementById('btnAdminLogin');
-
-    if(!user || !pass) return alert("Preencha todos os campos.");
-
-    btn.innerText = "AUTENTICANDO...";
-    btn.disabled = true;
+async function saveProfileData() {
+    const data = {
+        action: "save_profile",
+        name: document.getElementById('config-name').value,
+        oab: document.getElementById('config-oab').value,
+        img: document.getElementById('config-img').value,
+        phone: document.getElementById('config-phone').value,
+        email: document.getElementById('config-email').value,
+        desc: document.getElementById('config-desc').value,
+        current_secret: document.getElementById('config-secret').value,
+        new_secret: document.getElementById('config-new-secret').value
+    };
 
     try {
-        const response = await fetch(URL_SCRIPT, {
+        const res = await fetch(URL_SCRIPT, {
             method: "POST",
-            credentials: "include", // Ativa o suporte a Cookies HTTPOnly
-            body: JSON.stringify({
-                action: "login_admin",
-                usuario: user,
-                senha: pass
-            })
+            credentials: "include", // Envia o Cookie de sessão administrativa
+            body: JSON.stringify(data)
         });
-        const data = await response.json();
-        if(data.status === "sucesso") {
-            sessionStorage.setItem('ADV_ADMIN_AUTH', 'true');
-            window.location.href = "c-onfi-gura-cao.html"; 
-        } else {
-            alert(data.message || "Acesso negado.");
-        }
-    } catch (e) {
-        alert("Erro de conexão.");
-    } finally {
-        btn.innerText = "ENTRAR NO SISTEMA";
-        btn.disabled = false;
-    }
+        const result = await res.json();
+        if(result.status === "ok") openModal('modal-success');
+        else alert(result.message);
+    } catch(e) { alert("Erro ao salvar dados."); }
 }
 
-// --- CONSULTA DO CLIENTE ---
-async function getClientIP() {
-    try {
-        const response = await fetch('https://api.ipify.org?format=json');
-        const data = await response.json();
-        return data.ip;
-    } catch (e) { return "0.0.0.0"; }
+function logoutAdmin() {
+    sessionStorage.removeItem('ADV_ADMIN_AUTH');
+    window.location.href = "https://site-advogado.github.io/site/";
 }
 
-window.onload = () => { 
-    fetchBio(); 
-    sessionStorage.removeItem('ADV_SESSION_TOKEN'); 
-};  
+// Funções de UI (Tabs/Modais)
+function switchTab(tabId) {
+    const pill = document.getElementById('tab-pill');
+    const isClientes = tabId === 'tab-clientes';
+    pill.style.transform = isClientes ? 'translateX(0)' : 'translateX(100%)';
+    document.getElementById('tab-clientes').classList.toggle('hidden', !isClientes);
+    document.getElementById('tab-perfil').classList.toggle('hidden', isClientes);
+    document.getElementById('btn-tab-clientes').classList.toggle('active-tab', isClientes);
+    document.getElementById('btn-tab-perfil').classList.toggle('active-tab', !isClientes);
+}
 
-function fetchBio() {  
-    fetch(URL_SCRIPT, {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "bio" })
-    })  
-    .then(res => res.json())  
-    .then(data => {  
-        document.getElementById('bio-name').innerText = data.name || "Nome não definido";  
-        document.getElementById('bio-oab').innerText = data.oab || "";  
-        document.getElementById('bio-desc').innerText = data.desc || "";  
-        document.getElementById('bio-img').src = data.img || "https://via.placeholder.com/150";  
-        const cleanPhone = (data.phone || "").toString().replace(/\D/g, '');  
-        document.getElementById('bio-phone').href = `https://wa.me/55${cleanPhone}`;  
-        document.getElementById('bio-email').href = `mailto:${data.email}`;  
-    }).catch(err => console.error("Erro Bio:", err));
-}  
+function openModal(id) { document.getElementById(id).classList.add('flex'); document.getElementById(id).classList.remove('hidden'); }
+function closeModal(id) { document.getElementById(id).classList.add('hidden'); document.getElementById(id).classList.remove('flex'); }
 
-async function handleClientSearch() {  
-    if (ATTEMPTS_COUNT >= MAX_ATTEMPTS) {
-        return showErrorModal("Muitas tentativas. Por favor, recarregue a página.");
-    }
-
-    const inputUsuario = document.getElementById('searchCpf').value.trim();  
-    const btn = document.getElementById('btnSearch');
-    if (!inputUsuario) return showErrorModal("Por favor, preencha o e-mail.");  
-
-    btn.innerText = "VERIFICANDO...";
-    btn.disabled = true;
-    CURRENT_IP = await getClientIP();
-
-    fetch(URL_SCRIPT, {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            action: "login",
-            usuario: inputUsuario,
-            passo: "solicitar",
-            ip: CURRENT_IP 
-        })
-    })
-    .then(res => res.json())
-    .then(response => {
-        if (response.status === "codigo_enviado") {
-            openModal();
-        } else {
-            ATTEMPTS_COUNT++;
-            showErrorModal(response.message || "E-mail não autorizado.");
-        }
-    })
-    .catch(() => showErrorModal("Erro na conexão."))
-    .finally(() => {
-        btn.innerText = "ACESSAR LINHA DO TEMPO";
-        btn.disabled = false;
+function renderClients() {
+    const list = document.getElementById('admin-client-list');
+    list.innerHTML = '';
+    dbClients.forEach((c) => {
+        const isF = c.status.includes("Finalizado");
+        list.innerHTML += `
+            <div class="bg-white dark:bg-zinc-900 p-6 rounded-[25px] border border-satinGold/10 flex justify-between items-center ${isF ? 'card-finalizado' : ''}">
+                <div>
+                    <h4 class="font-bold text-darkGold text-lg">${c.name}</h4>
+                    <p class="text-xs uppercase font-bold">${c.status}</p>
+                </div>
+                <button class="w-10 h-10 rounded-full bg-gray-100 dark:bg-zinc-800 text-satinGold"><i class="fas fa-pen text-sm"></i></button>
+            </div>`;
     });
 }
 
-// Funções de interface (Modal/Timer) seguem a mesma lógica sem alterações...
-function startTimer(duration) {
-    const endTime = Date.now() + (duration * 1000);
-    const display = document.getElementById('timer');
-    const label = document.getElementById('timerLabel');
-    clearInterval(countdownInterval);
-    countdownInterval = setInterval(function () {
-        let remaining = Math.round((endTime - Date.now()) / 1000);
-        if (remaining <= 0) {
-            clearInterval(countdownInterval);
-            label.textContent = "CÓDIGO EXPIRADO";
-            return;
-        }
-        let m = parseInt(remaining / 60, 10);
-        let s = parseInt(remaining % 60, 10);
-        display.textContent = (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s);
-    }, 1000);
+function triggerConfirm(tipo) {
+    openModal('modal-confirm');
+    document.getElementById('btn-confirm-yes').onclick = () => {
+        closeModal('modal-confirm');
+        if(tipo === 'perfil') saveProfileData();
+    };
 }
 
-function openModal() {
-    document.getElementById('modalCode').classList.remove('hidden');
-    document.getElementById('modalCode').classList.add('flex');
-    startTimer(180); 
-}
-
-function closeModal() {
-    document.getElementById('modalCode').classList.add('hidden');
-    clearInterval(countdownInterval);
-}
-
-async function confirmCode() {
-    const code = document.getElementById('inputOtp').value.trim();
-    const email = document.getElementById('searchCpf').value.trim();
-    const res = await fetch(URL_SCRIPT, {
-        method: "POST",
-        credentials: "include",
-        body: JSON.stringify({ action: "login", usuario: email, codigo: code, passo: "verificar", ip: CURRENT_IP })
-    });
-    const data = await res.json();
-    if (data.status === "ok") {
-        closeModal();
-        carregarTimeline();
-    } else {
-        showErrorModal(data.message || "Código inválido.");
-    }
-}
-
-async function carregarTimeline() {
-    const ip = await getClientIP();
-    fetch(URL_SCRIPT, {
-        method: "POST",
-        credentials: "include",
-        body: JSON.stringify({ action: "timeline", ip: ip })
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.status === "expirado") sairTimeline();
-        else { renderTimeline(data); showView('view-timeline'); }
-    });
-}
-
-function sairTimeline() {
-    sessionStorage.removeItem('ADV_SESSION_TOKEN');
-    showView('view-client-search');
-}
-
-function showView(id) {
-    ['view-client-search', 'view-timeline'].forEach(v => document.getElementById(v).classList.add('hidden'));
-    document.getElementById(id).classList.remove('hidden');
-}
-
-function showErrorModal(m) { document.getElementById('errorMessage').innerText = m; document.getElementById('modalError').classList.add('flex'); document.getElementById('modalError').classList.remove('hidden'); }
-function closeErrorModal() { document.getElementById('modalError').classList.add('hidden'); }
 function toggleDarkMode() { document.documentElement.classList.toggle('dark'); }
+function toggleNewSecretField() {
+    const check = document.getElementById('check-change-secret');
+    document.getElementById('container-new-secret').classList.toggle('hidden', !check.checked);
+}
 </script>
 
 </body>
