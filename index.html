@@ -104,9 +104,12 @@
 <div id="modalCode" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4 modal-blur bg-black/40">
     <div class="bg-pearl dark:bg-zinc-900 w-full max-w-sm rounded-[30px] p-8 border border-satinGold/30 shadow-2xl scale-95 transition-transform">
         <h3 class="font-serif text-xl text-center mb-2 text-darkGold uppercase tracking-wider">Verificação</h3>
-        <p class="text-xs text-center mb-6 opacity-70">Insira o código de 6 dígitos enviado ao seu e-mail.</p>
-         <p class="text-xs text-center mb-6 opacity-70">Seu código de acesso terá 24 horas de validade.</p>
-        <input type="text" id="inputOtp" maxlength="6" placeholder="000000" class="w-full bg-transparent border-b-2 border-satinGold text-center text-2xl tracking-[0.5em] font-bold outline-none py-2 mb-8 dark:text-pearl">
+        <p class="text-sm text-center mb-1 font-semibold opacity-90">Um código de segurança foi enviado ao seu e-mail.</p>
+        <p class="text-xs text-center mb-2 opacity-70">Insira o código de 6 dígitos para acessar.</p>
+        <div id="timerContainer" class="text-center mb-6">
+            <span class="text-xs font-bold text-satinGold bg-satinGold/10 px-3 py-1 rounded-full">Expira em: <span id="timer">03:00</span></span>
+        </div>
+            <input type="text" id="inputOtp" maxlength="6" placeholder="000000" class="w-full bg-transparent border-b-2 border-satinGold text-center text-2xl tracking-[0.5em] font-bold outline-none py-2 mb-8 dark:text-pearl">
         <div class="flex flex-col gap-3">
             <button onclick="confirmCode()" class="w-full gold-gradient text-white font-bold py-3 rounded-xl shadow-md text-sm tracking-widest uppercase">Validar Acesso</button>
             <button onclick="closeModal()" class="w-full py-2 text-xs font-bold opacity-50 hover:opacity-100 uppercase tracking-tighter">Cancelar</button>
@@ -133,6 +136,7 @@ let SESSION_TOKEN = null;
 let CURRENT_IP = "0.0.0.0";
 let ATTEMPTS_COUNT = 0;
 const MAX_ATTEMPTS = 5;
+let countdownInterval;
 
 // --- LÓGICA DE INSTALAÇÃO PWA ---
 let deferredPrompt;
@@ -239,7 +243,6 @@ async function handleClientSearch() {
     .then(res => res.json())
     .then(response => {
         if (response.status === "admin") {
-            // AJUSTE: Salva a autorização de admin antes de redirecionar
             sessionStorage.setItem('ADV_ADMIN_AUTH', 'true');
             window.location.href = response.redirect;
         } else if (response.status === "codigo_enviado") {
@@ -256,16 +259,41 @@ async function handleClientSearch() {
     });
 }  
 
+function startTimer(duration) {
+    let timer = duration, minutes, seconds;
+    const display = document.getElementById('timer');
+    
+    clearInterval(countdownInterval);
+    countdownInterval = setInterval(function () {
+        minutes = parseInt(timer / 60, 10);
+        seconds = parseInt(timer % 60, 10);
+
+        minutes = minutes < 10 ? "0" + minutes : minutes;
+        seconds = seconds < 10 ? "0" + seconds : seconds;
+
+        display.textContent = minutes + ":" + seconds;
+
+        if (--timer < 0) {
+            clearInterval(countdownInterval);
+            display.textContent = "00:00";
+            display.classList.add('text-red-500');
+        }
+    }, 1000);
+}
+
 function openModal() {
     document.getElementById('modalCode').classList.remove('hidden');
     document.getElementById('modalCode').classList.add('flex');
     document.getElementById('inputOtp').focus();
+    document.getElementById('timer').classList.remove('text-red-500');
+    startTimer(180); 
 }
 
 function closeModal() {
     document.getElementById('modalCode').classList.add('hidden');
     document.getElementById('modalCode').classList.remove('flex');
     document.getElementById('inputOtp').value = '';
+    clearInterval(countdownInterval);
 }
 
 async function confirmCode() {
