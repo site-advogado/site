@@ -94,7 +94,7 @@
     </section>  
 
     <section id="view-timeline" class="hidden space-y-6">  
-        <button onclick="showView('view-client-search')" class="text-satinGold font-bold text-sm mb-4"><i class="fas fa-arrow-left mr-2"></i>Voltar</button>  
+        <button onclick="sairTimeline()" class="text-satinGold font-bold text-sm mb-4"><i class="fas fa-arrow-left mr-2"></i>Voltar</button>  
         <div id="timeline-status-info" class="text-center hidden p-4 rounded-xl bg-gray-200 dark:bg-zinc-800 mb-4 italic text-sm">Este processo foi finalizado.</div>  
         <div class="border-l-4 border-satinGold pl-6 ml-2 space-y-8" id="timeline-content"></div>  
     </section>  
@@ -328,7 +328,7 @@ async function confirmCode() {
     const dataFinal = await resVerificar.json();
 
     if (dataFinal.status === "ok") {
-        localStorage.setItem('ADV_SESSION_TOKEN', dataFinal.token);
+        sessionStorage.setItem('ADV_SESSION_TOKEN', dataFinal.token);
         SESSION_TOKEN = dataFinal.token; 
         closeModal();
         carregarTimeline();
@@ -340,7 +340,7 @@ async function confirmCode() {
 
 async function carregarTimeline() {
     if (!SESSION_TOKEN) {
-        SESSION_TOKEN = localStorage.getItem('ADV_SESSION_TOKEN');
+        SESSION_TOKEN = sessionStorage.getItem('ADV_SESSION_TOKEN');
     }
 
     if (!SESSION_TOKEN) return;
@@ -359,7 +359,7 @@ async function carregarTimeline() {
     .then(res => res.json())
     .then(data => {
         if (data.status === "expirado") {
-            localStorage.removeItem('ADV_SESSION_TOKEN');
+            sessionStorage.removeItem('ADV_SESSION_TOKEN');
             showErrorModal("Sessão expirada. Por favor, peça um novo código.");
             showView('view-client-search');
         } else if (data.status === "erro") {
@@ -373,7 +373,7 @@ async function carregarTimeline() {
 
 window.onload = () => { 
     fetchBio(); 
-    const savedToken = localStorage.getItem('ADV_SESSION_TOKEN');
+    const savedToken = sessionStorage.getItem('ADV_SESSION_TOKEN');
     if (savedToken) {
         SESSION_TOKEN = savedToken;
         carregarTimeline();
@@ -401,6 +401,12 @@ function renderTimeline(eventos) {
             </div>`;  
     });  
 }  
+
+function sairTimeline() {
+    sessionStorage.removeItem('ADV_SESSION_TOKEN');
+    SESSION_TOKEN = null;
+    showView('view-client-search');
+}
 
 function showView(viewId) {  
     ['view-client-search', 'view-timeline'].forEach(v => document.getElementById(v).classList.add('hidden'));  
