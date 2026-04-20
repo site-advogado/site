@@ -263,7 +263,9 @@ async function confirmCode() {
     const dataFinal = await resVerificar.json();
 
     if (dataFinal.status === "ok") {
-        SESSION_TOKEN = dataFinal.token;
+        // SALVA NO LOCALSTORAGE PARA DURAR MESMO FECHANDO O NAVEGADOR
+        localStorage.setItem('ADV_SESSION_TOKEN', dataFinal.token);
+        SESSION_TOKEN = dataFinal.token; 
         closeModal();
         carregarTimeline();
     } else {
@@ -273,6 +275,13 @@ async function confirmCode() {
 }
 
 async function carregarTimeline() {
+    // Tenta pegar o token do localStorage se a variável global estiver vazia
+    if (!SESSION_TOKEN) {
+        SESSION_TOKEN = localStorage.getItem('ADV_SESSION_TOKEN');
+    }
+
+    if (!SESSION_TOKEN) return; // Se ainda não tem token, não faz nada
+
     const ipValidacao = await getClientIP();
 
     fetch(URL_SCRIPT, {
@@ -287,10 +296,10 @@ async function carregarTimeline() {
     .then(res => res.json())
     .then(data => {
         if (data.status === "expirado") {
-            alert("Sessão expirada. Faça login novamente.");
+            localStorage.removeItem('ADV_SESSION_TOKEN'); // Limpa o token vencido
+            alert("Sessão expirada. Peça um novo código.");
             showView('view-client-search');
         } else if (data.status === "erro") {
-            alert("Sessão inválida ou erro de segurança.");
             showView('view-client-search');
         } else {
             renderTimeline(data);
@@ -299,6 +308,22 @@ async function carregarTimeline() {
     });
 }
 
+// ADICIONE ISSO AO FINAL DO SEU window.onload PARA LOGAR AUTOMÁTICO SE JÁ TIVER TOKEN
+window.onload = () => { 
+    fetchBio(); 
+    const savedToken = localStorage.getItem('ADV_SESSION_TOKEN');
+    if (savedToken) {
+        SESSION_TOKEN = savedToken;
+        carregarTimeline();
+    }
+};
+
+
+
+
+
+
+    
 function renderTimeline(eventos) {  
     const container = document.getElementById('timeline-content');  
     container.innerHTML = '';  
