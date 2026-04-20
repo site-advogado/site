@@ -239,6 +239,8 @@ async function handleClientSearch() {
     .then(res => res.json())
     .then(response => {
         if (response.status === "admin") {
+            // AJUSTE: Salva a autorização de admin antes de redirecionar
+            sessionStorage.setItem('ADV_ADMIN_AUTH', 'true');
             window.location.href = response.redirect;
         } else if (response.status === "codigo_enviado") {
             openModal();
