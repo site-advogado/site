@@ -40,6 +40,15 @@
         .card-finalizado { filter: grayscale(1); opacity: 0.8; background-color: #e5e7eb !important; }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: #C5A059; border-radius: 10px; }
+
+        /* Estilos para o deslizamento das abas */
+        .tab-indicator {
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .active-tab {
+            color: #C5A059 !important;
+            opacity: 1 !important;
+        }
     </style>
 </head>
 
@@ -65,9 +74,11 @@
 
 <main class="pt-28 pb-20 px-4 max-w-4xl mx-auto">
     
-    <div class="flex gap-2 mb-8 bg-gray-100 dark:bg-zinc-900 p-1 rounded-2xl">
-        <button onclick="switchTab('tab-clientes')" id="btn-tab-clientes" class="flex-1 py-4 rounded-xl font-bold text-sm uppercase tracking-widest transition-all bg-white dark:bg-zinc-800 shadow-sm text-satinGold">Clientes</button>
-        <button onclick="switchTab('tab-perfil')" id="btn-tab-perfil" class="flex-1 py-4 rounded-xl font-bold text-sm uppercase tracking-widest transition-all opacity-50">Meu Perfil</button>
+    <div class="relative flex mb-8 bg-gray-100 dark:bg-zinc-900 p-1 rounded-2xl h-14">
+        <div id="tab-pill" class="tab-indicator absolute top-1 bottom-1 left-1 w-[calc(50%-4px)] bg-white dark:bg-zinc-800 rounded-xl shadow-sm z-0"></div>
+        
+        <button onclick="switchTab('tab-clientes')" id="btn-tab-clientes" class="relative z-10 flex-1 py-4 rounded-xl font-bold text-sm uppercase tracking-widest transition-all active-tab">Clientes</button>
+        <button onclick="switchTab('tab-perfil')" id="btn-tab-perfil" class="relative z-10 flex-1 py-4 rounded-xl font-bold text-sm uppercase tracking-widest transition-all opacity-50">Meu Perfil</button>
     </div>
 
     <section id="tab-clientes" class="space-y-6">
@@ -82,7 +93,7 @@
         </div>
 
         <div id="admin-client-list" class="grid grid-cols-1 gap-4">
-            </div>
+        </div>
     </section>
 
     <section id="tab-perfil" class="hidden">
@@ -248,12 +259,29 @@
     }
 
     function switchTab(tabId) {
-        document.getElementById('tab-clientes').classList.add('hidden');
-        document.getElementById('tab-perfil').classList.add('hidden');
-        document.getElementById('btn-tab-clientes').classList.add('opacity-50');
-        document.getElementById('btn-tab-perfil').classList.add('opacity-50');
-        document.getElementById(tabId).classList.remove('hidden');
-        document.getElementById('btn-' + tabId).classList.remove('opacity-50');
+        const pill = document.getElementById('tab-pill');
+        const btnClientes = document.getElementById('btn-tab-clientes');
+        const btnPerfil = document.getElementById('btn-tab-perfil');
+
+        if (tabId === 'tab-clientes') {
+            pill.style.transform = 'translateX(0)';
+            btnClientes.classList.add('active-tab');
+            btnClientes.classList.remove('opacity-50');
+            btnPerfil.classList.remove('active-tab');
+            btnPerfil.classList.add('opacity-50');
+            
+            document.getElementById('tab-clientes').classList.remove('hidden');
+            document.getElementById('tab-perfil').classList.add('hidden');
+        } else {
+            pill.style.transform = 'translateX(100%)';
+            btnPerfil.classList.add('active-tab');
+            btnPerfil.classList.remove('opacity-50');
+            btnClientes.classList.remove('active-tab');
+            btnClientes.classList.add('opacity-50');
+
+            document.getElementById('tab-perfil').classList.remove('hidden');
+            document.getElementById('tab-clientes').classList.add('hidden');
+        }
     }
 
     function openModal(id) {
@@ -292,7 +320,6 @@
         const list = document.getElementById('admin-client-list');
         list.innerHTML = '';
         
-        // Simulação de ordenação: os mais recentes (últimos adicionados) ficam no topo
         [...dbClients].reverse().forEach((c, index) => {
             const isFinalizado = c.status.includes("Finalizado");
             list.innerHTML += `
