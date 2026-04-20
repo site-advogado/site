@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel Administrativo | Gestão Jurídica</title>
+    <title>Painel | Gestão Jurídica</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
@@ -38,11 +38,11 @@
         .client-card { transition: all 0.3s ease; }
         .client-card:hover { transform: translateY(-2px); border-color: #C5A059; }
         
-        /* Ajuste de visibilidade do Card Finalizado no Modo Escuro */
+        /* Estilo do Card Finalizado - Mantém cinza, mas com alta visibilidade */
         .card-finalizado { background-color: #e5e7eb !important; border-color: #9ca3af !important; }
-        .dark .card-finalizado { background-color: #3f3f46 !important; border-color: #71717a !important; opacity: 1 !important; filter: none !important; }
-        .dark .card-finalizado h4 { color: #ffffff !important; }
-        .dark .card-finalizado p { color: #d1d5db !important; opacity: 1 !important; }
+        .dark .card-finalizado { background-color: #334155 !important; border-color: #64748b !important; }
+        .dark .card-finalizado h4 { color: #cbd5e1 !important; }
+        .dark .card-finalizado p { color: #94a3b8 !important; }
 
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: #C5A059; border-radius: 10px; }
@@ -97,7 +97,8 @@
             </button>
         </div>
 
-        <div id="admin-client-list" class="grid grid-cols-1 gap-4"></div>
+        <div id="admin-client-list" class="grid grid-cols-1 gap-4">
+        </div>
     </section>
 
     <section id="tab-perfil" class="hidden">
@@ -330,8 +331,8 @@
                 <div class="bg-white dark:bg-zinc-900 p-6 rounded-[25px] border border-satinGold/10 client-card shadow-sm flex justify-between items-center ${isFinalizado ? 'card-finalizado border-gray-400 dark:border-zinc-500' : ''}">
                     <div>
                         <h4 class="font-bold text-darkGold text-lg dark:text-pearl">${c.name}</h4>
-                        <p class="text-xs opacity-60 dark:opacity-80 uppercase font-bold tracking-tight dark:text-gray-300">${c.status}</p>
-                        <p class="text-[10px] opacity-40 dark:opacity-70 font-bold dark:text-gray-400">${c.email}</p>
+                        <p class="text-xs uppercase font-bold tracking-tight">${c.status}</p>
+                        <p class="text-[10px] font-bold">${c.email}</p>
                     </div>
                     <div class="flex gap-2">
                         <button onclick="openClientModal(true)" class="w-10 h-10 rounded-full bg-gray-100 dark:bg-zinc-800 text-satinGold hover:bg-satinGold hover:text-white transition-all">
