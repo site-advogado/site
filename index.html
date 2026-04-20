@@ -35,6 +35,29 @@
     </script>  
 
     <style>  
+
+/* Bloqueia a seleção de texto e o arraste de imagens */
+body {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+/* Mantém os campos de texto funcionando (senão você não consegue digitar o login) */
+input, select, textarea {
+    -webkit-user-select: text !important;
+    -moz-user-select: text !important;
+    -ms-user-select: text !important;
+    user-select: text !important;
+}
+
+/* Proteção extra para imagens */
+img {
+    pointer-events: none !important;
+    -webkit-user-drag: none !important;
+}
+        
         .timeline-line::before {  
             content: '';  
             position: absolute;  
