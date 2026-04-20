@@ -1,6 +1,12 @@
 <!DOCTYPE html>  
 <html lang="pt-br" class="light">  
 <head>  
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Advocacia">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3503/3503567.png">
+
     <meta charset="UTF-8">  
     <meta name="viewport" content="width=device-width, initial-scale=1.0">  
     <title>Dra. Nome da Advogada | Gestão Processual</title>  
@@ -48,8 +54,8 @@
 <body class="bg-pearl dark:bg-softBlack text-softBlack dark:text-pearl min-h-screen font-sans transition-colors duration-300">  
 
 <header class="fixed top-0 w-full z-50 p-4 flex justify-between items-center bg-pearl/80 dark:bg-softBlack/80 backdrop-blur-md border-b border-satinGold/20">  
-    <button id="installApp" class="hidden bg-satinGold hover:bg-darkGold text-white px-4 py-2 rounded-full text-xs font-bold transition-all shadow-lg animate-bounce">  
-        <i class="fas fa-download mr-2"></i>INSTALAR APP  
+    <button id="installApp" class="hidden bg-satinGold hover:bg-darkGold text-white px-4 py-2 rounded-full text-[10px] font-bold transition-all shadow-lg animate-bounce">  
+        <i class="fas fa-download mr-2"></i>BAIXAR APP  
     </button>  
     <div class="flex gap-4 items-center ml-auto">  
         <button onclick="toggleDarkMode()" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-800 transition-all">  
@@ -115,6 +121,42 @@ let SESSION_TOKEN = null;
 let CURRENT_IP = "0.0.0.0";
 let ATTEMPTS_COUNT = 0;
 const MAX_ATTEMPTS = 5;
+
+// --- LÓGICA DE INSTALAÇÃO PWA ---
+let deferredPrompt;
+const installBtn = document.getElementById('installApp');
+const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    if (!isStandalone) {
+        installBtn.classList.remove('hidden');
+    }
+});
+
+installBtn.addEventListener('click', async () => {
+    if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+            installBtn.classList.add('hidden');
+        }
+        deferredPrompt = null;
+    } else {
+        if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
+            alert("Para instalar no iOS: \n1. Toque no ícone de compartilhar (quadrado com seta).\n2. Selecione 'Adicionar à Tela de Início'.");
+        }
+    }
+});
+
+if (/iPhone|iPad|iPod/.test(navigator.userAgent) && !isStandalone) {
+    installBtn.classList.remove('hidden');
+}
+
+window.addEventListener('appinstalled', () => {
+    installBtn.classList.add('hidden');
+});
 
 async function getClientIP() {
     try {
