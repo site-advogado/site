@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel | Gestão Jurídica</title>
+    <title>Painel Administrativo | Gestão Jurídica</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
@@ -38,11 +38,31 @@
         .client-card { transition: all 0.3s ease; }
         .client-card:hover { transform: translateY(-2px); border-color: #C5A059; }
         
-        /* Estilo do Card Finalizado - Mantém cinza, mas com alta visibilidade */
-        .card-finalizado { background-color: #e5e7eb !important; border-color: #9ca3af !important; }
-        .dark .card-finalizado { background-color: #334155 !important; border-color: #64748b !important; }
-        .dark .card-finalizado h4 { color: #cbd5e1 !important; }
-        .dark .card-finalizado p { color: #94a3b8 !important; }
+        /* ESTILO INTEGRALMENTE CINZA PARA CARD FINALIZADO */
+        .card-finalizado { 
+            background-color: #e5e7eb !important; 
+            border-color: #9ca3af !important; 
+        }
+        .card-finalizado h4, .card-finalizado p, .card-finalizado i { 
+            color: #6b7280 !important; 
+        }
+        .card-finalizado button { 
+            background-color: #d1d5db !important; 
+            color: #6b7280 !important; 
+        }
+
+        /* MODO ESCURO - CARD FINALIZADO */
+        .dark .card-finalizado { 
+            background-color: #334155 !important; 
+            border-color: #475569 !important; 
+        }
+        .dark .card-finalizado h4, .dark .card-finalizado p, .dark .card-finalizado i { 
+            color: #94a3b8 !important; 
+        }
+        .dark .card-finalizado button { 
+            background-color: #1e293b !important; 
+            color: #94a3b8 !important; 
+        }
 
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: #C5A059; border-radius: 10px; }
@@ -330,7 +350,7 @@
             list.innerHTML += `
                 <div class="bg-white dark:bg-zinc-900 p-6 rounded-[25px] border border-satinGold/10 client-card shadow-sm flex justify-between items-center ${isFinalizado ? 'card-finalizado border-gray-400 dark:border-zinc-500' : ''}">
                     <div>
-                        <h4 class="font-bold text-darkGold text-lg dark:text-pearl">${c.name}</h4>
+                        <h4 class="font-bold text-darkGold text-lg">${c.name}</h4>
                         <p class="text-xs uppercase font-bold tracking-tight">${c.status}</p>
                         <p class="text-[10px] font-bold">${c.email}</p>
                     </div>
@@ -339,7 +359,7 @@
                             <i class="fas fa-pen text-sm"></i>
                         </button>
                         ${isFinalizado ? `
-                            <button onclick="triggerConfirm('excluir')" class="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 hover:bg-red-600 hover:text-white dark:hover:bg-red-500 transition-all">
+                            <button onclick="triggerConfirm('excluir')" class="w-10 h-10 rounded-full bg-red-100 text-red-600 hover:bg-red-600 hover:text-white transition-all">
                                 <i class="fas fa-trash-alt text-sm"></i>
                             </button>
                         ` : ''}
