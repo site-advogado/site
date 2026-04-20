@@ -298,45 +298,42 @@ function fetchBio() {
 }  
 
 async function handleClientSearch() {  
-    if (ATTEMPTS_COUNT >= MAX_ATTEMPTS) {
-        return showErrorModal("Muitas tentativas. Por favor, recarregue a página.");
-    }
-
     const inputUsuario = document.getElementById('searchCpf').value.trim();  
     const btn = document.getElementById('btnSearch');
     
-    if (!inputUsuario) return showErrorModal("Por favor, preencha o campo de e-mail.");  
+    if (!inputUsuario) return showErrorModal("Por favor, preencha o campo.");  
 
     btn.innerText = "VERIFICANDO...";
     btn.disabled = true;
 
-    CURRENT_IP = await getClientIP();
+    try {
+        const response = await fetch(URL_SCRIPT, {
+            method: "POST",
+            credentials: "include", 
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                action: "login",
+                usuario: inputUsuario,
+                passo: "solicitar",
+                ip: await getClientIP()
+            })
+        });
+        
+        const data = await response.json();
 
-    fetch(URL_SCRIPT, {
-        method: "POST",
-        credentials: "include", // Garante o envio do cookie se existir
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            action: "login",
-            usuario: inputUsuario,
-            passo: "solicitar",
-            ip: CURRENT_IP 
-        })
-    })
-    .then(res => res.json())
-    .then(response => {
-        if (response.status === "codigo_enviado") {
-            openModal();
+        if (data.status === "abrir_modal_admin") {
+            openAdminModal(); // Abre o modal se digitar a palavra secreta
+        } else if (data.status === "codigo_enviado") {
+            openModal(); // Abre modal do OTP (E-mail)
         } else {
-            ATTEMPTS_COUNT++;
-            showErrorModal(response.message || "E-mail não autorizado.");
+            showErrorModal(data.message || "Usuário não encontrado.");
         }
-    })
-    .catch(() => showErrorModal("Erro na comunicação com a API."))
-    .finally(() => {
+    } catch (e) {
+        showErrorModal("Erro na comunicação.");
+    } finally {
         btn.innerText = "ACESSAR LINHA DO TEMPO";
         btn.disabled = false;
-    });
+    }
 }
 
 // Funções de Modal e Timer (Manutenção do código original)
