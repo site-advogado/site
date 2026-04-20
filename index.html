@@ -226,12 +226,16 @@ function closeAdminModal() {
     document.getElementById('modalAdmin').classList.remove('flex');
 }
 
+
+
+    
+
 async function realizarLoginAdmin() {
-    const user = document.getElementById('adminUser').value.trim();
+    const user = document.getElementById('adminUser').value.trim(); // Usei trim() para evitar espaços extras
     const pass = document.getElementById('adminPass').value;
     const btn = document.getElementById('btnAdminLogin');
 
-    if(!user) return alert("Digite a palavra secreta.");
+    if(!user) return alert("Preencha a palavra secreta.");
 
     btn.innerText = "AUTENTICANDO...";
     btn.disabled = true;
@@ -239,20 +243,22 @@ async function realizarLoginAdmin() {
     try {
         const response = await fetch(URL_SCRIPT, {
             method: "POST",
-            credentials: "include", // Ativa o uso de Cookies HTTPOnly
+            credentials: "include", 
             body: JSON.stringify({
-                action: "login", // Alterado para "login" para compatibilidade com o Google Script
+                action: "login", // MODIFICAÇÃO AQUI: De login_admin para login
                 usuario: user,
                 senha: pass,
                 ip: await getClientIP()
             })
         });
+        
         const data = await response.json();
+
         if(data.status === "sucesso") {
             sessionStorage.setItem('ADV_ADMIN_AUTH', 'true');
             window.location.href = "c-onfi-gura-cao.html"; 
         } else {
-            alert(data.message || "Palavra Secreta Incorreta.");
+            alert(data.message || "Acesso negado.");
         }
     } catch (e) {
         alert("Erro de conexão com o servidor.");
@@ -261,6 +267,12 @@ async function realizarLoginAdmin() {
         btn.disabled = false;
     }
 }
+
+
+
+
+
+    
 
 // --- LOGICA DE CLIENTE ---
 async function getClientIP() {
