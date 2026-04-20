@@ -9,10 +9,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
     
     <script>
-        if (!sessionStorage.getItem('ADV_ADMIN_AUTH')) {
-            window.location.href = "https://site-advogado.github.io/site/";
-        }
-
         tailwind.config = {
             darkMode: 'class',
             theme: {
@@ -312,10 +308,16 @@ function resetarCronometro() {
 }
 
 window.onmousemove = resetarCronometro;
+
+// UNIFICAÇÃO DOS WINDOW.ONLOAD PARA EVITAR SOBREPOSIÇÃO
 window.onload = () => {
+    // 1. Verificação de Autenticação
     if (!sessionStorage.getItem('ADV_ADMIN_AUTH')) {
         window.location.href = "https://site-advogado.github.io/site/";
+        return;
     }
+    
+    // 2. Inicialização do Sistema
     resetarCronometro();
     renderClients();
 };
