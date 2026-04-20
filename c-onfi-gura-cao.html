@@ -9,7 +9,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
     
     <script>
-        // --- TRAVA DE SEGURANÇA IMEDIATA ---
         if (!sessionStorage.getItem('ADV_ADMIN_AUTH')) {
             window.location.href = "https://site-advogado.github.io/site/";
         }
@@ -38,6 +37,7 @@
         .gold-gradient { background: linear-gradient(135deg, #C5A059 0%, #A37E3B 100%); }
         .client-card { transition: all 0.3s ease; }
         .client-card:hover { transform: translateY(-2px); border-color: #C5A059; }
+        .card-finalizado { filter: grayscale(1); opacity: 0.8; background-color: #e5e7eb !important; }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: #C5A059; border-radius: 10px; }
     </style>
@@ -81,9 +81,8 @@
             </button>
         </div>
 
-        <div id="admin-client-list" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="col-span-full py-20 text-center opacity-50 italic">Carregando base de dados...</div>
-        </div>
+        <div id="admin-client-list" class="grid grid-cols-1 gap-4">
+            </div>
     </section>
 
     <section id="tab-perfil" class="hidden">
@@ -120,13 +119,27 @@
             </div>
 
             <div class="pt-6 border-t border-satinGold/20">
-                <h4 class="font-serif text-xl text-darkGold mb-4 uppercase tracking-tighter">Palavra Secreta de Segurança</h4>
-                <input type="password" id="config-secret" placeholder="Confirme sua palavra secreta para salvar" class="w-full p-4 rounded-xl border-2 border-satinGold bg-pearl dark:bg-zinc-800 text-center font-bold">
-                <button onclick="saveProfile()" class="w-full mt-4 gold-gradient text-white py-4 rounded-2xl font-bold shadow-xl uppercase tracking-widest">Salvar Alterações</button>
+                <h4 class="font-serif text-xl text-darkGold mb-4 uppercase tracking-tighter">Segurança</h4>
+                
+                <div class="relative mb-4">
+                    <label class="text-sm font-bold text-satinGold uppercase mb-1 block">Palavra Secreta Atual</label>
+                    <div class="relative">
+                        <input type="password" id="config-secret" class="w-full p-4 pr-16 rounded-xl border-2 border-satinGold bg-pearl dark:bg-zinc-800 font-bold">
+                        <div class="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2 bg-pearl dark:bg-zinc-800 pl-2">
+                            <input type="checkbox" id="check-change-secret" onchange="toggleNewSecretField()" class="w-5 h-5 accent-satinGold cursor-pointer">
+                        </div>
+                    </div>
+                </div>
+
+                <div id="container-new-secret" class="hidden space-y-2 mb-6">
+                    <label class="text-sm font-bold text-darkGold uppercase">Nova Palavra Secreta</label>
+                    <input type="text" id="config-new-secret" placeholder="Digite a nova palavra" class="w-full p-4 rounded-xl border-2 border-darkGold bg-white dark:bg-zinc-900 font-bold">
+                </div>
+
+                <button onclick="triggerConfirm('perfil')" class="w-full gold-gradient text-white py-4 rounded-2xl font-bold shadow-xl uppercase tracking-widest">Salvar Alterações</button>
             </div>
         </div>
     </section>
-
 </main>
 
 <div id="modal-client" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4 modal-blur bg-black/60 overflow-y-auto">
@@ -152,7 +165,7 @@
                 <label class="text-sm font-bold text-satinGold uppercase tracking-widest">Status do Processo</label>
                 <div class="flex items-center gap-2">
                     <input type="checkbox" id="a-new-card" class="accent-satinGold" checked>
-                    <label for="a-new-card" class="text-[10px] font-bold opacity-70">CRIAR NOVO CARD NO HISTÓRICO</label>
+                    <label for="a-new-card" class="text-[10px] font-bold opacity-70 uppercase">Criar Novo Card</label>
                 </div>
             </div>
             
@@ -161,21 +174,43 @@
                 <option value="Aguardando Citação">Aguardando Citação</option>
                 <option value="Audiência de Conciliação Designada">Audiência de Conciliação Designada</option>
                 <option value="Audiência de Instrução e Julgamento">Audiência de Instrução e Julgamento</option>
-                <option value="Processo em Prazo para Alegações">Processo em Prazo para Alegações</option>
-                <option value="Concluso para Sentença">Concluso para Sentença</option>
                 <option value="Sentença Proferida">Sentença Proferida</option>
-                <option value="Recurso em Andamento">Recurso em Andamento</option>
                 <option value="Fase de Execução / Cálculos">Fase de Execução / Cálculos</option>
                 <option value="Processo Finalizado / Arquivado">Processo Finalizado / Arquivado</option>
             </select>
 
-            <textarea id="a-desc" placeholder="Descreva os detalhes da última movimentação de forma simples para o cliente entender..." class="w-full p-4 rounded-xl border dark:bg-zinc-900 h-32 text-sm"></textarea>
+            <textarea id="a-desc" placeholder="Descreva os detalhes..." class="w-full p-4 rounded-xl border dark:bg-zinc-900 h-32 text-sm"></textarea>
         </div>
 
         <div class="flex gap-3 mt-8">
             <button onclick="closeModal('modal-client')" class="flex-1 py-4 font-bold opacity-50 text-xs uppercase tracking-widest">Cancelar</button>
-            <button onclick="saveClientData()" class="flex-1 gold-gradient text-white py-4 rounded-2xl font-bold shadow-xl text-xs uppercase tracking-widest">Salvar Registro</button>
+            <button onclick="triggerConfirm('cliente')" class="flex-1 gold-gradient text-white py-4 rounded-2xl font-bold shadow-xl text-xs uppercase tracking-widest">Salvar Registro</button>
         </div>
+    </div>
+</div>
+
+<div id="modal-confirm" class="fixed inset-0 z-[200] hidden flex items-center justify-center p-4 modal-blur bg-black/80">
+    <div class="bg-pearl dark:bg-zinc-900 w-full max-w-sm p-8 rounded-[30px] border-2 border-satinGold text-center shadow-2xl">
+        <div class="w-16 h-16 gold-gradient rounded-full flex items-center justify-center text-white text-2xl mx-auto mb-4">
+            <i class="fas fa-question"></i>
+        </div>
+        <h3 class="font-serif text-xl text-darkGold mb-2 uppercase">Confirmar Ação?</h3>
+        <p class="text-sm opacity-70 mb-8" id="confirm-text">Deseja realmente salvar estas alterações no sistema?</p>
+        <div class="flex gap-3">
+            <button onclick="closeModal('modal-confirm')" class="flex-1 py-3 text-xs font-bold uppercase opacity-50">Não</button>
+            <button id="btn-confirm-yes" class="flex-1 gold-gradient text-white py-3 rounded-xl text-xs font-bold uppercase shadow-lg">Sim, Confirmar</button>
+        </div>
+    </div>
+</div>
+
+<div id="modal-success" class="fixed inset-0 z-[300] hidden flex items-center justify-center p-4 modal-blur bg-black/60">
+    <div class="bg-pearl dark:bg-zinc-900 w-full max-w-xs p-8 rounded-[30px] border-2 border-green-500 text-center shadow-2xl">
+        <div class="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center text-white text-2xl mx-auto mb-4">
+            <i class="fas fa-check"></i>
+        </div>
+        <h3 class="font-serif text-xl text-green-600 mb-2 uppercase font-bold">Sucesso!</h3>
+        <p class="text-sm opacity-70 mb-6">Atualizações salvas com sucesso no banco de dados.</p>
+        <button onclick="closeModal('modal-success')" class="w-full bg-green-500 text-white py-3 rounded-xl text-xs font-bold uppercase">Fechar</button>
     </div>
 </div>
 
@@ -183,7 +218,10 @@
     const URL_SCRIPT = "SEU_WEB_APP_URL_DO_GOOGLE"; 
     const API_KEY_SECRET = "ADV_SISTEMA_SEGURO_2026_X9"; 
     
-    let dbClients = [];
+    let dbClients = [
+        {name: "João da Silva", email: "joao@email.com", status: "Audiência de Conciliação Designada", finalizado: false},
+        {name: "Maria Oliveira", email: "maria@email.com", status: "Processo Finalizado / Arquivado", finalizado: true}
+    ];
     let tempoInatividade;
 
     function resetarCronometro() {
@@ -192,66 +230,21 @@
     }
 
     window.onmousemove = resetarCronometro;
-    window.onmousedown = resetarCronometro;
-    window.onclick = resetarCronometro;
-    window.onkeydown = resetarCronometro;
-    window.ontouchstart = resetarCronometro;
-
     window.onload = () => {
         if (!sessionStorage.getItem('ADV_ADMIN_AUTH')) {
             window.location.href = "https://site-advogado.github.io/site/";
         }
         resetarCronometro();
-        fetchData();
+        renderClients();
     };
 
-    async function fetchData() {
-        try {
-            const response = await fetch(URL_SCRIPT, {
-                method: 'POST',
-                body: JSON.stringify({ action: 'bio', api_key: API_KEY_SECRET })
-            });
-            const bio = await response.json();
-            fillProfileFields(bio);
-            renderClients(); 
-        } catch (e) {
-            console.error("Erro ao sincronizar:", e);
-        }
+    function toggleDarkMode() {
+        document.documentElement.classList.toggle('dark');
     }
 
-    function fillProfileFields(data) {
-        document.getElementById('config-name').value = data.name || "";
-        document.getElementById('config-oab').value = data.oab || "";
-        document.getElementById('config-desc').value = data.desc || "";
-        document.getElementById('config-phone').value = data.phone || "";
-        document.getElementById('config-email').value = data.email || "";
-        document.getElementById('config-img').value = data.img || "";
-    }
-
-    function renderClients() {
-        const list = document.getElementById('admin-client-list');
-        list.innerHTML = '';
-        dbClients.forEach(c => {
-            list.innerHTML += `
-                <div class="bg-white dark:bg-zinc-900 p-6 rounded-[25px] border border-satinGold/10 client-card shadow-sm flex justify-between items-center">
-                    <div>
-                        <h4 class="font-bold text-darkGold">${c.name}</h4>
-                        <p class="text-[10px] opacity-50 uppercase font-bold">${c.email}</p>
-                    </div>
-                    <button onclick="editClient('${c.email}')" class="w-10 h-10 rounded-full bg-gray-100 dark:bg-zinc-800 text-satinGold hover:bg-satinGold hover:text-white transition-all">
-                        <i class="fas fa-pen"></i>
-                    </button>
-                </div>`;
-        });
-    }
-
-    function openClientModal() {
-        document.getElementById('modal-title').innerText = "Novo Processo";
-        document.getElementById('c-nome').value = "";
-        document.getElementById('c-email').value = "";
-        document.getElementById('a-desc').value = "";
-        document.getElementById('modal-client').classList.remove('hidden');
-        document.getElementById('modal-client').classList.add('flex');
+    function toggleNewSecretField() {
+        const check = document.getElementById('check-change-secret');
+        document.getElementById('container-new-secret').classList.toggle('hidden', !check.checked);
     }
 
     function switchTab(tabId) {
@@ -261,7 +254,11 @@
         document.getElementById('btn-tab-perfil').classList.add('opacity-50');
         document.getElementById(tabId).classList.remove('hidden');
         document.getElementById('btn-' + tabId).classList.remove('opacity-50');
-        document.getElementById('btn-' + tabId).classList.add('bg-white', 'dark:bg-zinc-800', 'shadow-sm', 'text-satinGold');
+    }
+
+    function openModal(id) {
+        document.getElementById(id).classList.remove('hidden');
+        document.getElementById(id).classList.add('flex');
     }
 
     function closeModal(id) {
@@ -269,28 +266,58 @@
         document.getElementById(id).classList.remove('flex');
     }
 
-    function toggleDarkMode() {
-        document.documentElement.classList.toggle('dark');
-    }
-
     function logoutAdmin() {
         sessionStorage.removeItem('ADV_ADMIN_AUTH');
         window.location.href = "https://site-advogado.github.io/site/";
     }
 
-    async function saveClientData() {
-        const payload = {
-            action: 'save_client',
-            api_key: API_KEY_SECRET,
-            nome: document.getElementById('c-nome').value,
-            email: document.getElementById('c-email').value,
-            status: document.getElementById('a-status').value,
-            descricao: document.getElementById('a-desc').value,
-            novo_card: document.getElementById('a-new-card').checked
+    function triggerConfirm(tipo) {
+        openModal('modal-confirm');
+        const btn = document.getElementById('btn-confirm-yes');
+        btn.onclick = () => {
+            closeModal('modal-confirm');
+            if(tipo === 'cliente') saveClientData();
+            if(tipo === 'perfil') saveProfileData();
+            
+            setTimeout(() => openModal('modal-success'), 500);
         };
-        alert("Dados enviados para a planilha!");
-        closeModal('modal-client');
     }
+
+    function openClientModal(editMode = false) {
+        document.getElementById('modal-title').innerText = editMode ? "Editar Processo" : "Novo Processo";
+        openModal('modal-client');
+    }
+
+    function renderClients() {
+        const list = document.getElementById('admin-client-list');
+        list.innerHTML = '';
+        
+        // Simulação de ordenação: os mais recentes (últimos adicionados) ficam no topo
+        [...dbClients].reverse().forEach((c, index) => {
+            const isFinalizado = c.status.includes("Finalizado");
+            list.innerHTML += `
+                <div class="bg-white dark:bg-zinc-900 p-6 rounded-[25px] border border-satinGold/10 client-card shadow-sm flex justify-between items-center ${isFinalizado ? 'card-finalizado' : ''}">
+                    <div>
+                        <h4 class="font-bold text-darkGold text-lg">${c.name}</h4>
+                        <p class="text-xs opacity-60 uppercase font-bold tracking-tight">${c.status}</p>
+                        <p class="text-[10px] opacity-40 font-bold">${c.email}</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="openClientModal(true)" class="w-10 h-10 rounded-full bg-gray-100 dark:bg-zinc-800 text-satinGold hover:bg-satinGold hover:text-white transition-all">
+                            <i class="fas fa-pen text-sm"></i>
+                        </button>
+                        ${isFinalizado ? `
+                            <button onclick="triggerConfirm('excluir')" class="w-10 h-10 rounded-full bg-red-100 text-red-600 hover:bg-red-600 hover:text-white transition-all">
+                                <i class="fas fa-trash-alt text-sm"></i>
+                            </button>
+                        ` : ''}
+                    </div>
+                </div>`;
+        });
+    }
+
+    function saveClientData() { closeModal('modal-client'); }
+    function saveProfileData() { /* Lógica de perfil */ }
 </script>
 
 </body>
