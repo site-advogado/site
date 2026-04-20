@@ -10,7 +10,6 @@
     
     <script>
         // --- TRAVA DE SEGURANÇA IMEDIATA ---
-        // Se não houver um token de acesso válido gerado pela palavra secreta, volta para o site inicial
         if (!sessionStorage.getItem('ADV_ADMIN_AUTH')) {
             window.location.href = "https://site-advogado.github.io/site/";
         }
@@ -51,7 +50,7 @@
         <div class="w-10 h-10 gold-gradient rounded-full flex items-center justify-center text-white shadow-lg">
             <i class="fas fa-gavel"></i>
         </div>
-        <h1 class="font-serif font-bold text-darkGold tracking-tighter hidden sm:block">PAINEL DE GESTÃO</h1>
+        <h1 class="font-serif font-bold text-darkGold tracking-tighter hidden sm:block text-xl">PAINEL DE GESTÃO</h1>
     </div>
     
     <div class="flex gap-4 items-center">
@@ -64,11 +63,11 @@
     </div>
 </header>
 
-<main class="pt-24 pb-20 px-4 max-w-4xl mx-auto">
+<main class="pt-28 pb-20 px-4 max-w-4xl mx-auto">
     
     <div class="flex gap-2 mb-8 bg-gray-100 dark:bg-zinc-900 p-1 rounded-2xl">
-        <button onclick="switchTab('tab-clientes')" id="btn-tab-clientes" class="flex-1 py-3 rounded-xl font-bold text-xs uppercase tracking-widest transition-all bg-white dark:bg-zinc-800 shadow-sm text-satinGold">Clientes</button>
-        <button onclick="switchTab('tab-perfil')" id="btn-tab-perfil" class="flex-1 py-3 rounded-xl font-bold text-xs uppercase tracking-widest transition-all opacity-50">Meu Perfil</button>
+        <button onclick="switchTab('tab-clientes')" id="btn-tab-clientes" class="flex-1 py-4 rounded-xl font-bold text-sm uppercase tracking-widest transition-all bg-white dark:bg-zinc-800 shadow-sm text-satinGold">Clientes</button>
+        <button onclick="switchTab('tab-perfil')" id="btn-tab-perfil" class="flex-1 py-4 rounded-xl font-bold text-sm uppercase tracking-widest transition-all opacity-50">Meu Perfil</button>
     </div>
 
     <section id="tab-clientes" class="space-y-6">
@@ -89,39 +88,39 @@
 
     <section id="tab-perfil" class="hidden">
         <div class="bg-white dark:bg-zinc-900 p-8 rounded-[30px] shadow-xl border border-satinGold/10 space-y-6">
-            <h3 class="font-serif text-2xl text-darkGold border-b border-satinGold/20 pb-4">Informações do Consultório</h3>
+            <h3 class="font-serif text-3xl text-darkGold border-b border-satinGold/20 pb-4">Informações do Consultório</h3>
             
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div class="space-y-2">
-                    <label class="text-[10px] font-bold text-satinGold uppercase">Nome Profissional</label>
+                    <label class="text-sm font-bold text-satinGold uppercase">Nome Profissional</label>
                     <input type="text" id="config-name" class="w-full p-3 rounded-xl border dark:bg-zinc-800 outline-none focus:border-satinGold">
                 </div>
                 <div class="space-y-2">
-                    <label class="text-[10px] font-bold text-satinGold uppercase">Registro OAB</label>
+                    <label class="text-sm font-bold text-satinGold uppercase">Registro OAB</label>
                     <input type="text" id="config-oab" class="w-full p-3 rounded-xl border dark:bg-zinc-800 outline-none focus:border-satinGold">
                 </div>
                 <div class="space-y-2">
-                    <label class="text-[10px] font-bold text-satinGold uppercase">URL da Foto (Perfil)</label>
+                    <label class="text-sm font-bold text-satinGold uppercase">URL da Foto (Perfil)</label>
                     <input type="text" id="config-img" class="w-full p-3 rounded-xl border dark:bg-zinc-800 outline-none focus:border-satinGold">
                 </div>
                 <div class="space-y-2">
-                    <label class="text-[10px] font-bold text-satinGold uppercase">WhatsApp Comercial</label>
+                    <label class="text-sm font-bold text-satinGold uppercase">WhatsApp Comercial</label>
                     <input type="text" id="config-phone" class="w-full p-3 rounded-xl border dark:bg-zinc-800 outline-none focus:border-satinGold">
                 </div>
             </div>
 
             <div class="space-y-2">
-                <label class="text-[10px] font-bold text-satinGold uppercase">E-mail Profissional</label>
+                <label class="text-sm font-bold text-satinGold uppercase">E-mail Profissional</label>
                 <input type="text" id="config-email" class="w-full p-3 rounded-xl border dark:bg-zinc-800 outline-none focus:border-satinGold">
             </div>
 
             <div class="space-y-2">
-                <label class="text-[10px] font-bold text-satinGold uppercase">Breve Biografia / Especialidade</label>
+                <label class="text-sm font-bold text-satinGold uppercase">Breve Biografia / Especialidade</label>
                 <textarea id="config-desc" class="w-full p-3 rounded-xl border dark:bg-zinc-800 outline-none focus:border-satinGold h-24"></textarea>
             </div>
 
             <div class="pt-6 border-t border-satinGold/20">
-                <h4 class="font-serif text-lg text-darkGold mb-4 uppercase tracking-tighter">Palavra Secreta de Segurança</h4>
+                <h4 class="font-serif text-xl text-darkGold mb-4 uppercase tracking-tighter">Palavra Secreta de Segurança</h4>
                 <input type="password" id="config-secret" placeholder="Confirme sua palavra secreta para salvar" class="w-full p-4 rounded-xl border-2 border-satinGold bg-pearl dark:bg-zinc-800 text-center font-bold">
                 <button onclick="saveProfile()" class="w-full mt-4 gold-gradient text-white py-4 rounded-2xl font-bold shadow-xl uppercase tracking-widest">Salvar Alterações</button>
             </div>
@@ -133,27 +132,27 @@
 <div id="modal-client" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4 modal-blur bg-black/60 overflow-y-auto">
     <div class="bg-pearl dark:bg-zinc-900 w-full max-w-xl p-8 my-auto rounded-[40px] border border-satinGold/30 shadow-2xl">
         <div class="flex justify-between items-center mb-6">
-            <h3 id="modal-title" class="font-serif text-2xl text-darkGold">Novo Processo</h3>
+            <h3 id="modal-title" class="font-serif text-3xl text-darkGold">Novo Processo</h3>
             <button onclick="closeModal('modal-client')" class="text-satinGold opacity-50 hover:opacity-100"><i class="fas fa-times text-xl"></i></button>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
             <div class="space-y-1">
-                <label class="text-[10px] font-bold opacity-50 uppercase">Nome do Reclamante</label>
+                <label class="text-sm font-bold opacity-70 uppercase">Nome do Reclamante</label>
                 <input type="text" id="c-nome" class="w-full p-3 rounded-xl border dark:bg-zinc-800">
             </div>
             <div class="space-y-1">
-                <label class="text-[10px] font-bold opacity-50 uppercase">E-mail para Login</label>
+                <label class="text-sm font-bold opacity-70 uppercase">E-mail para Login</label>
                 <input type="email" id="c-email" class="w-full p-3 rounded-xl border dark:bg-zinc-800">
             </div>
         </div>
 
         <div class="bg-gray-50 dark:bg-zinc-800/50 p-6 rounded-3xl border border-satinGold/20 space-y-4">
             <div class="flex items-center justify-between">
-                <label class="text-xs font-bold text-satinGold uppercase tracking-widest">Status do Processo</label>
+                <label class="text-sm font-bold text-satinGold uppercase tracking-widest">Status do Processo</label>
                 <div class="flex items-center gap-2">
                     <input type="checkbox" id="a-new-card" class="accent-satinGold" checked>
-                    <label for="a-new-card" class="text-[9px] font-bold opacity-70">CRIAR NOVO CARD NO HISTÓRICO</label>
+                    <label for="a-new-card" class="text-[10px] font-bold opacity-70">CRIAR NOVO CARD NO HISTÓRICO</label>
                 </div>
             </div>
             
@@ -187,13 +186,11 @@
     let dbClients = [];
     let tempoInatividade;
 
-    // --- LÓGICA DE EXPIRAÇÃO (5 MINUTOS) ---
     function resetarCronometro() {
         clearTimeout(tempoInatividade);
         tempoInatividade = setTimeout(logoutAdmin, 5 * 60 * 1000); 
     }
 
-    // Monitora qualquer atividade na página
     window.onmousemove = resetarCronometro;
     window.onmousedown = resetarCronometro;
     window.onclick = resetarCronometro;
@@ -201,7 +198,6 @@
     window.ontouchstart = resetarCronometro;
 
     window.onload = () => {
-        // Se fechar a aba ou atualizar sem ter vindo do login secreto, volta pro início
         if (!sessionStorage.getItem('ADV_ADMIN_AUTH')) {
             window.location.href = "https://site-advogado.github.io/site/";
         }
