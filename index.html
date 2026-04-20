@@ -140,39 +140,43 @@ function fetchBio() {
 }  
 
 async function handleClientSearch() {  
-    const inputCpf = document.getElementById('searchCpf').value.trim();  
+    const inputUsuario = document.getElementById('searchCpf').value.trim();  
     const btn = document.getElementById('btnSearch');
     
-    if (!inputCpf) return alert("Por favor, digite o CPF.");  
-
-    const senha = prompt("Informe sua senha de acesso:");
-    if (!senha) return;
+    if (!inputUsuario) return alert("Por favor, preencha o campo.");  
 
     btn.innerText = "VERIFICANDO...";
     btn.disabled = true;
 
     CURRENT_IP = await getClientIP();
-    const senhaHash = await hashSenha(senha);
+    
+    // Para o login de cliente, ainda solicitamos a senha. 
+    // Se for a palavra secreta do advogado, a senha não será necessária no backend.
+    const senha = prompt("Informe sua senha de acesso (ou deixe em branco se for admin):");
+    const senhaHash = senha ? await hashSenha(senha) : "";
 
     fetch(URL_SCRIPT, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
             action: "login",
-            cpf: inputCpf,
+            usuario: inputUsuario,
             senha: senhaHash,
             ip: CURRENT_IP 
         })
     })
     .then(res => res.json())
     .then(response => {
-        if (response.status === "ok") {
+        if (response.status === "admin") {
+            // Redireciona para a página de configuração definida no Google Script
+            window.location.href = response.redirect;
+        } else if (response.status === "ok") {
             SESSION_TOKEN = response.token;
             carregarTimeline();
         } else if (response.status === "bloqueado") {
             alert("Acesso temporariamente bloqueado por excesso de tentativas.");
         } else {
-            alert("CPF ou Senha incorretos.");
+            alert("Dados incorretos ou acesso não autorizado.");
         }
     })
     .catch(() => alert("Erro na conexão com o servidor."))
@@ -221,7 +225,6 @@ function renderTimeline(eventos) {
     const isFinalizado = eventos.some(e => e.status === "Processo Finalizado");
     document.getElementById('timeline-status-info').classList.toggle('hidden', !isFinalizado);  
     
-    // Inverte a ordem para mostrar o mais recente primeiro
     [...eventos].reverse().forEach(ev => {  
         container.innerHTML += `  
             <div class="relative bg-white dark:bg-zinc-800 p-5 rounded-2xl shadow-md border-l-4 border-satinGold">  
@@ -241,7 +244,7 @@ function toggleDarkMode() {
     document.documentElement.classList.toggle('dark'); 
 }  
 
-</script>  
+</script>
 
 </body>  
 </html>
