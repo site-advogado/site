@@ -1,6 +1,181 @@
 
 https://script.google.com/macros/s/AKfycbz_VmWno8kfEYPbXANEa__mXYTSy4sjqPywBI8IQh0ky7cgIS28_E2t0wHakiq5TJgIkA/exec
 
+
+// ===== CONFIGURAÇÕES GERAIS =====
+const NOME_ABA = "admin";
+const SESSAO_EXPIRA_MIN = 1440;
+const API_KEY_SECRET = "ADV_SISTEMA_SEGURO_2026_X9";
+
+function doPost(e) {
+  try {
+    const data = JSON.parse(e.postData.contents);
+   
+    if (!data.api_key || data.api_key !== API_KEY_SECRET) {
+      return resposta({ status: "erro", message: "Acesso Negado" });
+    }
+
+    const action = data.action;
+    if (action === "bio") return getBio();
+    if (action === "login") return login(data);
+    if (action === "timeline") return timeline(data);
+
+    return resposta({ status: "erro", message: "Ação inválida" });
+  } catch (err) {
+    return resposta({ status: "erro", message: "Erro interno: " + err.toString() });
+  }
+}
+
+function resposta(obj) {
+  return ContentService.createTextOutput(JSON.stringify(obj))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function getBio() {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(NOME_ABA);
+  const row2 = sheet.getRange(2, 1, 1, 16).getValues()[0];
+
+  return resposta({
+    name:  row2[11],
+    oab:   row2[12],
+    desc:  row2[13],
+    phone: row2[14],
+    email: row2[15],
+    img:   row2[0]  
+  });
+}
+
+function login(data) {
+  const entradaUsuario = String(data.usuario || "").trim().toLowerCase();
+  const ipCliente = data.ip;
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(NOME_ABA);
+  const dados = sheet.getDataRange().getValues();
+  const cache = CacheService.getScriptCache();
+
+  // --- 1. VALIDAÇÃO DA PALAVRA SECRETA DO ADVOGADO ---
+  const palavraSecretaPlanilha = String(dados[1][10]).trim().toLowerCase();
+  if (entradaUsuario !== "" && entradaUsuario === palavraSecretaPlanilha) {
+    return resposta({
+      status: "admin",
+      redirect: "URL_DA_SUA_PAGINA_DE_CONFIGURACAO"
+    });
+  }
+
+  // --- 2. SOLICITAÇÃO DE CÓDIGO (PASSO 1) ---
+  if (data.passo === "solicitar") {
+    let linhaUsuario = -1;
+    for (let i = 1; i < dados.length; i++) {
+      if (String(dados[i][4]).trim().toLowerCase() === entradaUsuario) {
+        linhaUsuario = i + 1;
+        break;
+      }
+    }
+
+    if (linhaUsuario === -1) return resposta({ status: "erro", message: "E-mail não cadastrado." });
+
+    const codigoOTP = Math.floor(100000 + Math.random() * 900000).toString();
+    // Salva o código no cache por 5 minutos (300 segundos)
+    cache.put("otp_" + entradaUsuario, codigoOTP, 300);
+
+    try {
+      MailApp.sendEmail({
+        to: entradaUsuario,
+        subject: "Seu Código de Acesso - Dra. Caroline Bogado",
+        body: "Olá! Seu código de acesso ao sistema é: " + codigoOTP + "\nEste código expira em 5 minutos."
+      });
+      return resposta({ status: "codigo_enviado" });
+    } catch (e) {
+      return resposta({ status: "erro", message: "Falha ao enviar e-mail." });
+    }
+  }
+
+  // --- 3. VERIFICAÇÃO DO CÓDIGO (PASSO 2) ---
+  if (data.passo === "verificar") {
+    const codigoRecebido = data.codigo;
+    const codigoSalvo = cache.get("otp_" + entradaUsuario);
+
+    if (codigoSalvo && codigoSalvo === codigoRecebido) {
+      let linhaFinal = -1;
+      for (let i = 1; i < dados.length; i++) {
+        if (String(dados[i][4]).trim().toLowerCase() === entradaUsuario) {
+          linhaFinal = i + 1;
+          break;
+        }
+      }
+
+      const tokenSessao = Utilities.getUuid();
+      const sessaoInfo = { linha: linhaFinal, ipOriginal: ipCliente };
+      cache.put(tokenSessao, JSON.stringify(sessaoInfo), SESSAO_EXPIRA_MIN * 60);
+      cache.remove("otp_" + entradaUsuario);
+      return resposta({ status: "ok", token: tokenSessao });
+    } else {
+      return resposta({ status: "erro", message: "Código inválido ou expirado." });
+    }
+  }
+
+  return resposta({ status: "erro" });
+}
+
+function timeline(data) {
+  const token = data.token;
+  const ipAtual = data.ip;
+  const cache = CacheService.getScriptCache();
+  const sessaoCache = cache.get(token);
+
+  if (!sessaoCache) return resposta({ status: "expirado" });
+  const sessaoObj = JSON.parse(sessaoCache);
+
+  if (sessaoObj.ipOriginal !== ipAtual) {
+    cache.remove(token);
+    return resposta({ status: "erro", message: "IP inconsistente" });
+  }
+
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(NOME_ABA);
+  const jsonAtualizacoes = sheet.getRange(sessaoObj.linha, 8).getValue();
+
+  try {
+    const eventos = JSON.parse(jsonAtualizacoes || "[]");
+    return resposta(eventos);
+  } catch (e) {
+    return resposta([]);
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <!DOCTYPE html>  
 
 <html lang="pt-br" class="light">  
