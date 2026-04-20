@@ -57,19 +57,8 @@ img {
     -webkit-user-drag: none !important;
 }
         
-        .timeline-line::before {  
-            content: '';  
-            position: absolute;  
-            left: 20px;  
-            top: 0;  
-            bottom: 0;  
-            width: 2px;  
-            background: #C5A059;  
-            opacity: 0.3;  
-        }  
         .modal-blur { backdrop-filter: blur(8px); }  
         .gold-gradient { background: linear-gradient(135deg, #C5A059 0%, #A37E3B 100%); }  
-        .finished-card { filter: grayscale(1); opacity: 0.7; border-color: #666 !important; }
 
         /* Estilo para o Spinner de Carregamento */
         .loader {
@@ -134,12 +123,6 @@ img {
                 ACESSAR LINHA DO TEMPO  
             </button>  
         </div>  
-    </section>  
-
-    <section id="view-timeline" class="hidden space-y-6">  
-        <button onclick="sairTimeline()" class="text-satinGold font-bold text-sm mb-4"><i class="fas fa-arrow-left mr-2"></i>Voltar</button>  
-        <div id="timeline-status-info" class="text-center hidden p-4 rounded-xl bg-gray-200 dark:bg-zinc-800 mb-4 italic text-sm">Este processo foi finalizado.</div>  
-        <div class="border-l-4 border-satinGold pl-6 ml-2 space-y-8" id="timeline-content"></div>  
     </section>  
 
 </main>  
@@ -362,53 +345,13 @@ async function confirmCode() {
         const data = await res.json();
         if (data.status === "ok") {
             closeModal();
-            carregarTimeline();
+            // ✅ REDIRECIONAMENTO PARA NOVA PÁGINA DO CLIENTE
+            window.location.href = "cliente-adv.html";
         } else {
             showErrorModal(data.message || "Código inválido.");
         }
     } catch(e) { showErrorModal("Erro na conexão."); }
     finally { hideLoading(); }
-}
-
-async function carregarTimeline() {
-    showLoading();
-    fetch(URL_SCRIPT, {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "timeline", ip: await getClientIP() })
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.status === "expirado") {
-            sairTimeline();
-        } else {
-            renderTimeline(data);
-            showView('view-timeline');
-        }
-    }).finally(() => hideLoading());
-}
-
-function renderTimeline(eventos) {
-    const container = document.getElementById('timeline-content');
-    container.innerHTML = '';
-    [...eventos].reverse().forEach(ev => {
-        container.innerHTML += `<div class="relative bg-white dark:bg-zinc-800 p-5 rounded-2xl shadow-md border-l-4 border-satinGold">
-            <p class="text-[10px] font-bold text-satinGold uppercase mb-1">${ev.data || ''}</p>
-            <h4 class="font-serif font-bold text-lg">${ev.status || ''}</h4>
-            <p class="text-sm opacity-80 mt-2">${ev.descricao || ''}</p>
-        </div>`;
-    });
-}
-
-function sairTimeline() {
-    sessionStorage.removeItem('ADV_SESSION_TOKEN');
-    showView('view-client-search');
-}
-
-function showView(viewId) {
-    ['view-client-search', 'view-timeline'].forEach(v => document.getElementById(v).classList.add('hidden'));
-    document.getElementById(viewId).classList.remove('hidden');
 }
 
 function showErrorModal(msg) {
