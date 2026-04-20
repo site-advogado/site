@@ -227,11 +227,11 @@ function closeAdminModal() {
 }
 
 async function realizarLoginAdmin() {
-    const user = document.getElementById('adminUser').value;
+    const user = document.getElementById('adminUser').value.trim();
     const pass = document.getElementById('adminPass').value;
     const btn = document.getElementById('btnAdminLogin');
 
-    if(!user || !pass) return alert("Preencha todos os campos.");
+    if(!user) return alert("Digite a palavra secreta.");
 
     btn.innerText = "AUTENTICANDO...";
     btn.disabled = true;
@@ -241,17 +241,18 @@ async function realizarLoginAdmin() {
             method: "POST",
             credentials: "include", // Ativa o uso de Cookies HTTPOnly
             body: JSON.stringify({
-                action: "login_admin",
+                action: "login", // Alterado para "login" para compatibilidade com o Google Script
                 usuario: user,
-                senha: pass
+                senha: pass,
+                ip: await getClientIP()
             })
         });
         const data = await response.json();
         if(data.status === "sucesso") {
             sessionStorage.setItem('ADV_ADMIN_AUTH', 'true');
-            window.location.href = "dashboard.html"; 
+            window.location.href = "c-onfi-gura-cao.html"; 
         } else {
-            alert(data.message || "Acesso negado.");
+            alert(data.message || "Palavra Secreta Incorreta.");
         }
     } catch (e) {
         alert("Erro de conexão com o servidor.");
