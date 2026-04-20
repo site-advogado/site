@@ -35,7 +35,6 @@
     </script>  
 
     <style>  
-
 /* Bloqueia a seleção de texto e o arraste de imagens */
 body {
     -webkit-user-select: none;
@@ -44,7 +43,7 @@ body {
     user-select: none;
 }
 
-/* Mantém os campos de texto funcionando (senão você não consegue digitar o login) */
+/* Mantém os campos de texto funcionando */
 input, select, textarea {
     -webkit-user-select: text !important;
     -moz-user-select: text !important;
@@ -70,11 +69,32 @@ img {
         }  
         .modal-blur { backdrop-filter: blur(8px); }  
         .gold-gradient { background: linear-gradient(135deg, #C5A059 0%, #A37E3B 100%); }  
-        .finished-card { filter: grayscale(1); opacity: 0.7; border-color: #666 !important; }  
+        .finished-card { filter: grayscale(1); opacity: 0.7; border-color: #666 !important; }
+
+        /* Estilo para o Spinner de Carregamento */
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #C5A059;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>  
 
 <body class="bg-pearl dark:bg-softBlack text-softBlack dark:text-pearl min-h-screen font-sans transition-colors duration-300">  
+
+<div id="globalLoader" class="fixed inset-0 z-[200] hidden items-center justify-center bg-black/20 backdrop-blur-sm">
+    <div class="bg-white dark:bg-zinc-900 p-8 rounded-3xl shadow-2xl flex flex-col items-center">
+        <div class="loader mb-4"></div>
+        <p class="text-satinGold font-bold text-sm tracking-widest uppercase">Verificando...</p>
+    </div>
+</div>
 
 <header class="fixed top-0 w-full z-50 p-4 flex justify-between items-center bg-pearl/80 dark:bg-softBlack/80 backdrop-blur-md border-b border-satinGold/20">  
     <button id="installApp" class="hidden bg-satinGold hover:bg-darkGold text-white px-4 py-2 rounded-full text-[10px] font-bold transition-all shadow-lg animate-bounce">  
@@ -145,14 +165,11 @@ img {
 <div id="modalCode" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4 modal-blur bg-black/40">
     <div class="bg-pearl dark:bg-zinc-900 w-full max-w-sm rounded-[30px] p-8 border border-satinGold/30 shadow-2xl scale-95 transition-transform">
         <h3 class="font-serif text-xl text-center mb-2 text-darkGold uppercase tracking-wider">Verificação</h3>
-                
         <p class="text-base text-center mb-2 opacity-70">Insira o código de 6 dígitos para acessar.</p>
         <div id="timerContainer" class="text-center mb-6">
             <span class="text-xs font-bold text-satinGold bg-satinGold/10 px-3 py-1 rounded-full" id="timerLabel">Expira em: <span id="timer">03:00</span></span>
         </div>
-
-      
-            <input type="text" id="inputOtp" maxlength="6" placeholder="000000" class="w-full bg-transparent border-b-2 border-satinGold text-center text-2xl tracking-[0.5em] font-bold outline-none py-2 mb-8 dark:text-pearl">
+        <input type="text" id="inputOtp" maxlength="6" placeholder="000000" class="w-full bg-transparent border-b-2 border-satinGold text-center text-2xl tracking-[0.5em] font-bold outline-none py-2 mb-8 dark:text-pearl">
         <div class="flex flex-col gap-3">
             <button onclick="confirmCode()" class="w-full gold-gradient text-white font-bold py-3 rounded-xl shadow-md hover:scale-[1.03] transition-transform text-sm tracking-widest uppercase">Validar Acesso</button>
             <button onclick="closeModal()" class="w-full py-2 text-xs font-bold opacity-50 hover:opacity-100 uppercase tracking-tighter">Cancelar</button>
@@ -172,16 +189,33 @@ img {
 </div>
 
 <script>
-
-// ✅ CORREÇÃO DA URL: Adicionado /api/v1 ao final
 const URL_SCRIPT = "https://api-advogada.siterefrigeracaoeliezer.workers.dev/api/v1"; 
 
-let SESSION_TOKEN = null;
-let CURRENT_IP = "0.0.0.0";
-let ATTEMPTS_COUNT = 0;
-const MAX_ATTEMPTS = 5;
 let countdownInterval;
-let sessionTimeout; 
+let deferredPrompt;
+
+// LÓGICA DE INSTALAÇÃO (PWA)
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    document.getElementById('installApp').classList.remove('hidden');
+    document.getElementById('installApp').classList.add('flex');
+});
+
+document.getElementById('installApp')?.addEventListener('click', async () => {
+    if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+            document.getElementById('installApp').classList.add('hidden');
+        }
+        deferredPrompt = null;
+    }
+});
+
+// FUNÇÕES DE LOADING
+function showLoading() { document.getElementById('globalLoader').classList.replace('hidden', 'flex'); }
+function hideLoading() { document.getElementById('globalLoader').classList.replace('flex', 'hidden'); }
 
 // --- LÓGICA PALAVRA SECRETA ---
 let secretKeys = "";
@@ -205,50 +239,29 @@ function closeAdminModal() {
 }
 
 async function realizarLoginAdmin() {
-    const user = document.getElementById('adminUser').value
-        .replace(/\s+/g, '')
-        .toLowerCase();
-
+    const user = document.getElementById('adminUser').value.replace(/\s+/g, '').toLowerCase();
     const pass = document.getElementById('adminPass').value;
-    const btn = document.getElementById('btnAdminLogin');
-
     if(!user) return alert("Preencha o usuário.");
 
-    btn.innerText = "AUTENTICANDO...";
-    btn.disabled = true;
-
+    showLoading();
     try {
         const response = await fetch(URL_SCRIPT, {
             method: "POST",
             credentials: "include",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                action: "login",
-                usuario: user,
-                senha: pass,
-                ip: await getClientIP()
-            })
+            body: JSON.stringify({ action: "login", usuario: user, senha: pass, ip: await getClientIP() })
         });
-        
         const data = await response.json();
-
         if(data.status === "sucesso") {
-            // ✅ Salva a flag de autenticação e redireciona
             sessionStorage.setItem('ADV_ADMIN_AUTH', 'true');
             window.location.href = "c-onfi-gura-cao.html";
         } else {
             alert(data.message || "Acesso negado.");
         }
-
-    } catch (e) {
-        alert("Erro de conexão com o servidor.");
-    } finally {
-        btn.innerText = "ENTRAR NO SISTEMA";
-        btn.disabled = false;
-    }
+    } catch (e) { alert("Erro de conexão."); }
+    finally { hideLoading(); }
 }
 
-// --- LOGICA DE CLIENTE ---
 async function getClientIP() {
     try {
         const response = await fetch('https://api.ipify.org?format=json');
@@ -263,6 +276,7 @@ window.onload = () => {
 };  
 
 function fetchBio() {  
+    showLoading();
     fetch(URL_SCRIPT, {
         method: "POST",
         credentials: "include",
@@ -278,33 +292,22 @@ function fetchBio() {
         const cleanPhone = (data.phone || "").toString().replace(/\D/g, '');  
         document.getElementById('bio-phone').href = `https://wa.me/55${cleanPhone}`;  
         document.getElementById('bio-email').href = `mailto:${data.email}`;  
-    }).catch(err => console.error("Erro Bio:", err));
+    }).finally(() => hideLoading());
 }  
 
 async function handleClientSearch() {  
     const inputUsuario = document.getElementById('searchCpf').value.trim();  
-    const btn = document.getElementById('btnSearch');
-    
     if (!inputUsuario) return showErrorModal("Por favor, preencha o campo.");  
 
-    btn.innerText = "VERIFICANDO...";
-    btn.disabled = true;
-
+    showLoading();
     try {
         const response = await fetch(URL_SCRIPT, {
             method: "POST",
             credentials: "include", 
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                action: "login",
-                usuario: inputUsuario,
-                passo: "solicitar",
-                ip: await getClientIP()
-            })
+            body: JSON.stringify({ action: "login", usuario: inputUsuario, passo: "solicitar", ip: await getClientIP() })
         });
-        
         const data = await response.json();
-
         if (data.status === "abrir_modal_admin") {
             openAdminModal();
         } else if (data.status === "codigo_enviado") {
@@ -312,12 +315,8 @@ async function handleClientSearch() {
         } else {
             showErrorModal(data.message || "Usuário não encontrado.");
         }
-    } catch (e) {
-        showErrorModal("Erro na comunicação.");
-    } finally {
-        btn.innerText = "ACESSAR LINHA DO TEMPO";
-        btn.disabled = false;
-    }
+    } catch (e) { showErrorModal("Erro na comunicação."); }
+    finally { hideLoading(); }
 }
 
 function startTimer(duration) {
@@ -352,28 +351,32 @@ function closeModal() {
 async function confirmCode() {
     const code = document.getElementById('inputOtp').value.trim();
     const email = document.getElementById('searchCpf').value.trim();
-    const res = await fetch(URL_SCRIPT, {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "login", usuario: email, codigo: code, passo: "verificar", ip: await getClientIP() })
-    });
-    const data = await res.json();
-    if (data.status === "ok") {
-        closeModal();
-        carregarTimeline();
-    } else {
-        showErrorModal(data.message || "Código inválido.");
-    }
+    showLoading();
+    try {
+        const res = await fetch(URL_SCRIPT, {
+            method: "POST",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ action: "login", usuario: email, codigo: code, passo: "verificar", ip: await getClientIP() })
+        });
+        const data = await res.json();
+        if (data.status === "ok") {
+            closeModal();
+            carregarTimeline();
+        } else {
+            showErrorModal(data.message || "Código inválido.");
+        }
+    } catch(e) { showErrorModal("Erro na conexão."); }
+    finally { hideLoading(); }
 }
 
 async function carregarTimeline() {
-    const ip = await getClientIP();
+    showLoading();
     fetch(URL_SCRIPT, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "timeline", ip: ip })
+        body: JSON.stringify({ action: "timeline", ip: await getClientIP() })
     })
     .then(res => res.json())
     .then(data => {
@@ -383,7 +386,7 @@ async function carregarTimeline() {
             renderTimeline(data);
             showView('view-timeline');
         }
-    });
+    }).finally(() => hideLoading());
 }
 
 function renderTimeline(eventos) {
