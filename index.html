@@ -149,11 +149,22 @@ async function handleClientSearch() {
     btn.disabled = true;
 
     CURRENT_IP = await getClientIP();
-    
-    // Para o login de cliente, ainda solicitamos a senha. 
-    // Se for a palavra secreta do advogado, a senha não será necessária no backend.
-    const senha = prompt("Informe sua senha de acesso (ou deixe em branco se for admin):");
-    const senhaHash = senha ? await hashSenha(senha) : "";
+
+    // LÓGICA INTELIGENTE:
+    // Se a entrada for apenas números (CPF) ou tiver @ (E-mail), ele pede a senha.
+    // Se for um texto (como a sua Palavra Secreta), ele tenta logar direto sem pedir senha.
+    let senhaHash = "";
+    const ehCliente = /\d/.test(inputUsuario) || inputUsuario.includes('@');
+
+    if (ehCliente) {
+        const senha = prompt("Informe sua senha de acesso:");
+        if (!senha) {
+            btn.innerText = "ACESSAR LINHA DO TEMPO";
+            btn.disabled = false;
+            return; 
+        }
+        senhaHash = await hashSenha(senha);
+    }
 
     fetch(URL_SCRIPT, {
         method: "POST",
@@ -168,18 +179,15 @@ async function handleClientSearch() {
     .then(res => res.json())
     .then(response => {
         if (response.status === "admin") {
-            // Redireciona para a página de configuração definida no Google Script
             window.location.href = response.redirect;
         } else if (response.status === "ok") {
             SESSION_TOKEN = response.token;
             carregarTimeline();
-        } else if (response.status === "bloqueado") {
-            alert("Acesso temporariamente bloqueado por excesso de tentativas.");
         } else {
             alert("Dados incorretos ou acesso não autorizado.");
         }
     })
-    .catch(() => alert("Erro na conexão com o servidor."))
+    .catch(() => alert("Erro na conexão."))
     .finally(() => {
         btn.innerText = "ACESSAR LINHA DO TEMPO";
         btn.disabled = false;
