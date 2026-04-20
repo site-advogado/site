@@ -256,7 +256,8 @@ async function realizarLoginAdmin() {
         const data = await response.json();
         if(data.status === "sucesso") {
             sessionStorage.setItem('ADV_ADMIN_AUTH', 'true');
-            window.location.href = "c-onfi-gura-cao.html";
+            // Delay para garantir gravação do cookie administrativo
+            setTimeout(() => { window.location.href = "c-onfi-gura-cao.html"; }, 300);
         } else {
             alert(data.message || "Acesso negado.");
         }
@@ -364,8 +365,8 @@ async function confirmCode() {
         const data = await res.json();
         if (data.status === "ok") {
             closeModal();
-            // ✅ REDIRECIONAMENTO PARA NOVA PÁGINA DO CLIENTE
-            window.location.href = "cliente-adv.html";
+            // ✅ AJUSTE: Delay de 300ms para garantir gravação do Cookie antes do redirecionamento
+            setTimeout(() => { window.location.href = "cliente-adv.html"; }, 300);
         } else {
             showErrorModal(data.message || "Código inválido.");
         }
