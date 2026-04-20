@@ -112,6 +112,7 @@ async function getClientIP() {
     }
 }
 
+// Função de hash mantida por compatibilidade, embora não usada no fluxo de e-mail puro
 async function hashSenha(senha) {
     const encoder = new TextEncoder();
     const data = encoder.encode(senha);
@@ -150,42 +151,60 @@ async function handleClientSearch() {
 
     CURRENT_IP = await getClientIP();
 
-    let senhaHash = "";
-    const ehCliente = /\d/.test(inputUsuario) || inputUsuario.includes('@');
-
-    if (ehCliente) {
-        const senha = prompt("Informe sua senha de acesso:");
-        if (!senha) {
-            btn.innerText = "ACESSAR LINHA DO TEMPO";
-            btn.disabled = false;
-            return; 
-        }
-        senhaHash = await hashSenha(senha);
-    }
-
+    // Passo 1: Solicitar Código ou verificar Admin
     fetch(URL_SCRIPT, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
             action: "login",
             usuario: inputUsuario,
-            senha: senhaHash,
+            passo: "solicitar",
             ip: CURRENT_IP 
         })
     })
     .then(res => res.json())
-    .then(response => {
+    .then(async response => {
         if (response.status === "admin") {
             window.location.href = response.redirect;
-        } else if (response.status === "ok") {
-            SESSION_TOKEN = response.token;
-            carregarTimeline();
+        } else if (response.status === "codigo_enviado") {
+            const codigoDigitado = prompt("Um código de acesso foi enviado para o seu e-mail. Digite-o aqui (válido por 5 min):");
+            
+            if (!codigoDigitado) {
+                btn.innerText = "ACESSAR LINHA DO TEMPO";
+                btn.disabled = false;
+                return;
+            }
+
+            // Passo 2: Verificar Código
+            const resVerificar = await fetch(URL_SCRIPT, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    action: "login",
+                    usuario: inputUsuario,
+                    codigo: codigoDigitado,
+                    passo: "verificar",
+                    ip: CURRENT_IP
+                })
+            });
+            const dataFinal = await resVerificar.json();
+
+            if (dataFinal.status === "ok") {
+                SESSION_TOKEN = dataFinal.token;
+                carregarTimeline();
+            } else {
+                alert(dataFinal.message || "Código inválido.");
+                btn.innerText = "ACESSAR LINHA DO TEMPO";
+                btn.disabled = false;
+            }
         } else {
-            alert("Dados incorretos ou acesso não autorizado.");
+            alert(response.message || "Dados incorretos.");
+            btn.innerText = "ACESSAR LINHA DO TEMPO";
+            btn.disabled = false;
         }
     })
-    .catch(() => alert("Erro na conexão."))
-    .finally(() => {
+    .catch(() => {
+        alert("Erro na conexão.");
         btn.innerText = "ACESSAR LINHA DO TEMPO";
         btn.disabled = false;
     });
