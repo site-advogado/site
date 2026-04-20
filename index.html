@@ -231,7 +231,10 @@ function closeAdminModal() {
     
 
 async function realizarLoginAdmin() {
-    const user = document.getElementById('adminUser').value.trim(); // Usei trim() para evitar espaços extras
+    const user = document.getElementById('adminUser').value
+        .replace(/\s+/g, '') // REMOVE QUALQUER ESPAÇO
+        .toLowerCase();      // PADRONIZA
+
     const pass = document.getElementById('adminPass').value;
     const btn = document.getElementById('btnAdminLogin');
 
@@ -245,7 +248,7 @@ async function realizarLoginAdmin() {
             method: "POST",
             credentials: "include", 
             body: JSON.stringify({
-                action: "login", // MODIFICAÇÃO AQUI: De login_admin para login
+                action: "login",
                 usuario: user,
                 senha: pass,
                 ip: await getClientIP()
