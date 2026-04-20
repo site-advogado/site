@@ -1,0 +1,16 @@
+{
+  "name": "Gestão Processual - Dra. Caroline",
+  "short_name": "Advocacia",
+  "description": "Acompanhamento de processos jurídicos",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#FDFCF8",
+  "theme_color": "#C5A059",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3503/3503567.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
