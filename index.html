@@ -114,6 +114,17 @@
     </div>
 </div>
 
+<div id="modalError" class="fixed inset-0 z-[110] hidden flex items-center justify-center p-4 modal-blur bg-black/40">
+    <div class="bg-pearl dark:bg-zinc-900 w-full max-w-sm rounded-[30px] p-8 border border-red-500/30 shadow-2xl scale-95 transition-transform text-center">
+        <div class="w-16 h-16 bg-red-100 dark:bg-red-900/30 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i class="fas fa-exclamation-triangle text-2xl"></i>
+        </div>
+        <h3 class="font-serif text-xl mb-2 text-red-600 dark:text-red-400 uppercase tracking-wider">Acesso Negado</h3>
+        <p id="errorMessage" class="text-sm opacity-70 mb-8 font-medium">Este e-mail não está autorizado a acessar o sistema.</p>
+        <button onclick="closeErrorModal()" class="w-full bg-zinc-800 dark:bg-zinc-700 text-white font-bold py-3 rounded-xl shadow-md text-sm tracking-widest uppercase">Entendido</button>
+    </div>
+</div>
+
 <script>  
 
 const URL_SCRIPT = "https://api-advogada.siterefrigeracaoeliezer.workers.dev"; 
@@ -189,15 +200,26 @@ function fetchBio() {
     }).catch(err => console.error("Erro Bio:", err));
 }  
 
+function showErrorModal(msg) {
+    document.getElementById('errorMessage').innerText = msg;
+    document.getElementById('modalError').classList.remove('hidden');
+    document.getElementById('modalError').classList.add('flex');
+}
+
+function closeErrorModal() {
+    document.getElementById('modalError').classList.add('hidden');
+    document.getElementById('modalError').classList.remove('flex');
+}
+
 async function handleClientSearch() {  
     if (ATTEMPTS_COUNT >= MAX_ATTEMPTS) {
-        return alert("Muitas tentativas. Por favor, recarregue a página em alguns minutos.");
+        return showErrorModal("Muitas tentativas. Por favor, recarregue a página em alguns minutos.");
     }
 
     const inputUsuario = document.getElementById('searchCpf').value.trim();  
     const btn = document.getElementById('btnSearch');
     
-    if (!inputUsuario) return alert("Por favor, preencha o campo.");  
+    if (!inputUsuario) return showErrorModal("Por favor, preencha o campo de e-mail.");  
 
     btn.innerText = "VERIFICANDO...";
     btn.disabled = true;
@@ -222,10 +244,10 @@ async function handleClientSearch() {
             openModal();
         } else {
             ATTEMPTS_COUNT++;
-            alert(response.message || "Dados incorretos.");
+            showErrorModal(response.message || "E-mail não autorizado ou incorreto.");
         }
     })
-    .catch(() => alert("Erro na conexão."))
+    .catch(() => showErrorModal("Erro na conexão com o servidor."))
     .finally(() => {
         btn.innerText = "ACESSAR LINHA DO TEMPO";
         btn.disabled = false;
@@ -248,7 +270,7 @@ async function confirmCode() {
     const code = document.getElementById('inputOtp').value.trim();
     const email = document.getElementById('searchCpf').value.trim();
     
-    if (code.length < 6) return alert("Digite o código completo.");
+    if (code.length < 6) return showErrorModal("Digite o código completo de 6 dígitos.");
 
     const resVerificar = await fetch(URL_SCRIPT, {
         method: "POST",
@@ -264,24 +286,22 @@ async function confirmCode() {
     const dataFinal = await resVerificar.json();
 
     if (dataFinal.status === "ok") {
-        // SALVA NO LOCALSTORAGE PARA DURAR MESMO FECHANDO O NAVEGADOR
         localStorage.setItem('ADV_SESSION_TOKEN', dataFinal.token);
         SESSION_TOKEN = dataFinal.token; 
         closeModal();
         carregarTimeline();
     } else {
         ATTEMPTS_COUNT++;
-        alert(dataFinal.message || "Código inválido.");
+        showErrorModal(dataFinal.message || "Código inválido ou expirado.");
     }
 }
 
 async function carregarTimeline() {
-    // Tenta pegar o token do localStorage se a variável global estiver vazia
     if (!SESSION_TOKEN) {
         SESSION_TOKEN = localStorage.getItem('ADV_SESSION_TOKEN');
     }
 
-    if (!SESSION_TOKEN) return; // Se ainda não tem token, não faz nada
+    if (!SESSION_TOKEN) return;
 
     const ipValidacao = await getClientIP();
 
@@ -297,8 +317,8 @@ async function carregarTimeline() {
     .then(res => res.json())
     .then(data => {
         if (data.status === "expirado") {
-            localStorage.removeItem('ADV_SESSION_TOKEN'); // Limpa o token vencido
-            alert("Sessão expirada. Peça um novo código.");
+            localStorage.removeItem('ADV_SESSION_TOKEN');
+            showErrorModal("Sessão expirada. Por favor, peça um novo código.");
             showView('view-client-search');
         } else if (data.status === "erro") {
             showView('view-client-search');
@@ -309,7 +329,6 @@ async function carregarTimeline() {
     });
 }
 
-// ADICIONE ISSO AO FINAL DO SEU window.onload PARA LOGAR AUTOMÁTICO SE JÁ TIVER TOKEN
 window.onload = () => { 
     fetchBio(); 
     const savedToken = localStorage.getItem('ADV_SESSION_TOKEN');
@@ -319,12 +338,6 @@ window.onload = () => {
     }
 };
 
-
-
-
-
-
-    
 function renderTimeline(eventos) {  
     const container = document.getElementById('timeline-content');  
     container.innerHTML = '';  
@@ -357,6 +370,5 @@ function toggleDarkMode() {
 }  
 
 </script>
-
 </body>  
 </html>
