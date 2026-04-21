@@ -240,47 +240,137 @@ function toggleEditUI() {
 }
 
 async function saveClientData() {
+
     showSinc();
+
     const isEdit = document.getElementById('modal-title').innerText.includes("Editar");
+
     let data = { action: isEdit ? "update_client_timeline" : "save_client", api_key: MASTER_KEY };
+
     
+
     if(isEdit) {
+
+        const c = dbClients.find(x => x.email === currentClientEmail);
+
+        let timeline = Array.isArray(c.timeline) ? [...c.timeline] : [];
+
+
+
         const nStatus = document.getElementById('a-status').value;
+
         const nDesc = document.getElementById('a-desc').value;
+
         const isNew = document.getElementById('add-new-card-check').checked;
 
+
+
+        if (isNew) {
+
+            timeline.push({
+
+                data: new Date().toLocaleDateString('pt-BR'),
+
+                status: nStatus,
+
+                descricao: nDesc
+
+            });
+
+        } else {
+
+            if (timeline.length === 0) {
+
+                timeline.push({
+
+                    data: new Date().toLocaleDateString('pt-BR'),
+
+                    status: nStatus,
+
+                    descricao: nDesc
+
+                });
+
+            } else {
+
+                timeline[timeline.length - 1] = {
+
+                    ...timeline[timeline.length - 1],
+
+                    status: nStatus,
+
+                    descricao: nDesc
+
+                };
+
+            }
+
+        }
+
+
+
         data.nome = document.getElementById('c-nome').value;
+
         data.email = currentClientEmail;
-        data.status_atual = nStatus;
-        data.descricao = nDesc;
+
+        data.timeline_json = JSON.stringify(timeline);
+
         data.is_new_card = isNew;
+
+        data.status_atual = nStatus;
+
     } else {
-        data.nome = document.getElementById('c-nome').value; 
+
+        data.nome = document.getElementById('c-nome').value;
+
         data.email = document.getElementById('c-email').value;
-        data.notificar = document.getElementById('c-notificar').checked; 
+
+        data.notificar = document.getElementById('c-notificar').checked;
+
         data.status = document.getElementById('a-status').value;
-        data.descricao = document.getElementById('a-desc').value; 
+
+        data.descricao = document.getElementById('a-desc').value;
+
         data.numero_processo = document.getElementById('c-num-proc').value;
+
     }
 
+
+
     try {
-        const res = await fetch(URL_SCRIPT, { 
-            method: "POST", 
-            credentials: "include", 
-            body: JSON.stringify(data) 
+
+        const res = await fetch(URL_SCRIPT, {
+
+            method: "POST",
+
+            credentials: "include",
+
+            body: JSON.stringify(data)
+
         });
+
         const result = await res.json();
-        if(result.status === "ok") { 
-            closeModal('modal-client'); 
-            openModal('modal-success'); 
-            carregarClientes(); 
+
+        if(result.status === "ok") {
+
+            closeModal('modal-client');
+
+            openModal('modal-success');
+
+            carregarClientes();
+
         }
+
     } catch(e) {
-        console.error("Erro ao salvar:", e);
-    } finally { 
-        hideSinc(); 
+
+    } finally {
+
+        hideSinc();
+
     }
+
 }
+
 
 async function deleteClient(email) {
     if(!confirm("ATENÇÃO: EXCLUSÃO TOTAL\n\nEsta ação excluirá permanentemente este cliente, todos os cards de histórico anteriores e removerá completamente o acesso do cliente ao sistema.\n\nDeseja continuar?")) return;
