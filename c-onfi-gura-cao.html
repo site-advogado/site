@@ -10,9 +10,12 @@
     <script>
         tailwind.config = { darkMode: 'class', theme: { extend: { colors: { pearl: '#FDFCF8', softBlack: '#1A1A1A', satinGold: '#C5A059', darkGold: '#A37E3B' }, fontFamily: { serif: ['Cinzel', 'serif'], sans: ['Montserrat', 'sans-serif'] } } } }
         
-        if (localStorage.getItem('ADMIN_THEME') === 'dark') {
+        if (localStorage.getItem('ADV_GLOBAL_THEME') === 'dark') {
             document.documentElement.classList.add('dark');
             document.documentElement.classList.remove('light');
+        } else {
+            document.documentElement.classList.add('light');
+            document.documentElement.classList.remove('dark');
         }
     </script>
     <style>
@@ -245,8 +248,17 @@ window.onload = () => {
         list.classList.add('layout-list');
         icon.classList.replace('fa-list', 'fa-th-large');
     }
+    
+    // Aplicação persistente do tema
     const themeIcon = document.getElementById('themeIcon');
-    if (document.documentElement.classList.contains('dark')) themeIcon.classList.replace('fa-moon', 'fa-sun');
+    if (localStorage.getItem('ADV_GLOBAL_THEME') === 'dark') {
+        document.documentElement.classList.add('dark');
+        if (themeIcon) themeIcon.classList.replace('fa-moon', 'fa-sun');
+    } else {
+        document.documentElement.classList.remove('dark');
+        if (themeIcon) themeIcon.classList.replace('fa-sun', 'fa-moon');
+    }
+
     carregarPerfil(); carregarClientes();
 };
 
@@ -437,12 +449,13 @@ function toggleLayout() {
 function toggleDarkMode() {
     const isDark = document.documentElement.classList.toggle('dark');
     const themeIcon = document.getElementById('themeIcon');
+    
     if (isDark) {
-        localStorage.setItem('ADMIN_THEME', 'dark');
-        themeIcon.classList.replace('fa-moon', 'fa-sun');
+        localStorage.setItem('ADV_GLOBAL_THEME', 'dark');
+        if (themeIcon) themeIcon.classList.replace('fa-moon', 'fa-sun');
     } else {
-        localStorage.setItem('ADMIN_THEME', 'light');
-        themeIcon.classList.replace('fa-sun', 'fa-moon');
+        localStorage.setItem('ADV_GLOBAL_THEME', 'light');
+        if (themeIcon) themeIcon.classList.replace('fa-sun', 'fa-moon');
     }
 }
 
