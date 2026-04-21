@@ -33,6 +33,14 @@
             }  
         }  
     }  
+
+    if (localStorage.getItem('ADV_GLOBAL_THEME') === 'dark') {
+        document.documentElement.classList.add('dark');
+        document.documentElement.classList.remove('light');
+    } else {
+        document.documentElement.classList.add('light');
+        document.documentElement.classList.remove('dark');
+    }
     </script>  
 
     <style>  
@@ -274,6 +282,16 @@ async function getClientIP() {
 }
 
 window.onload = () => { 
+    // Aplicação persistente do tema
+    const themeIcon = document.getElementById('themeIcon');
+    if (localStorage.getItem('ADV_GLOBAL_THEME') === 'dark') {
+        document.documentElement.classList.add('dark');
+        if (themeIcon) themeIcon.classList.replace('fa-moon', 'fa-sun');
+    } else {
+        document.documentElement.classList.remove('dark');
+        if (themeIcon) themeIcon.classList.replace('fa-sun', 'fa-moon');
+    }
+
     fetchBio(); 
     sessionStorage.removeItem('ADV_SESSION_TOKEN'); 
     sessionStorage.removeItem('ADV_AUTH_SESS');
@@ -378,7 +396,19 @@ function showErrorModal(msg) {
 }
 
 function closeErrorModal() { document.getElementById('modalError').classList.replace('flex', 'hidden'); }
-function toggleDarkMode() { document.documentElement.classList.toggle('dark'); }
+
+function toggleDarkMode() {
+    const isDark = document.documentElement.classList.toggle('dark');
+    const themeIcon = document.getElementById('themeIcon');
+    
+    if (isDark) {
+        localStorage.setItem('ADV_GLOBAL_THEME', 'dark');
+        if (themeIcon) themeIcon.classList.replace('fa-moon', 'fa-sun');
+    } else {
+        localStorage.setItem('ADV_GLOBAL_THEME', 'light');
+        if (themeIcon) themeIcon.classList.replace('fa-sun', 'fa-moon');
+    }
+}
 </script>
 </body>  
 </html>
