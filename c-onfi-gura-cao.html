@@ -66,7 +66,7 @@
 
     <section id="tab-perfil" class="hidden">
         <div class="bg-white dark:bg-zinc-900 p-8 rounded-[30px] shadow-xl border border-satinGold/10 space-y-6 text-left">
-            <h3 class="font-serif text-3xl text-darkGold border-b border-satinGold/20 pb-4 text-center text-uppercase">Informações do Consultório</h3>
+            <h3 class="font-serif text-3xl text-darkGold border-b border-satinGold/20 pb-4 text-center">Informações do Consultório</h3>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div class="space-y-2"><label class="text-[10px] font-bold text-satinGold uppercase">Nome Profissional</label><input type="text" id="config-name" class="w-full p-3 rounded-xl border border-satinGold/20 dark:bg-zinc-800"></div>
                 <div class="space-y-2"><label class="text-[10px] font-bold text-satinGold uppercase">Registro OAB</label><input type="text" id="config-oab" class="w-full p-3 rounded-xl border border-satinGold/20 dark:bg-zinc-800"></div>
@@ -140,7 +140,7 @@
 <div id="modal-confirm" class="fixed inset-0 z-[200] hidden flex items-center justify-center p-4 modal-blur bg-black/80">
     <div class="bg-pearl dark:bg-zinc-900 w-full max-w-sm p-8 rounded-[30px] border-2 border-satinGold text-center shadow-2xl">
         <div class="w-16 h-16 gold-gradient rounded-full flex items-center justify-center text-white text-2xl mx-auto mb-4"><i class="fas fa-question"></i></div>
-        <h3 class="font-serif text-xl text-darkGold mb-2 uppercase tracking-widest">Confirmar?</h3>
+        <h3 class="font-serif text-xl text-darkGold mb-2 uppercase">Confirmar?</h3>
         <p class="text-sm opacity-70 mb-8 font-sans text-center">Deseja aplicar estas alterações?</p>
         <div class="flex gap-3">
             <button onclick="closeModal('modal-confirm')" class="flex-1 py-3 text-xs font-bold uppercase opacity-50">Não</button>
@@ -153,7 +153,7 @@
     <div class="bg-pearl dark:bg-zinc-900 w-full max-w-sm p-10 rounded-[30px] border-2 border-satinGold text-center shadow-2xl">
         <div class="w-20 h-20 gold-gradient rounded-full flex items-center justify-center text-white text-3xl mx-auto mb-6 shadow-lg"><i class="fas fa-check"></i></div>
         <h3 class="font-serif text-2xl text-darkGold mb-2 uppercase font-bold tracking-widest">Sucesso!</h3>
-        <p class="text-sm opacity-80 mb-10 font-sans">Dados salvos com sucesso.</p>
+        <p class="text-sm opacity-80 mb-10 font-sans">Dados processados com sucesso.</p>
         <button onclick="closeModal('modal-success')" class="w-full gold-gradient text-white py-4 rounded-xl text-xs font-bold uppercase tracking-widest shadow-md">Fechar</button>
     </div>
 </div>
@@ -232,7 +232,7 @@ function toggleEditUI() {
     
     if (isNew) {
         document.getElementById('a-status').value = "Petição Inicial Protocolada";
-        document.getElementById('a-desc').value = ""; // LIMPA O TEXTO CONFORME SOLICITADO
+        document.getElementById('a-desc').value = ""; // LIMPA O TEXTO
     } else {
         document.getElementById('a-status').value = ultimo.status;
         document.getElementById('a-desc').value = ultimo.descricao;
@@ -245,22 +245,15 @@ async function saveClientData() {
     let data = { action: isEdit ? "update_client_timeline" : "save_client", api_key: MASTER_KEY };
     
     if(isEdit) {
-        const c = dbClients.find(x => x.email === currentClientEmail);
-        let timeline = [...c.timeline];
         const nStatus = document.getElementById('a-status').value;
         const nDesc = document.getElementById('a-desc').value;
         const isNew = document.getElementById('add-new-card-check').checked;
 
-        if (isNew) {
-            timeline.push({ data: new Date().toLocaleDateString('pt-BR'), status: nStatus, descricao: nDesc });
-        } else {
-            timeline[timeline.length - 1] = { ...timeline[timeline.length - 1], status: nStatus, descricao: nDesc };
-        }
         data.nome = document.getElementById('c-nome').value;
         data.email = currentClientEmail;
-        data.timeline_json = JSON.stringify(timeline);
-        data.is_new_card = isNew;
         data.status_atual = nStatus;
+        data.descricao = nDesc;
+        data.is_new_card = isNew;
     } else {
         data.nome = document.getElementById('c-nome').value; data.email = document.getElementById('c-email').value;
         data.notificar = document.getElementById('c-notificar').checked; data.status = document.getElementById('a-status').value;
@@ -312,7 +305,7 @@ function renderClients() {
                     </div>
                     <div class="flex gap-4">
                         ${!isSearching || index === 0 ? `<button onclick="openEditClient(${c.id})" class="w-10 h-10 rounded-full bg-gray-100 dark:bg-zinc-800 text-satinGold hover:gold-gradient hover:text-white transition-all shadow-sm"><i class="fas fa-pen text-sm"></i></button>` : ''}
-                        ${!isSearching ? `<button onclick="deleteClient('${c.email}')" class="w-10 h-10 rounded-full bg-red-50 dark:bg-red-900/20 text-red-400 hover:bg-red-500 hover:text-white transition-all shadow-sm"><i class="fas fa-trash text-sm"></i></button>` : ''}
+                        ${!isSearching ? `<button onclick="deleteClient('${c.email}')" class="w-8 h-8 rounded-full bg-red-50 dark:bg-red-900/20 text-red-400 hover:bg-red-500 hover:text-white transition-all shadow-sm"><i class="fas fa-trash text-sm"></i></button>` : ''}
                     </div>
                 </div>`;
         });
