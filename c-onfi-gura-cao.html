@@ -270,7 +270,7 @@ img {
 </div>
 
 <script>
-// 🚫 PROTEÇÕES DE INTERFACE
+// 🚫 PROTEÇÕES DE INTERFACE SILENCIOSAS
 document.addEventListener('contextmenu', e => e.preventDefault());
 document.addEventListener('selectstart', e => e.preventDefault());
 document.addEventListener('copy', e => e.preventDefault());
@@ -282,14 +282,13 @@ document.addEventListener('keydown', function(e) {
         (e.ctrlKey && e.shiftKey && ['i','j','c'].includes(e.key.toLowerCase())) ||
         e.key === "F12") {
         e.preventDefault();
-        alert('Sistema protegido.');
         return false;
     }
 });
 
 setInterval(function() {
     if (window.outerWidth - window.innerWidth > 160 || window.outerHeight - window.innerHeight > 160) {
-        document.body.innerHTML = "<h1 style='color:red;text-align:center;margin-top:20%;'>Acesso bloqueado</h1>";
+        document.body.innerHTML = "";
     }
 }, 1000);
 
@@ -309,15 +308,11 @@ function resetarCronometro() {
 
 window.onmousemove = resetarCronometro;
 
-// UNIFICAÇÃO DOS WINDOW.ONLOAD PARA EVITAR SOBREPOSIÇÃO
 window.onload = () => {
-    // 1. Verificação de Autenticação
     if (!sessionStorage.getItem('ADV_ADMIN_AUTH')) {
         window.location.href = "https://site-advogado.github.io/site/";
         return;
     }
-    
-    // 2. Inicialização do Sistema
     resetarCronometro();
     renderClients();
 };
@@ -338,13 +333,13 @@ async function saveProfileData() {
     try {
         const res = await fetch(URL_SCRIPT, {
             method: "POST",
-            credentials: "include", // Envia o Cookie de sessão administrativa
+            credentials: "include", 
             body: JSON.stringify(data)
         });
         const result = await res.json();
         if(result.status === "ok") openModal('modal-success');
         else alert(result.message);
-    } catch(e) { alert("Erro ao salvar dados."); }
+    } catch(e) { }
 }
 
 function logoutAdmin() {
@@ -352,7 +347,6 @@ function logoutAdmin() {
     window.location.href = "https://site-advogado.github.io/site/";
 }
 
-// Funções de UI (Tabs/Modais)
 function switchTab(tabId) {
     const pill = document.getElementById('tab-pill');
     const isClientes = tabId === 'tab-clientes';
