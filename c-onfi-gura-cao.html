@@ -31,6 +31,7 @@
         .inactive-tab { color: #9ca3af !important; opacity: 0.6; }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: #C5A059; border-radius: 10px; }
+        .card-finalizado { background-color: #e5e7eb !important; border-color: #9ca3af !important; }
     </style>
 </head>
 
@@ -60,7 +61,7 @@
                 <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-satinGold opacity-50"></i>
                 <input type="text" id="adminSearch" onkeyup="filterClients()" placeholder="Buscar nome do cliente..." class="w-full pl-12 pr-4 py-3 rounded-2xl bg-white dark:bg-zinc-900 border border-satinGold/20 outline-none focus:border-satinGold shadow-sm">
             </div>
-            <button onclick="openClientModal()" class="w-full sm:w-auto gold-gradient text-white px-8 py-3 rounded-2xl font-bold shadow-lg hover:scale-105 transition-transform text-sm uppercase tracking-widest"><i class="fas fa-user-plus mr-2"></i>Novo Cliente</button>
+            <button onclick="openModal('modal-client')" class="w-full sm:w-auto gold-gradient text-white px-8 py-3 rounded-2xl font-bold shadow-lg hover:scale-105 transition-transform text-sm uppercase tracking-widest"><i class="fas fa-user-plus mr-2"></i>Novo Cliente</button>
         </div>
         <div id="admin-client-list" class="grid grid-cols-1 gap-4"></div>
     </section>
@@ -76,27 +77,18 @@
             </div>
             <div class="space-y-2"><label class="text-sm font-bold text-satinGold uppercase">E-mail Profissional</label><input type="text" id="config-email" class="w-full p-3 rounded-xl border dark:bg-zinc-800 outline-none focus:border-satinGold"></div>
             <div class="space-y-2"><label class="text-sm font-bold text-satinGold uppercase">Breve Biografia / Especialidade</label><textarea id="config-desc" class="w-full p-3 rounded-xl border dark:bg-zinc-800 outline-none focus:border-satinGold h-24"></textarea></div>
-            
             <div class="pt-6 border-t border-satinGold/20 space-y-6">
                 <h4 class="font-serif text-xl text-darkGold uppercase tracking-tighter text-center">Segurança da Conta</h4>
                 <div class="space-y-4">
-                    <div>
-                        <label class="text-sm font-bold text-satinGold uppercase mb-1 block">Nova Senha de Acesso</label>
-                        <input type="password" id="config-pass" placeholder="Deixe em branco para manter" class="w-full p-4 rounded-xl border-2 border-satinGold bg-white dark:bg-zinc-800 font-bold outline-none">
-                    </div>
+                    <div><label class="text-sm font-bold text-satinGold uppercase mb-1 block">Nova Senha de Acesso</label><input type="password" id="config-pass" placeholder="Deixe em branco para manter" class="w-full p-4 rounded-xl border-2 border-satinGold bg-white dark:bg-zinc-800 font-bold outline-none"></div>
                     <div>
                         <label class="text-sm font-bold text-satinGold uppercase mb-1 block">Palavra Secreta Atual</label>
                         <div class="relative">
                             <input type="password" id="config-secret" class="w-full p-4 rounded-xl border-2 border-satinGold bg-pearl dark:bg-zinc-800 font-bold" readonly value="********">
-                            <div class="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
-                                <input type="checkbox" id="check-change-secret" onchange="toggleNewSecretField()" class="w-5 h-5 accent-satinGold">
-                            </div>
+                            <div class="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2"><input type="checkbox" id="check-change-secret" onchange="toggleNewSecretField()" class="w-5 h-5 accent-satinGold"></div>
                         </div>
                     </div>
-                    <div id="container-new-secret" class="hidden">
-                        <label class="text-sm font-bold text-darkGold uppercase">Nova Palavra Secreta</label>
-                        <input type="text" id="config-new-secret" placeholder="Digite a nova palavra" class="w-full p-4 rounded-xl border-2 border-darkGold bg-white dark:bg-zinc-900 font-bold">
-                    </div>
+                    <div id="container-new-secret" class="hidden"><label class="text-sm font-bold text-darkGold uppercase">Nova Palavra Secreta</label><input type="text" id="config-new-secret" placeholder="Digite a nova palavra" class="w-full p-4 rounded-xl border-2 border-darkGold bg-white dark:bg-zinc-900 font-bold"></div>
                 </div>
                 <button onclick="triggerConfirm('perfil')" class="w-full gold-gradient text-white py-4 rounded-2xl font-bold shadow-xl uppercase tracking-widest">Salvar Alterações</button>
             </div>
@@ -105,35 +97,37 @@
 </main>
 
 <div id="modal-client" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4 modal-blur bg-black/60 overflow-y-auto">
-    <div class="bg-pearl dark:bg-zinc-900 w-full max-w-xl p-8 rounded-[40px] border border-satinGold/30 shadow-2xl">
-        <h3 id="modal-title" class="font-serif text-2xl text-darkGold mb-6 text-center">Gestão do Cliente</h3>
-        
-        <div class="space-y-4 mb-6">
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div><label class="text-[10px] font-bold uppercase opacity-50">Nome do Cliente</label><input type="text" id="c-nome" class="w-full p-3 rounded-xl border dark:bg-zinc-800"></div>
-                <div><label class="text-[10px] font-bold uppercase opacity-50">E-mail (Login)</label><input type="email" id="c-email" class="w-full p-3 rounded-xl border dark:bg-zinc-800"></div>
-            </div>
-            <div class="flex items-center gap-2 bg-gray-50 dark:bg-zinc-800 p-3 rounded-xl border border-satinGold/20">
-                <input type="checkbox" id="c-notificar" class="w-5 h-5 accent-satinGold">
-                <label for="c-notificar" class="text-xs font-bold">Notificar atualizações por e-mail</label>
-            </div>
+    <div class="bg-pearl dark:bg-zinc-900 w-full max-w-xl p-8 my-auto rounded-[40px] border border-satinGold/30 shadow-2xl">
+        <div class="flex justify-between items-center mb-6">
+            <h3 id="modal-title" class="font-serif text-3xl text-darkGold">Novo Registro</h3>
+            <button onclick="closeModal('modal-client')" class="text-satinGold opacity-50 hover:opacity-100"><i class="fas fa-times text-xl"></i></button>
         </div>
-
-        <div class="bg-gray-100 dark:bg-zinc-800/50 p-6 rounded-3xl border-2 border-dashed border-satinGold/30 space-y-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+            <div class="space-y-1"><label class="text-sm font-bold opacity-70 uppercase">Nome do Reclamante</label><input type="text" id="c-nome" class="w-full p-3 rounded-xl border dark:bg-zinc-800"></div>
+            <div class="space-y-1"><label class="text-sm font-bold opacity-70 uppercase">E-mail para Login</label><input type="email" id="c-email" class="w-full p-3 rounded-xl border dark:bg-zinc-800"></div>
+        </div>
+        <div class="bg-gray-50 dark:bg-zinc-800/50 p-6 rounded-3xl border border-satinGold/20 space-y-4">
             <div class="flex items-center justify-between">
-                <span class="text-xs font-bold text-satinGold uppercase">Atualização da Timeline</span>
-                <select id="card-mode" class="text-[10px] p-2 rounded bg-white border border-satinGold/20 font-bold">
-                    <option value="new">ADICIONAR + NOVO CARD</option>
-                    <option value="edit">APENAS EDITAR TEXTO ATUAL</option>
-                </select>
+                <label class="text-sm font-bold text-satinGold uppercase tracking-widest">Status do Processo</label>
+                <div class="flex items-center gap-2">
+                    <input type="checkbox" id="c-notificar" class="accent-satinGold" checked>
+                    <label for="c-notificar" class="text-[10px] font-bold opacity-70 uppercase">Notificar e-mail</label>
+                </div>
             </div>
-            <input type="text" id="a-status" placeholder="Ex: Audiência Designada" class="w-full p-3 rounded-xl border font-bold text-sm">
-            <textarea id="a-desc" placeholder="Descreva os detalhes do processo..." class="w-full p-3 rounded-xl border h-24 text-sm"></textarea>
+            <select id="a-status" class="w-full p-4 rounded-xl border-2 border-satinGold/30 dark:bg-zinc-900 font-bold text-sm">
+                <option value="Petição Inicial Protocolada">Petição Inicial Protocolada</option>
+                <option value="Aguardando Citação">Aguardando Citação</option>
+                <option value="Audiência de Conciliação Designada">Audiência de Conciliação Designada</option>
+                <option value="Audiência de Instrução e Julgamento">Audiência de Instrução e Julgamento</option>
+                <option value="Sentença Proferida">Sentença Proferida</option>
+                <option value="Fase de Execução / Cálculos">Fase de Execução / Cálculos</option>
+                <option value="Processo Finalizado / Arquivado">Processo Finalizado / Arquivado</option>
+            </select>
+            <textarea id="a-desc" placeholder="Descreva os detalhes..." class="w-full p-4 rounded-xl border dark:bg-zinc-900 h-32 text-sm"></textarea>
         </div>
-
         <div class="flex gap-3 mt-8">
-            <button onclick="closeModal('modal-client')" class="flex-1 py-4 font-bold opacity-50 text-xs uppercase">Cancelar</button>
-            <button onclick="triggerConfirm('cliente')" class="flex-1 gold-gradient text-white py-4 rounded-2xl font-bold shadow-xl text-xs uppercase">Salvar Registro</button>
+            <button onclick="closeModal('modal-client')" class="flex-1 py-4 font-bold opacity-50 text-xs uppercase tracking-widest">Cancelar</button>
+            <button onclick="triggerConfirm('cliente')" class="flex-1 gold-gradient text-white py-4 rounded-2xl font-bold shadow-xl text-xs uppercase tracking-widest">Salvar Registro</button>
         </div>
     </div>
 </div>
@@ -188,9 +182,11 @@ function carregarPerfil() {
 }
 
 function carregarClientes() {
-    // Simulação ou fetch para carregar clientes
-    // Ex: fetch(URL_SCRIPT, { action: 'listar_clientes' })
-    renderClients();
+    fetch(URL_SCRIPT, { method: "POST", credentials: "include", body: JSON.stringify({ action: "listar_clientes" }) })
+    .then(res => res.json()).then(data => {
+        dbClients = data;
+        renderClients();
+    });
 }
 
 async function saveProfileData() {
@@ -212,38 +208,51 @@ async function saveProfileData() {
     } catch(e) { }
 }
 
+async function saveClientData() {
+    const data = {
+        action: "save_client", // Você deve implementar esta ação no seu Google Script para adicionar nova linha
+        nome: document.getElementById('c-nome').value,
+        email: document.getElementById('c-email').value,
+        notificar: document.getElementById('c-notificar').checked,
+        status: document.getElementById('a-status').value,
+        descricao: document.getElementById('a-desc').value
+    };
+    try {
+        const res = await fetch(URL_SCRIPT, { method: "POST", credentials: "include", body: JSON.stringify(data) });
+        const result = await res.json();
+        if(result.status === "ok") {
+            closeModal('modal-client');
+            openModal('modal-success');
+            carregarClientes();
+        }
+    } catch(e) { }
+}
+
 function renderClients() {
     const list = document.getElementById('admin-client-list');
     list.innerHTML = '';
     const searchNome = document.getElementById('adminSearch').value.toLowerCase();
-
-    // Filtra e limita a 10 cards
     const filtrados = dbClients
         .filter(c => c.nome.toLowerCase().includes(searchNome))
-        .sort((a, b) => (b.fixado ? 1 : 0) - (a.fixado ? 1 : 0)) // Fixados no topo
+        .sort((a, b) => (b.fixado ? 1 : 0) - (a.fixado ? 1 : 0))
         .slice(0, 10);
 
     filtrados.forEach((c) => {
-        const ultimoCard = c.timeline[c.timeline.length - 1] || { status: 'Sem registros', descricao: 'Timeline vazia' };
+        const ultimoCard = c.timeline[c.timeline.length - 1] || { status: 'Sem registros' };
         list.innerHTML += `
             <div class="bg-white dark:bg-zinc-900 p-6 rounded-[25px] border border-satinGold/10 flex justify-between items-center shadow-sm">
                 <div>
-                    <h4 class="font-bold text-darkGold text-lg flex items-center gap-2">
-                        ${c.nome} 
-                        ${c.fixado ? '<i class="fas fa-thumbtack text-xs text-satinGold"></i>' : ''}
-                    </h4>
+                    <h4 class="font-bold text-darkGold text-lg flex items-center gap-2">${c.nome} ${c.fixado ? '<i class="fas fa-thumbtack text-xs text-satinGold"></i>' : ''}</h4>
                     <p class="text-[10px] uppercase font-bold opacity-50">${ultimoCard.status}</p>
                 </div>
                 <div class="flex gap-2">
-                    <button onclick="toggleFix(${c.id})" class="w-10 h-10 rounded-full ${c.fixado ? 'gold-gradient text-white' : 'bg-gray-100 text-satinGold'}"><i class="fas fa-thumbtack"></i></button>
-                    <button onclick="openEditClient(${c.id})" class="w-10 h-10 rounded-full bg-gray-100 dark:bg-zinc-800 text-satinGold"><i class="fas fa-pen"></i></button>
+                    <button class="w-10 h-10 rounded-full bg-gray-100 dark:bg-zinc-800 text-satinGold"><i class="fas fa-pen"></i></button>
                 </div>
             </div>`;
     });
 }
 
 function filterClients() { renderClients(); }
-
 function switchTab(tabId) {
     const pill = document.getElementById('tab-pill');
     const isClientes = tabId === 'tab-clientes';
@@ -253,10 +262,16 @@ function switchTab(tabId) {
     document.getElementById('btn-tab-clientes').className = `relative z-10 flex-1 py-4 rounded-xl font-bold text-sm uppercase tracking-widest transition-all ${isClientes ? 'active-tab' : 'inactive-tab'}`;
     document.getElementById('btn-tab-perfil').className = `relative z-10 flex-1 py-4 rounded-xl font-bold text-sm uppercase tracking-widest transition-all ${!isClientes ? 'active-tab' : 'inactive-tab'}`;
 }
-
 function openModal(id) { document.getElementById(id).classList.add('flex'); document.getElementById(id).classList.remove('hidden'); }
 function closeModal(id) { document.getElementById(id).classList.add('hidden'); document.getElementById(id).classList.remove('flex'); }
-function triggerConfirm(tipo) { openModal('modal-confirm'); document.getElementById('btn-confirm-yes').onclick = () => { closeModal('modal-confirm'); if(tipo === 'perfil') saveProfileData(); }; }
+function triggerConfirm(tipo) { 
+    openModal('modal-confirm'); 
+    document.getElementById('btn-confirm-yes').onclick = () => { 
+        closeModal('modal-confirm'); 
+        if(tipo === 'perfil') saveProfileData(); 
+        if(tipo === 'cliente') saveClientData();
+    }; 
+}
 function toggleDarkMode() { document.documentElement.classList.toggle('dark'); }
 function toggleNewSecretField() { const check = document.getElementById('check-change-secret'); document.getElementById('container-new-secret').classList.toggle('hidden', !check.checked); }
 function logoutAdmin() { sessionStorage.removeItem('ADV_ADMIN_AUTH'); window.location.href = "https://site-advogado.github.io/site/"; }
