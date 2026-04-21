@@ -13,39 +13,24 @@
             darkMode: 'class',
             theme: {
                 extend: {
-                    colors: {
-                        pearl: '#FDFCF8',
-                        softBlack: '#1A1A1A',
-                        satinGold: '#C5A059',
-                        darkGold: '#A37E3B'
-                    },
-                    fontFamily: {
-                        serif: ['Cinzel', 'serif'],
-                        sans: ['Montserrat', 'sans-serif'],
-                    }
+                    colors: { pearl: '#FDFCF8', softBlack: '#1A1A1A', satinGold: '#C5A059', darkGold: '#A37E3B' },
+                    fontFamily: { serif: ['Cinzel', 'serif'], sans: ['Montserrat', 'sans-serif'] }
                 }
             }
         }
     </script>
 
     <style>
-body { -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
-input, select, textarea { -webkit-user-select: text !important; -moz-user-select: text !important; -ms-user-select: text !important; user-select: text !important; }
-img { pointer-events: none !important; -webkit-user-drag: none !important; }
+        body { -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
+        input, select, textarea { -webkit-user-select: text !important; -moz-user-select: text !important; -ms-user-select: text !important; user-select: text !important; }
+        img { pointer-events: none !important; -webkit-user-drag: none !important; }
         .modal-blur { backdrop-filter: blur(8px); }
         .gold-gradient { background: linear-gradient(135deg, #C5A059 0%, #A37E3B 100%); }
-        .client-card { transition: all 0.3s ease; }
-        .client-card:hover { transform: translateY(-2px); border-color: #C5A059; }
-        .card-finalizado { background-color: #e5e7eb !important; border-color: #9ca3af !important; }
-        .card-finalizado h4, .card-finalizado p, .card-finalizado i { color: #6b7280 !important; }
-        .card-finalizado button { background-color: #d1d5db !important; color: #6b7280 !important; }
-        .dark .card-finalizado { background-color: #334155 !important; border-color: #475569 !important; }
-        .dark .card-finalizado h4, .dark .card-finalizado p, .dark .card-finalizado i { color: #94a3b8 !important; }
-        .dark .card-finalizado button { background-color: #1e293b !important; color: #94a3b8 !important; }
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-thumb { background: #C5A059; border-radius: 10px; }
         .tab-indicator { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
         .active-tab { color: #C5A059 !important; opacity: 1 !important; }
+        .inactive-tab { color: #9ca3af !important; opacity: 0.6; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #C5A059; border-radius: 10px; }
     </style>
 </head>
 
@@ -66,14 +51,14 @@ img { pointer-events: none !important; -webkit-user-drag: none !important; }
     <div class="relative flex mb-8 bg-gray-100 dark:bg-zinc-900 p-1 rounded-2xl h-14">
         <div id="tab-pill" class="tab-indicator absolute top-1 bottom-1 left-1 w-[calc(50%-4px)] bg-white dark:bg-zinc-800 rounded-xl shadow-sm z-0"></div>
         <button onclick="switchTab('tab-clientes')" id="btn-tab-clientes" class="relative z-10 flex-1 py-4 rounded-xl font-bold text-sm uppercase tracking-widest transition-all active-tab">Clientes</button>
-        <button onclick="switchTab('tab-perfil')" id="btn-tab-perfil" class="relative z-10 flex-1 py-4 rounded-xl font-bold text-sm uppercase tracking-widest transition-all opacity-50">Meu Perfil</button>
+        <button onclick="switchTab('tab-perfil')" id="btn-tab-perfil" class="relative z-10 flex-1 py-4 rounded-xl font-bold text-sm uppercase tracking-widest transition-all inactive-tab">Meu Perfil</button>
     </div>
 
     <section id="tab-clientes" class="space-y-6">
         <div class="flex flex-col sm:flex-row gap-4 items-center justify-between">
             <div class="relative w-full sm:w-64">
                 <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-satinGold opacity-50"></i>
-                <input type="text" id="adminSearch" onkeyup="filterClients()" placeholder="Buscar cliente..." class="w-full pl-12 pr-4 py-3 rounded-2xl bg-white dark:bg-zinc-900 border border-satinGold/20 outline-none focus:border-satinGold shadow-sm">
+                <input type="text" id="adminSearch" onkeyup="filterClients()" placeholder="Buscar nome do cliente..." class="w-full pl-12 pr-4 py-3 rounded-2xl bg-white dark:bg-zinc-900 border border-satinGold/20 outline-none focus:border-satinGold shadow-sm">
             </div>
             <button onclick="openClientModal()" class="w-full sm:w-auto gold-gradient text-white px-8 py-3 rounded-2xl font-bold shadow-lg hover:scale-105 transition-transform text-sm uppercase tracking-widest"><i class="fas fa-user-plus mr-2"></i>Novo Cliente</button>
         </div>
@@ -82,7 +67,7 @@ img { pointer-events: none !important; -webkit-user-drag: none !important; }
 
     <section id="tab-perfil" class="hidden">
         <div class="bg-white dark:bg-zinc-900 p-8 rounded-[30px] shadow-xl border border-satinGold/10 space-y-6">
-            <h3 class="font-serif text-3xl text-darkGold border-b border-satinGold/20 pb-4">Informações do Consultório</h3>
+            <h3 class="font-serif text-3xl text-darkGold border-b border-satinGold/20 pb-4 text-center">Informações do Consultório</h3>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div class="space-y-2"><label class="text-sm font-bold text-satinGold uppercase">Nome Profissional</label><input type="text" id="config-name" class="w-full p-3 rounded-xl border dark:bg-zinc-800 outline-none focus:border-satinGold"></div>
                 <div class="space-y-2"><label class="text-sm font-bold text-satinGold uppercase">Registro OAB</label><input type="text" id="config-oab" class="w-full p-3 rounded-xl border dark:bg-zinc-800 outline-none focus:border-satinGold"></div>
@@ -91,29 +76,73 @@ img { pointer-events: none !important; -webkit-user-drag: none !important; }
             </div>
             <div class="space-y-2"><label class="text-sm font-bold text-satinGold uppercase">E-mail Profissional</label><input type="text" id="config-email" class="w-full p-3 rounded-xl border dark:bg-zinc-800 outline-none focus:border-satinGold"></div>
             <div class="space-y-2"><label class="text-sm font-bold text-satinGold uppercase">Breve Biografia / Especialidade</label><textarea id="config-desc" class="w-full p-3 rounded-xl border dark:bg-zinc-800 outline-none focus:border-satinGold h-24"></textarea></div>
-            <div class="pt-6 border-t border-satinGold/20">
-                <h4 class="font-serif text-xl text-darkGold mb-4 uppercase tracking-tighter">Segurança</h4>
-                <div class="relative mb-4">
-                    <label class="text-sm font-bold text-satinGold uppercase mb-1 block">Palavra Secreta Atual</label>
-                    <div class="relative">
-                        <input type="password" id="config-secret" class="w-full p-4 pr-16 rounded-xl border-2 border-satinGold bg-pearl dark:bg-zinc-800 font-bold">
-                        <div class="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2 bg-pearl dark:bg-zinc-800 pl-2">
-                            <input type="checkbox" id="check-change-secret" onchange="toggleNewSecretField()" class="w-5 h-5 accent-satinGold cursor-pointer">
+            
+            <div class="pt-6 border-t border-satinGold/20 space-y-6">
+                <h4 class="font-serif text-xl text-darkGold uppercase tracking-tighter text-center">Segurança da Conta</h4>
+                <div class="space-y-4">
+                    <div>
+                        <label class="text-sm font-bold text-satinGold uppercase mb-1 block">Nova Senha de Acesso</label>
+                        <input type="password" id="config-pass" placeholder="Deixe em branco para manter" class="w-full p-4 rounded-xl border-2 border-satinGold bg-white dark:bg-zinc-800 font-bold outline-none">
+                    </div>
+                    <div>
+                        <label class="text-sm font-bold text-satinGold uppercase mb-1 block">Palavra Secreta Atual</label>
+                        <div class="relative">
+                            <input type="password" id="config-secret" class="w-full p-4 rounded-xl border-2 border-satinGold bg-pearl dark:bg-zinc-800 font-bold" readonly value="********">
+                            <div class="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                                <input type="checkbox" id="check-change-secret" onchange="toggleNewSecretField()" class="w-5 h-5 accent-satinGold">
+                            </div>
                         </div>
                     </div>
+                    <div id="container-new-secret" class="hidden">
+                        <label class="text-sm font-bold text-darkGold uppercase">Nova Palavra Secreta</label>
+                        <input type="text" id="config-new-secret" placeholder="Digite a nova palavra" class="w-full p-4 rounded-xl border-2 border-darkGold bg-white dark:bg-zinc-900 font-bold">
+                    </div>
                 </div>
-                <div id="container-new-secret" class="hidden space-y-2 mb-6"><label class="text-sm font-bold text-darkGold uppercase">Nova Palavra Secreta</label><input type="text" id="config-new-secret" placeholder="Digite a nova palavra" class="w-full p-4 rounded-xl border-2 border-darkGold bg-white dark:bg-zinc-900 font-bold"></div>
                 <button onclick="triggerConfirm('perfil')" class="w-full gold-gradient text-white py-4 rounded-2xl font-bold shadow-xl uppercase tracking-widest">Salvar Alterações</button>
             </div>
         </div>
     </section>
 </main>
 
+<div id="modal-client" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4 modal-blur bg-black/60 overflow-y-auto">
+    <div class="bg-pearl dark:bg-zinc-900 w-full max-w-xl p-8 rounded-[40px] border border-satinGold/30 shadow-2xl">
+        <h3 id="modal-title" class="font-serif text-2xl text-darkGold mb-6 text-center">Gestão do Cliente</h3>
+        
+        <div class="space-y-4 mb-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div><label class="text-[10px] font-bold uppercase opacity-50">Nome do Cliente</label><input type="text" id="c-nome" class="w-full p-3 rounded-xl border dark:bg-zinc-800"></div>
+                <div><label class="text-[10px] font-bold uppercase opacity-50">E-mail (Login)</label><input type="email" id="c-email" class="w-full p-3 rounded-xl border dark:bg-zinc-800"></div>
+            </div>
+            <div class="flex items-center gap-2 bg-gray-50 dark:bg-zinc-800 p-3 rounded-xl border border-satinGold/20">
+                <input type="checkbox" id="c-notificar" class="w-5 h-5 accent-satinGold">
+                <label for="c-notificar" class="text-xs font-bold">Notificar atualizações por e-mail</label>
+            </div>
+        </div>
+
+        <div class="bg-gray-100 dark:bg-zinc-800/50 p-6 rounded-3xl border-2 border-dashed border-satinGold/30 space-y-4">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-satinGold uppercase">Atualização da Timeline</span>
+                <select id="card-mode" class="text-[10px] p-2 rounded bg-white border border-satinGold/20 font-bold">
+                    <option value="new">ADICIONAR + NOVO CARD</option>
+                    <option value="edit">APENAS EDITAR TEXTO ATUAL</option>
+                </select>
+            </div>
+            <input type="text" id="a-status" placeholder="Ex: Audiência Designada" class="w-full p-3 rounded-xl border font-bold text-sm">
+            <textarea id="a-desc" placeholder="Descreva os detalhes do processo..." class="w-full p-3 rounded-xl border h-24 text-sm"></textarea>
+        </div>
+
+        <div class="flex gap-3 mt-8">
+            <button onclick="closeModal('modal-client')" class="flex-1 py-4 font-bold opacity-50 text-xs uppercase">Cancelar</button>
+            <button onclick="triggerConfirm('cliente')" class="flex-1 gold-gradient text-white py-4 rounded-2xl font-bold shadow-xl text-xs uppercase">Salvar Registro</button>
+        </div>
+    </div>
+</div>
+
 <div id="modal-confirm" class="fixed inset-0 z-[200] hidden flex items-center justify-center p-4 modal-blur bg-black/80">
     <div class="bg-pearl dark:bg-zinc-900 w-full max-w-sm p-8 rounded-[30px] border-2 border-satinGold text-center shadow-2xl">
         <div class="w-16 h-16 gold-gradient rounded-full flex items-center justify-center text-white text-2xl mx-auto mb-4"><i class="fas fa-question"></i></div>
         <h3 class="font-serif text-xl text-darkGold mb-2 uppercase">Confirmar Ação?</h3>
-        <p class="text-sm opacity-70 mb-8" id="confirm-text">Deseja realmente salvar estas alterações?</p>
+        <p class="text-sm opacity-70 mb-8">Deseja realmente salvar estas alterações?</p>
         <div class="flex gap-3">
             <button onclick="closeModal('modal-confirm')" class="flex-1 py-3 text-xs font-bold uppercase opacity-50">Não</button>
             <button id="btn-confirm-yes" class="flex-1 gold-gradient text-white py-3 rounded-xl text-xs font-bold uppercase shadow-lg">Sim, Confirmar</button>
@@ -125,7 +154,7 @@ img { pointer-events: none !important; -webkit-user-drag: none !important; }
     <div class="bg-pearl dark:bg-zinc-900 w-full max-w-xs p-8 rounded-[30px] border-2 border-green-500 text-center shadow-2xl">
         <div class="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center text-white text-2xl mx-auto mb-4"><i class="fas fa-check"></i></div>
         <h3 class="font-serif text-xl text-green-600 mb-2 uppercase font-bold">Sucesso!</h3>
-        <p class="text-sm opacity-70 mb-6">Alterações salvas com sucesso.</p>
+        <p class="text-sm opacity-70 mb-6">Alterações salvas com sucesso no banco de dados.</p>
         <button onclick="closeModal('modal-success')" class="w-full bg-green-500 text-white py-3 rounded-xl text-xs font-bold uppercase">Fechar</button>
     </div>
 </div>
@@ -138,10 +167,15 @@ document.addEventListener('keydown', function(e) { if ((e.ctrlKey && ['c','u','s
 setInterval(function() { if (window.outerWidth - window.innerWidth > 160 || window.outerHeight - window.innerHeight > 160) document.body.innerHTML = ""; }, 1000);
 
 const URL_SCRIPT = "https://api-advogada.siterefrigeracaoeliezer.workers.dev/api/v1";
+let dbClients = [];
 
 window.onload = () => {
     if (!sessionStorage.getItem('ADV_ADMIN_AUTH')) { window.location.href = "https://site-advogado.github.io/site/"; return; }
-    // Carregar dados da Bio para preencher os campos automaticamente
+    carregarPerfil();
+    carregarClientes();
+};
+
+function carregarPerfil() {
     fetch(URL_SCRIPT, { method: "POST", credentials: "include", body: JSON.stringify({ action: "bio" }) })
     .then(res => res.json()).then(data => {
         document.getElementById('config-name').value = data.name || "";
@@ -151,7 +185,13 @@ window.onload = () => {
         document.getElementById('config-email').value = data.email || "";
         document.getElementById('config-desc').value = data.desc || "";
     });
-};
+}
+
+function carregarClientes() {
+    // Simulação ou fetch para carregar clientes
+    // Ex: fetch(URL_SCRIPT, { action: 'listar_clientes' })
+    renderClients();
+}
 
 async function saveProfileData() {
     const data = {
@@ -162,31 +202,64 @@ async function saveProfileData() {
         phone: document.getElementById('config-phone').value,
         email: document.getElementById('config-email').value,
         desc: document.getElementById('config-desc').value,
+        new_pass: document.getElementById('config-pass').value,
         new_secret: document.getElementById('check-change-secret').checked ? document.getElementById('config-new-secret').value : null
     };
     try {
         const res = await fetch(URL_SCRIPT, { method: "POST", credentials: "include", body: JSON.stringify(data) });
         const result = await res.json();
         if(result.status === "ok") openModal('modal-success');
-        else alert(result.message);
     } catch(e) { }
 }
 
-function logoutAdmin() { sessionStorage.removeItem('ADV_ADMIN_AUTH'); window.location.href = "https://site-advogado.github.io/site/"; }
+function renderClients() {
+    const list = document.getElementById('admin-client-list');
+    list.innerHTML = '';
+    const searchNome = document.getElementById('adminSearch').value.toLowerCase();
+
+    // Filtra e limita a 10 cards
+    const filtrados = dbClients
+        .filter(c => c.nome.toLowerCase().includes(searchNome))
+        .sort((a, b) => (b.fixado ? 1 : 0) - (a.fixado ? 1 : 0)) // Fixados no topo
+        .slice(0, 10);
+
+    filtrados.forEach((c) => {
+        const ultimoCard = c.timeline[c.timeline.length - 1] || { status: 'Sem registros', descricao: 'Timeline vazia' };
+        list.innerHTML += `
+            <div class="bg-white dark:bg-zinc-900 p-6 rounded-[25px] border border-satinGold/10 flex justify-between items-center shadow-sm">
+                <div>
+                    <h4 class="font-bold text-darkGold text-lg flex items-center gap-2">
+                        ${c.nome} 
+                        ${c.fixado ? '<i class="fas fa-thumbtack text-xs text-satinGold"></i>' : ''}
+                    </h4>
+                    <p class="text-[10px] uppercase font-bold opacity-50">${ultimoCard.status}</p>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="toggleFix(${c.id})" class="w-10 h-10 rounded-full ${c.fixado ? 'gold-gradient text-white' : 'bg-gray-100 text-satinGold'}"><i class="fas fa-thumbtack"></i></button>
+                    <button onclick="openEditClient(${c.id})" class="w-10 h-10 rounded-full bg-gray-100 dark:bg-zinc-800 text-satinGold"><i class="fas fa-pen"></i></button>
+                </div>
+            </div>`;
+    });
+}
+
+function filterClients() { renderClients(); }
+
 function switchTab(tabId) {
     const pill = document.getElementById('tab-pill');
     const isClientes = tabId === 'tab-clientes';
     pill.style.transform = isClientes ? 'translateX(0)' : 'translateX(100%)';
     document.getElementById('tab-clientes').classList.toggle('hidden', !isClientes);
     document.getElementById('tab-perfil').classList.toggle('hidden', isClientes);
-    document.getElementById('btn-tab-clientes').classList.toggle('active-tab', isClientes);
-    document.getElementById('btn-tab-perfil').classList.toggle('active-tab', !isClientes);
+    document.getElementById('btn-tab-clientes').className = `relative z-10 flex-1 py-4 rounded-xl font-bold text-sm uppercase tracking-widest transition-all ${isClientes ? 'active-tab' : 'inactive-tab'}`;
+    document.getElementById('btn-tab-perfil').className = `relative z-10 flex-1 py-4 rounded-xl font-bold text-sm uppercase tracking-widest transition-all ${!isClientes ? 'active-tab' : 'inactive-tab'}`;
 }
+
 function openModal(id) { document.getElementById(id).classList.add('flex'); document.getElementById(id).classList.remove('hidden'); }
 function closeModal(id) { document.getElementById(id).classList.add('hidden'); document.getElementById(id).classList.remove('flex'); }
 function triggerConfirm(tipo) { openModal('modal-confirm'); document.getElementById('btn-confirm-yes').onclick = () => { closeModal('modal-confirm'); if(tipo === 'perfil') saveProfileData(); }; }
 function toggleDarkMode() { document.documentElement.classList.toggle('dark'); }
 function toggleNewSecretField() { const check = document.getElementById('check-change-secret'); document.getElementById('container-new-secret').classList.toggle('hidden', !check.checked); }
+function logoutAdmin() { sessionStorage.removeItem('ADV_ADMIN_AUTH'); window.location.href = "https://site-advogado.github.io/site/"; }
 </script>
 </body>
 </html>
