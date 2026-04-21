@@ -21,6 +21,7 @@
         .inactive-tab { color: #9ca3af !important; opacity: 0.6; }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: #C5A059; border-radius: 10px; }
+        .card-finalizado { background-color: #e5e7eb !important; border-color: #9ca3af !important; }
         .loader { border: 4px solid #f3f3f3; border-top: 4px solid #C5A059; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
@@ -139,11 +140,11 @@
 <div id="modal-confirm" class="fixed inset-0 z-[200] hidden flex items-center justify-center p-4 modal-blur bg-black/80">
     <div class="bg-pearl dark:bg-zinc-900 w-full max-w-sm p-8 rounded-[30px] border-2 border-satinGold text-center shadow-2xl">
         <div class="w-16 h-16 gold-gradient rounded-full flex items-center justify-center text-white text-2xl mx-auto mb-4"><i class="fas fa-question"></i></div>
-        <h3 class="font-serif text-xl text-darkGold mb-2 uppercase">Confirmar?</h3>
+        <h3 class="font-serif text-xl text-darkGold mb-2 uppercase tracking-widest">Confirmar?</h3>
         <p class="text-sm opacity-70 mb-8 font-sans text-center">Deseja aplicar estas alterações?</p>
         <div class="flex gap-3">
             <button onclick="closeModal('modal-confirm')" class="flex-1 py-3 text-xs font-bold uppercase opacity-50">Não</button>
-            <button id="btn-confirm-yes" class="flex-1 gold-gradient text-white py-3 rounded-xl text-xs font-bold uppercase">Sim</button>
+            <button id="btn-confirm-yes" class="flex-1 gold-gradient text-white py-3 rounded-xl text-xs font-bold uppercase shadow-lg">Sim</button>
         </div>
     </div>
 </div>
@@ -151,8 +152,8 @@
 <div id="modal-success" class="fixed inset-0 z-[300] hidden flex items-center justify-center p-4 modal-blur bg-black/60">
     <div class="bg-pearl dark:bg-zinc-900 w-full max-w-sm p-10 rounded-[30px] border-2 border-satinGold text-center shadow-2xl">
         <div class="w-20 h-20 gold-gradient rounded-full flex items-center justify-center text-white text-3xl mx-auto mb-6 shadow-lg"><i class="fas fa-check"></i></div>
-        <h3 class="font-serif text-2xl text-darkGold mb-2 uppercase font-bold">Sucesso!</h3>
-        <p class="text-sm opacity-80 mb-10 font-sans">Dados processados com sucesso.</p>
+        <h3 class="font-serif text-2xl text-darkGold mb-2 uppercase font-bold tracking-widest">Sucesso!</h3>
+        <p class="text-sm opacity-80 mb-10 font-sans">Dados salvos com sucesso.</p>
         <button onclick="closeModal('modal-success')" class="w-full gold-gradient text-white py-4 rounded-xl text-xs font-bold uppercase tracking-widest shadow-md">Fechar</button>
     </div>
 </div>
@@ -231,7 +232,7 @@ function toggleEditUI() {
     
     if (isNew) {
         document.getElementById('a-status').value = "Petição Inicial Protocolada";
-        document.getElementById('a-desc').value = ""; // Limpa texto se for novo card
+        document.getElementById('a-desc').value = ""; // LIMPA O TEXTO CONFORME SOLICITADO
     } else {
         document.getElementById('a-status').value = ultimo.status;
         document.getElementById('a-desc').value = ultimo.descricao;
@@ -286,10 +287,7 @@ async function deleteClient(email) {
 async function saveProfileData() {
     showSinc();
     const data = { action: "save_profile", api_key: MASTER_KEY, name: document.getElementById('config-name').value, oab: document.getElementById('config-oab').value, img: document.getElementById('config-img').value, phone: document.getElementById('config-phone').value, email: document.getElementById('config-email').value, desc: document.getElementById('config-desc').value, new_pass: document.getElementById('config-pass').value, new_secret: document.getElementById('check-change-secret').checked ? document.getElementById('config-new-secret').value : null };
-    try { 
-        await fetch(URL_SCRIPT, { method: "POST", credentials: "include", body: JSON.stringify(data) }); 
-        openModal('modal-success'); 
-    } catch(e) {} finally { hideSinc(); }
+    try { await fetch(URL_SCRIPT, { method: "POST", credentials: "include", body: JSON.stringify(data) }); openModal('modal-success'); } catch(e) {} finally { hideSinc(); }
 }
 
 function renderClients() {
@@ -304,14 +302,17 @@ function renderClients() {
 
         cardsToShow.forEach((card, index) => {
             list.innerHTML += `
-                <div class="bg-white dark:bg-zinc-900 p-6 rounded-[25px] border border-satinGold/10 flex justify-between items-center shadow-sm mb-2 max-w-3xl mx-auto">
+                <div class="bg-white dark:bg-zinc-900 p-8 rounded-[30px] border border-satinGold/10 flex justify-between items-center shadow-md mb-4 max-w-4xl mx-auto transition-transform hover:scale-[1.01]">
                     <div class="text-left">
-                        <h4 class="font-bold text-darkGold text-lg">${c.nome} ${c.numero_processo ? `<span class="text-[10px] opacity-40 font-normal">#${c.numero_processo}</span>` : ''}</h4>
-                        <p class="text-[10px] uppercase font-bold opacity-50">${card.status} <span class="ml-2 text-[8px] opacity-30">${card.data}</span></p>
+                        <h4 class="font-bold text-darkGold text-xl mb-1">${c.nome} ${c.numero_processo ? `<span class="text-xs opacity-30 font-normal ml-2">#${c.numero_processo}</span>` : ''}</h4>
+                        <div class="flex items-center gap-3">
+                            <p class="text-xs uppercase font-bold text-satinGold tracking-wider">${card.status}</p>
+                            <span class="text-[10px] opacity-40 font-semibold">${card.data}</span>
+                        </div>
                     </div>
-                    <div class="flex gap-2">
-                        ${!isSearching || index === 0 ? `<button onclick="openEditClient(${c.id})" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-zinc-800 text-satinGold hover:scale-110 transition-transform"><i class="fas fa-pen text-xs"></i></button>` : ''}
-                        ${!isSearching ? `<button onclick="deleteClient('${c.email}')" class="w-8 h-8 rounded-full bg-red-50 text-red-400 hover:scale-110 transition-transform"><i class="fas fa-trash text-xs"></i></button>` : ''}
+                    <div class="flex gap-4">
+                        ${!isSearching || index === 0 ? `<button onclick="openEditClient(${c.id})" class="w-10 h-10 rounded-full bg-gray-100 dark:bg-zinc-800 text-satinGold hover:gold-gradient hover:text-white transition-all shadow-sm"><i class="fas fa-pen text-sm"></i></button>` : ''}
+                        ${!isSearching ? `<button onclick="deleteClient('${c.email}')" class="w-10 h-10 rounded-full bg-red-50 dark:bg-red-900/20 text-red-400 hover:bg-red-500 hover:text-white transition-all shadow-sm"><i class="fas fa-trash text-sm"></i></button>` : ''}
                     </div>
                 </div>`;
         });
