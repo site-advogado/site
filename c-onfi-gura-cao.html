@@ -35,7 +35,7 @@
     </style>
 </head>
 
-<body class="bg-pearl dark:bg-softBlack text-softBlack dark:text-pearl min-h-screen font-sans">
+<body class="bg-pearl dark:bg-softBlack text-softBlack dark:text-pearl min-h-screen font-sans transition-colors duration-300">
 
 <header class="fixed top-0 w-full z-50 p-4 flex justify-between items-center bg-pearl/80 dark:bg-softBlack/80 backdrop-blur-md border-b border-satinGold/20">
     <div class="flex items-center gap-3">
@@ -68,29 +68,25 @@
 
     <section id="tab-perfil" class="hidden">
         <div class="bg-white dark:bg-zinc-900 p-8 rounded-[30px] shadow-xl border border-satinGold/10 space-y-6">
-            <h3 class="font-serif text-3xl text-darkGold border-b border-satinGold/20 pb-4 text-center">Informações do Consultório</h3>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div class="space-y-2"><label class="text-sm font-bold text-satinGold uppercase">Nome Profissional</label><input type="text" id="config-name" class="w-full p-3 rounded-xl border dark:bg-zinc-800 outline-none focus:border-satinGold"></div>
-                <div class="space-y-2"><label class="text-sm font-bold text-satinGold uppercase">Registro OAB</label><input type="text" id="config-oab" class="w-full p-3 rounded-xl border dark:bg-zinc-800 outline-none focus:border-satinGold"></div>
-                <div class="space-y-2"><label class="text-sm font-bold text-satinGold uppercase">URL da Foto (Perfil)</label><input type="text" id="config-img" class="w-full p-3 rounded-xl border dark:bg-zinc-800 outline-none focus:border-satinGold"></div>
-                <div class="space-y-2"><label class="text-sm font-bold text-satinGold uppercase">WhatsApp Comercial</label><input type="text" id="config-phone" class="w-full p-3 rounded-xl border dark:bg-zinc-800 outline-none focus:border-satinGold"></div>
+            <h3 class="font-serif text-3xl text-darkGold border-b border-satinGold/20 pb-4 text-center text-uppercase">Informações do Consultório</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 text-left">
+                <div class="space-y-2"><label class="text-[10px] font-bold text-satinGold uppercase">Nome Profissional</label><input type="text" id="config-name" class="w-full p-3 rounded-xl border border-satinGold/20 dark:bg-zinc-800 outline-none focus:border-satinGold"></div>
+                <div class="space-y-2"><label class="text-[10px] font-bold text-satinGold uppercase">Registro OAB</label><input type="text" id="config-oab" class="w-full p-3 rounded-xl border border-satinGold/20 dark:bg-zinc-800 outline-none focus:border-satinGold"></div>
+                <div class="space-y-2"><label class="text-[10px] font-bold text-satinGold uppercase">URL da Foto</label><input type="text" id="config-img" class="w-full p-3 rounded-xl border border-satinGold/20 dark:bg-zinc-800 outline-none focus:border-satinGold"></div>
+                <div class="space-y-2"><label class="text-[10px] font-bold text-satinGold uppercase">WhatsApp</label><input type="text" id="config-phone" class="w-full p-3 rounded-xl border border-satinGold/20 dark:bg-zinc-800 outline-none focus:border-satinGold"></div>
             </div>
-            <div class="space-y-2"><label class="text-sm font-bold text-satinGold uppercase">E-mail Profissional</label><input type="text" id="config-email" class="w-full p-3 rounded-xl border dark:bg-zinc-800 outline-none focus:border-satinGold"></div>
-            <div class="space-y-2"><label class="text-sm font-bold text-satinGold uppercase">Breve Biografia / Especialidade</label><textarea id="config-desc" class="w-full p-3 rounded-xl border dark:bg-zinc-800 outline-none focus:border-satinGold h-24"></textarea></div>
+            <div class="space-y-2 text-left"><label class="text-[10px] font-bold text-satinGold uppercase">E-mail Profissional</label><input type="text" id="config-email" class="w-full p-3 rounded-xl border border-satinGold/20 dark:bg-zinc-800 outline-none focus:border-satinGold"></div>
+            <div class="space-y-2 text-left"><label class="text-[10px] font-bold text-satinGold uppercase">Breve Biografia</label><textarea id="config-desc" class="w-full p-3 rounded-xl border border-satinGold/20 dark:bg-zinc-800 outline-none focus:border-satinGold h-24"></textarea></div>
             <div class="pt-6 border-t border-satinGold/20 space-y-6">
-                <h4 class="font-serif text-xl text-darkGold uppercase tracking-tighter text-center">Segurança da Conta</h4>
-                <div class="space-y-4">
-                    <div><label class="text-sm font-bold text-satinGold uppercase mb-1 block">Nova Senha de Acesso</label><input type="password" id="config-pass" placeholder="Deixe em branco para manter" class="w-full p-4 rounded-xl border-2 border-satinGold bg-white dark:bg-zinc-800 font-bold outline-none"></div>
-                    <div>
-                        <label class="text-sm font-bold text-satinGold uppercase mb-1 block">Palavra Secreta Atual</label>
-                        <div class="relative">
-                            <input type="password" id="config-secret" class="w-full p-4 rounded-xl border-2 border-satinGold bg-pearl dark:bg-zinc-800 font-bold" readonly value="********">
-                            <div class="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2"><input type="checkbox" id="check-change-secret" onchange="toggleNewSecretField()" class="w-5 h-5 accent-satinGold"></div>
-                        </div>
+                <h4 class="font-serif text-xl text-darkGold uppercase tracking-tighter text-center">Segurança</h4>
+                <div class="space-y-4 text-left">
+                    <div><label class="text-[10px] font-bold text-satinGold uppercase">Nova Senha</label><input type="password" id="config-pass" placeholder="Manter atual" class="w-full p-4 rounded-xl border-2 border-satinGold/30 bg-white dark:bg-zinc-800 outline-none"></div>
+                    <div><label class="text-[10px] font-bold text-satinGold uppercase">Palavra Secreta</label>
+                        <div class="relative"><input type="password" id="config-secret" class="w-full p-4 rounded-xl border-2 border-satinGold/30 bg-pearl dark:bg-zinc-800 font-bold" readonly value="********"><div class="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2"><input type="checkbox" id="check-change-secret" onchange="toggleNewSecretField()" class="w-5 h-5 accent-satinGold"></div></div>
                     </div>
-                    <div id="container-new-secret" class="hidden"><label class="text-sm font-bold text-darkGold uppercase">Nova Palavra Secreta</label><input type="text" id="config-new-secret" placeholder="Digite a nova palavra" class="w-full p-4 rounded-xl border-2 border-darkGold bg-white dark:bg-zinc-900 font-bold"></div>
+                    <div id="container-new-secret" class="hidden"><label class="text-[10px] font-bold text-darkGold uppercase">Nova Palavra</label><input type="text" id="config-new-secret" placeholder="Digite a nova palavra" class="w-full p-4 rounded-xl border-2 border-darkGold bg-white dark:bg-zinc-900 outline-none"></div>
                 </div>
-                <button onclick="triggerConfirm('perfil')" class="w-full gold-gradient text-white py-4 rounded-2xl font-bold shadow-xl uppercase tracking-widest">Salvar Alterações</button>
+                <button onclick="triggerConfirm('perfil')" class="w-full gold-gradient text-white py-4 rounded-2xl font-bold shadow-xl uppercase tracking-widest hover:scale-[1.01] transition-transform">Salvar Alterações</button>
             </div>
         </div>
     </section>
@@ -103,14 +99,18 @@
             <button onclick="closeModal('modal-client')" class="text-satinGold opacity-50 hover:opacity-100"><i class="fas fa-times text-xl"></i></button>
         </div>
         
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6 text-left">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4 text-left">
             <div class="space-y-1"><label class="text-[10px] font-bold text-satinGold uppercase">Nome do Reclamante</label><input type="text" id="c-nome" class="w-full p-3 rounded-xl border border-satinGold/20 dark:bg-zinc-800"></div>
             <div class="space-y-1"><label class="text-[10px] font-bold text-satinGold uppercase">E-mail para Login</label><input type="email" id="c-email" class="w-full p-3 rounded-xl border border-satinGold/20 dark:bg-zinc-800"></div>
         </div>
 
+        <div class="grid grid-cols-1 gap-4 mb-6 text-left">
+            <div class="space-y-1"><label class="text-[10px] font-bold text-satinGold uppercase">Número do Processo (Opcional)</label><input type="text" id="c-num-proc" placeholder="Ex: 0000000-00.2026.5.00.0000" class="w-full p-3 rounded-xl border border-satinGold/20 dark:bg-zinc-800"></div>
+        </div>
+
         <div class="bg-gray-50 dark:bg-zinc-800/50 p-6 rounded-3xl border border-satinGold/20 space-y-4">
             <div class="flex items-center justify-between">
-                <label id="label-timeline-mode" class="text-sm font-bold text-satinGold uppercase tracking-widest">Status do Processo</label>
+                <label class="text-sm font-bold text-satinGold uppercase tracking-widest">Status do Processo</label>
                 <div class="flex items-center gap-2">
                     <input type="checkbox" id="c-notificar" class="accent-satinGold" checked>
                     <label for="c-notificar" class="text-[10px] font-bold opacity-70 uppercase">Notificar e-mail</label>
@@ -138,14 +138,13 @@
             </div>
 
             <div id="ui-edit-full" class="hidden">
-                <label class="text-[10px] font-bold text-red-500 uppercase block mb-1 text-left">Cuidado: Editando JSON Bruto da Timeline</label>
                 <textarea id="a-full-timeline" class="w-full p-4 rounded-xl border border-red-500/20 dark:bg-zinc-900 h-48 text-[10px] font-mono"></textarea>
             </div>
         </div>
 
         <div class="flex gap-3 mt-8">
-            <button onclick="closeModal('modal-client')" class="flex-1 py-4 font-bold opacity-50 text-xs uppercase tracking-widest">Cancelar</button>
-            <button id="btn-salvar-cliente" class="flex-1 gold-gradient text-white py-4 rounded-2xl font-bold shadow-xl text-xs uppercase tracking-widest">Salvar Registro</button>
+            <button onclick="closeModal('modal-client')" class="flex-1 py-4 font-bold opacity-50 text-[10px] uppercase">Cancelar</button>
+            <button onclick="triggerConfirm('cliente')" class="flex-1 gold-gradient text-white py-4 rounded-2xl font-bold shadow-xl text-[10px] uppercase">Salvar Registro</button>
         </div>
     </div>
 </div>
@@ -153,11 +152,11 @@
 <div id="modal-confirm" class="fixed inset-0 z-[200] hidden flex items-center justify-center p-4 modal-blur bg-black/80">
     <div class="bg-pearl dark:bg-zinc-900 w-full max-w-sm p-8 rounded-[30px] border-2 border-satinGold text-center shadow-2xl">
         <div class="w-16 h-16 gold-gradient rounded-full flex items-center justify-center text-white text-2xl mx-auto mb-4"><i class="fas fa-question"></i></div>
-        <h3 class="font-serif text-xl text-darkGold mb-2 uppercase tracking-widest">Confirmar?</h3>
-        <p class="text-sm opacity-70 mb-8 font-sans">Deseja realmente aplicar estas alterações?</p>
+        <h3 class="font-serif text-xl text-darkGold mb-2 uppercase">Confirmar?</h3>
+        <p class="text-sm opacity-70 mb-8">Deseja realmente aplicar estas alterações?</p>
         <div class="flex gap-3">
             <button onclick="closeModal('modal-confirm')" class="flex-1 py-3 text-xs font-bold uppercase opacity-50">Não</button>
-            <button id="btn-confirm-yes" class="flex-1 gold-gradient text-white py-3 rounded-xl text-xs font-bold uppercase shadow-lg">Confirmar</button>
+            <button id="btn-confirm-yes" class="flex-1 gold-gradient text-white py-3 rounded-xl text-xs font-bold uppercase">Confirmar</button>
         </div>
     </div>
 </div>
@@ -165,8 +164,8 @@
 <div id="modal-success" class="fixed inset-0 z-[300] hidden flex items-center justify-center p-4 modal-blur bg-black/60">
     <div class="bg-pearl dark:bg-zinc-900 w-full max-w-sm p-10 rounded-[30px] border-2 border-satinGold text-center shadow-2xl">
         <div class="w-20 h-20 gold-gradient rounded-full flex items-center justify-center text-white text-3xl mx-auto mb-6 shadow-lg"><i class="fas fa-check"></i></div>
-        <h3 class="font-serif text-2xl text-darkGold mb-2 uppercase tracking-widest font-bold">Sucesso!</h3>
-        <p class="text-sm opacity-80 mb-10 font-sans">Dados processados e salvos na planilha.</p>
+        <h3 class="font-serif text-2xl text-darkGold mb-2 uppercase font-bold">Sucesso!</h3>
+        <p class="text-sm opacity-80 mb-10">Dados processados e salvos com sucesso.</p>
         <button onclick="closeModal('modal-success')" class="w-full gold-gradient text-white py-4 rounded-xl text-xs font-bold uppercase tracking-widest shadow-md">Fechar</button>
     </div>
 </div>
@@ -178,6 +177,7 @@ document.addEventListener('keydown', function(e) { if ((e.ctrlKey && ['c','u','s
 setInterval(function() { if (window.outerWidth - window.innerWidth > 160 || window.outerHeight - window.innerHeight > 160) document.body.innerHTML = ""; }, 1000);
 
 const URL_SCRIPT = "https://api-advogada.siterefrigeracaoeliezer.workers.dev/api/v1";
+const MASTER_KEY = "Adv_Seguro_2026_##";
 let dbClients = [];
 let currentClientEmail = "";
 
@@ -188,7 +188,7 @@ window.onload = () => {
 };
 
 function carregarPerfil() {
-    fetch(URL_SCRIPT, { method: "POST", credentials: "include", body: JSON.stringify({ action: "bio" }) })
+    fetch(URL_SCRIPT, { method: "POST", credentials: "include", body: JSON.stringify({ action: "bio", api_key: MASTER_KEY }) })
     .then(res => res.json()).then(data => {
         document.getElementById('config-name').value = data.name || "";
         document.getElementById('config-oab').value = data.oab || "";
@@ -200,7 +200,7 @@ function carregarPerfil() {
 }
 
 function carregarClientes() {
-    fetch(URL_SCRIPT, { method: "POST", credentials: "include", body: JSON.stringify({ action: "listar_clientes" }) })
+    fetch(URL_SCRIPT, { method: "POST", credentials: "include", body: JSON.stringify({ action: "listar_clientes", api_key: MASTER_KEY }) })
     .then(res => res.json()).then(data => {
         dbClients = data;
         renderClients();
@@ -212,6 +212,7 @@ function openModalNovoCliente() {
     document.getElementById('c-nome').value = "";
     document.getElementById('c-email').value = "";
     document.getElementById('c-email').disabled = false;
+    document.getElementById('c-num-proc').value = "";
     document.getElementById('a-status').value = "Petição Inicial Protocolada";
     document.getElementById('a-desc').value = "";
     document.getElementById('container-edit-mode').classList.add('hidden');
@@ -229,8 +230,8 @@ function openEditClient(id) {
     document.getElementById('c-email').value = c.email;
     document.getElementById('c-email').disabled = true;
     document.getElementById('c-notificar').checked = c.notificar;
+    document.getElementById('c-num-proc').value = c.numero_processo || "";
     document.getElementById('a-full-timeline').value = JSON.stringify(c.timeline, null, 2);
-    
     document.getElementById('container-edit-mode').classList.remove('hidden');
     document.getElementById('edit-action').value = "new";
     toggleEditUI();
@@ -239,22 +240,21 @@ function openEditClient(id) {
 
 function toggleEditUI() {
     const action = document.getElementById('edit-action').value;
-    if(action === 'new') {
-        document.getElementById('ui-new-card').classList.remove('hidden');
-        document.getElementById('ui-edit-full').classList.add('hidden');
-    } else {
-        document.getElementById('ui-new-card').classList.add('hidden');
-        document.getElementById('ui-edit-full').classList.remove('hidden');
-    }
+    document.getElementById('ui-new-card').classList.toggle('hidden', action !== 'new');
+    document.getElementById('ui-edit-full').classList.toggle('hidden', action === 'new');
 }
 
 async function saveClientData() {
     const isEdit = document.getElementById('modal-title').innerText.includes("Editar");
-    let data = { action: isEdit ? "update_client_timeline" : "save_client" };
+    let data = { 
+      action: isEdit ? "update_client_timeline" : "save_client",
+      api_key: MASTER_KEY 
+    };
     
     if(isEdit) {
         let timeline;
-        if(document.getElementById('edit-action').value === 'new') {
+        let isNew = document.getElementById('edit-action').value === 'new';
+        if(isNew) {
             const clienteAtual = dbClients.find(x => x.email === currentClientEmail);
             timeline = [...clienteAtual.timeline];
             timeline.push({
@@ -269,12 +269,14 @@ async function saveClientData() {
         data.email = currentClientEmail;
         data.notificar = document.getElementById('c-notificar').checked;
         data.timeline_json = JSON.stringify(timeline);
+        data.is_new_card = isNew;
     } else {
         data.nome = document.getElementById('c-nome').value;
         data.email = document.getElementById('c-email').value;
         data.notificar = document.getElementById('c-notificar').checked;
         data.status = document.getElementById('a-status').value;
         data.descricao = document.getElementById('a-desc').value;
+        data.numero_processo = document.getElementById('c-num-proc').value;
     }
 
     try {
@@ -285,12 +287,13 @@ async function saveClientData() {
             openModal('modal-success');
             carregarClientes();
         }
-    } catch(e) { alert("Erro de conexão."); }
+    } catch(e) { }
 }
 
 async function saveProfileData() {
     const data = {
         action: "save_profile",
+        api_key: MASTER_KEY,
         name: document.getElementById('config-name').value,
         oab: document.getElementById('config-oab').value,
         img: document.getElementById('config-img').value,
@@ -320,7 +323,7 @@ function renderClients() {
         list.innerHTML += `
             <div class="bg-white dark:bg-zinc-900 p-6 rounded-[25px] border border-satinGold/10 flex justify-between items-center shadow-sm">
                 <div class="text-left">
-                    <h4 class="font-bold text-darkGold text-lg flex items-center gap-2">${c.nome}</h4>
+                    <h4 class="font-bold text-darkGold text-lg">${c.nome} ${c.numero_processo ? `<span class="text-[10px] opacity-40 font-normal">#${c.numero_processo}</span>` : ''}</h4>
                     <p class="text-[10px] uppercase font-bold opacity-50">${ultimoCard.status}</p>
                 </div>
                 <div class="flex gap-2">
@@ -340,8 +343,8 @@ function switchTab(tabId) {
     document.getElementById('btn-tab-clientes').className = `relative z-10 flex-1 py-4 rounded-xl font-bold text-sm uppercase tracking-widest transition-all ${isClientes ? 'active-tab' : 'inactive-tab'}`;
     document.getElementById('btn-tab-perfil').className = `relative z-10 flex-1 py-4 rounded-xl font-bold text-sm uppercase tracking-widest transition-all ${!isClientes ? 'active-tab' : 'inactive-tab'}`;
 }
-function openModal(id) { document.getElementById(id).classList.add('flex'); document.getElementById(id).classList.remove('hidden'); }
-function closeModal(id) { document.getElementById(id).classList.add('hidden'); document.getElementById(id).classList.remove('flex'); }
+function openModal(id) { document.getElementById(id).classList.replace('hidden', 'flex'); }
+function closeModal(id) { document.getElementById(id).classList.replace('flex', 'hidden'); }
 function triggerConfirm(tipo) { 
     openModal('modal-confirm'); 
     document.getElementById('btn-confirm-yes').onclick = () => { 
