@@ -1,6 +1,6 @@
 {
-  "name": "Dr. Ana",
-  "short_name": "Advocacia",
+  "name": "Gestor - Dra. Ana",
+  "short_name": "Dra. Ana",
   "description": "Acompanhamento de processos jurídicos",
   "start_url": "./",
   "display": "standalone",
