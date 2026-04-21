@@ -46,25 +46,25 @@
     </div>
 </header>
 
-<main class="pt-28 pb-20 px-4 max-w-4xl mx-auto text-center">
-    <div class="relative flex mb-8 bg-gray-100 dark:bg-zinc-900 p-1 rounded-2xl h-14">
+<main class="pt-28 pb-20 px-4 max-w-full mx-auto text-center">
+    <div class="relative flex mb-8 bg-gray-100 dark:bg-zinc-900 p-1 rounded-2xl h-14 max-w-4xl mx-auto">
         <div id="tab-pill" class="tab-indicator absolute top-1 bottom-1 left-1 w-[calc(50%-4px)] bg-white dark:bg-zinc-800 rounded-xl shadow-sm z-0"></div>
         <button onclick="switchTab('tab-clientes')" id="btn-tab-clientes" class="relative z-10 flex-1 py-4 rounded-xl font-bold text-sm uppercase tracking-widest transition-all active-tab">Clientes</button>
         <button onclick="switchTab('tab-perfil')" id="btn-tab-perfil" class="relative z-10 flex-1 py-4 rounded-xl font-bold text-sm uppercase tracking-widest transition-all inactive-tab">Meu Perfil</button>
     </div>
 
-    <section id="tab-clientes" class="space-y-6">
-        <div class="flex flex-col sm:flex-row gap-4 items-center justify-between">
+    <section id="tab-clientes" class="space-y-6 w-full">
+        <div class="flex flex-col sm:flex-row gap-4 items-center justify-between max-w-4xl mx-auto">
             <div class="relative w-full sm:w-64">
                 <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-satinGold opacity-50"></i>
                 <input type="text" id="adminSearch" onkeyup="filterClients()" placeholder="Buscar nome..." class="w-full pl-12 pr-4 py-3 rounded-2xl bg-white dark:bg-zinc-900 border border-satinGold/20 outline-none focus:border-satinGold shadow-sm">
             </div>
             <button onclick="openModalNovoCliente()" class="w-full sm:w-auto gold-gradient text-white px-8 py-3 rounded-2xl font-bold shadow-lg hover:scale-105 transition-transform text-sm uppercase tracking-widest"><i class="fas fa-user-plus mr-2"></i>Novo Cliente</button>
         </div>
-        <div id="admin-client-list" class="grid grid-cols-1 gap-4 text-center"></div>
+        <div id="admin-client-list" class="grid grid-cols-1 gap-4 text-center w-full"></div>
     </section>
 
-    <section id="tab-perfil" class="hidden">
+    <section id="tab-perfil" class="hidden max-w-4xl mx-auto">
         <div class="bg-white dark:bg-zinc-900 p-8 rounded-[30px] shadow-xl border border-satinGold/10 space-y-6 text-left">
             <h3 class="font-serif text-3xl text-darkGold border-b border-satinGold/20 pb-4 text-center">Informações do Consultório</h3>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -232,7 +232,7 @@ function toggleEditUI() {
     
     if (isNew) {
         document.getElementById('a-status').value = "Petição Inicial Protocolada";
-        document.getElementById('a-desc').value = ""; // LIMPA O TEXTO
+        document.getElementById('a-desc').value = "";
     } else {
         document.getElementById('a-status').value = ultimo.status;
         document.getElementById('a-desc').value = ultimo.descricao;
@@ -253,7 +253,7 @@ async function saveClientData() {
         data.email = currentClientEmail;
         data.status_atual = nStatus;
         data.descricao = nDesc;
-        data.is_new_card = isNew; // Define se cria novo card ou anexa ao último
+        data.is_new_card = isNew;
     } else {
         data.nome = document.getElementById('c-nome').value; 
         data.email = document.getElementById('c-email').value;
@@ -283,7 +283,7 @@ async function saveClientData() {
 }
 
 async function deleteClient(email) {
-    if(!confirm("Excluir permanentemente este cliente?")) return;
+    if(!confirm("ATENÇÃO: EXCLUSÃO TOTAL\n\nEsta ação excluirá permanentemente este cliente, todos os cards de histórico anteriores e removerá completamente o acesso do cliente ao sistema.\n\nDeseja continuar?")) return;
     showSinc();
     try {
         const res = await fetch(URL_SCRIPT, { method: "POST", credentials: "include", body: JSON.stringify({ action: "delete_client", email: email, api_key: MASTER_KEY }) });
@@ -304,13 +304,13 @@ function renderClients() {
     const searchNome = document.getElementById('adminSearch').value.toLowerCase();
     
     dbClients.filter(c => c.nome.toLowerCase().includes(searchNome)).forEach((c) => {
-        const isSearching = searchNome.length > 0;
+        // Lógica: Exibir apenas o último card da timeline de cada cliente
         const timelineRev = [...c.timeline].reverse();
-        const cardsToShow = isSearching ? timelineRev : [timelineRev[0]];
+        const card = timelineRev[0]; // Pega sempre o mais recente
 
-        cardsToShow.forEach((card, index) => {
+        if (card) {
             list.innerHTML += `
-                <div class="bg-white dark:bg-zinc-900 p-8 rounded-[30px] border border-satinGold/10 flex justify-between items-center shadow-md mb-4 max-w-4xl mx-auto transition-transform hover:scale-[1.01]">
+                <div class="bg-white dark:bg-zinc-900 p-8 rounded-[30px] border border-satinGold/10 flex justify-between items-center shadow-md mb-4 w-full max-w-none mx-auto transition-transform hover:scale-[1.005]">
                     <div class="text-left">
                         <h4 class="font-bold text-darkGold text-xl mb-1">${c.nome} ${c.numero_processo ? `<span class="text-xs opacity-30 font-normal ml-2">#${c.numero_processo}</span>` : ''}</h4>
                         <div class="flex items-center gap-3">
@@ -319,11 +319,11 @@ function renderClients() {
                         </div>
                     </div>
                     <div class="flex gap-4">
-                        ${!isSearching || index === 0 ? `<button onclick="openEditClient(${c.id})" class="w-10 h-10 rounded-full bg-gray-100 dark:bg-zinc-800 text-satinGold hover:gold-gradient hover:text-white transition-all shadow-sm"><i class="fas fa-pen text-sm"></i></button>` : ''}
-                        ${!isSearching ? `<button onclick="deleteClient('${c.email}')" class="w-8 h-8 rounded-full bg-red-50 dark:bg-red-900/20 text-red-400 hover:bg-red-500 hover:text-white transition-all shadow-sm"><i class="fas fa-trash text-sm"></i></button>` : ''}
+                        <button onclick="openEditClient(${c.id})" class="w-10 h-10 rounded-full bg-gray-100 dark:bg-zinc-800 text-satinGold hover:gold-gradient hover:text-white transition-all shadow-sm"><i class="fas fa-pen text-sm"></i></button>
+                        <button onclick="deleteClient('${c.email}')" class="w-10 h-10 rounded-full bg-red-50 dark:bg-red-900/20 text-red-400 hover:bg-red-500 hover:text-white transition-all shadow-sm"><i class="fas fa-trash text-sm"></i></button>
                     </div>
                 </div>`;
-        });
+        }
     });
 }
 
