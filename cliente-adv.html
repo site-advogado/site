@@ -2,7 +2,7 @@
 <html lang="pt-br" class="light">  
 <head>  
     <meta charset="UTF-8">  
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">  
     <title>Minha Linha do Tempo | Gestão Jurídica</title>  
     <script src="https://cdn.tailwindcss.com"></script>  
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">  
@@ -11,10 +11,14 @@
     tailwind.config = { darkMode: 'class', theme: { extend: { colors: { pearl: '#FDFCF8', softBlack: '#1A1A1A', satinGold: '#C5A059', darkGold: '#A37E3B' }, fontFamily: { serif: ['Cinzel', 'serif'], sans: ['Montserrat', 'sans-serif'] } } } }
     </script>  
     <style>  
+        /* 🚫 PROTEÇÕES DE INTERFACE EXTREMAS */
         body { -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
+        img { pointer-events: none !important; -webkit-user-drag: none !important; }
         .gold-gradient { background: linear-gradient(135deg, #C5A059 0%, #A37E3B 100%); }  
         .loader { border: 4px solid #f3f3f3; border-top: 4px solid #C5A059; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #C5A059; border-radius: 10px; }
     </style>
 </head>  
 
@@ -46,9 +50,26 @@
 </main>  
 
 <script>
+// 🚫 PROTEÇÕES DE INTERFACE (ANTI-INSPEÇÃO)
+document.addEventListener('contextmenu', e => e.preventDefault());
+document.addEventListener('selectstart', e => e.preventDefault());
+document.addEventListener('keydown', function(e) {
+    if (e.key === "F12" || (e.ctrlKey && e.shiftKey && e.key === "I") || (e.ctrlKey && e.key === "u")) {
+        e.preventDefault();
+        return false;
+    }
+});
+
+// Detectar Console Aberto
+setInterval(function() {
+    if (window.outerWidth - window.innerWidth > 160 || window.outerHeight - window.innerHeight > 160) {
+        document.body.innerHTML = "<h1 style='color:red;text-align:center;margin-top:20%;'>Acesso bloqueado por segurança.</h1>";
+    }
+}, 1000);
+
 const URL_SCRIPT = "https://api-advogada.siterefrigeracaoeliezer.workers.dev/api/v1"; 
 
-// ✅ VERIFICAÇÃO DE ENTRADA (Igual ao Admin)
+// ✅ VERIFICAÇÃO DE ENTRADA
 if (!sessionStorage.getItem('ADV_AUTH_SESS')) {
     window.location.href = "index.html";
 }
@@ -56,7 +77,6 @@ if (!sessionStorage.getItem('ADV_AUTH_SESS')) {
 function showLoading() { document.getElementById('globalLoader').style.display = 'flex'; }
 function hideLoading() { document.getElementById('globalLoader').style.display = 'none'; }
 
-// ✅ Carregamento com pequeno delay para estabilidade do Cookie
 window.onload = () => { setTimeout(carregarTimeline, 400); };
 
 async function carregarTimeline() {
