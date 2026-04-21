@@ -164,7 +164,11 @@ const URL_SCRIPT = "https://api-advogada.siterefrigeracaoeliezer.workers.dev/api
 let dbClients = [];
 
 window.onload = () => {
-    if (!sessionStorage.getItem('ADV_ADMIN_AUTH')) { window.location.href = "https://site-advogado.github.io/site/"; return; }
+    // ✅ CORREÇÃO DA CHAVE DE AUTENTICAÇÃO:
+    if (!sessionStorage.getItem('ADV_AUTH_SESS')) { 
+        window.location.href = "index.html"; 
+        return; 
+    }
     carregarPerfil();
     carregarClientes();
 };
@@ -210,7 +214,7 @@ async function saveProfileData() {
 
 async function saveClientData() {
     const data = {
-        action: "save_client", // Você deve implementar esta ação no seu Google Script para adicionar nova linha
+        action: "save_client",
         nome: document.getElementById('c-nome').value,
         email: document.getElementById('c-email').value,
         notificar: document.getElementById('c-notificar').checked,
@@ -274,7 +278,7 @@ function triggerConfirm(tipo) {
 }
 function toggleDarkMode() { document.documentElement.classList.toggle('dark'); }
 function toggleNewSecretField() { const check = document.getElementById('check-change-secret'); document.getElementById('container-new-secret').classList.toggle('hidden', !check.checked); }
-function logoutAdmin() { sessionStorage.removeItem('ADV_ADMIN_AUTH'); window.location.href = "https://site-advogado.github.io/site/"; }
+function logoutAdmin() { sessionStorage.removeItem('ADV_AUTH_SESS'); window.location.href = "index.html"; }
 </script>
 </body>
 </html>
