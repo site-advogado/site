@@ -253,18 +253,33 @@ async function saveClientData() {
         data.email = currentClientEmail;
         data.status_atual = nStatus;
         data.descricao = nDesc;
-        data.is_new_card = isNew;
+        data.is_new_card = isNew; // Define se cria novo card ou anexa ao último
     } else {
-        data.nome = document.getElementById('c-nome').value; data.email = document.getElementById('c-email').value;
-        data.notificar = document.getElementById('c-notificar').checked; data.status = document.getElementById('a-status').value;
-        data.descricao = document.getElementById('a-desc').value; data.numero_processo = document.getElementById('c-num-proc').value;
+        data.nome = document.getElementById('c-nome').value; 
+        data.email = document.getElementById('c-email').value;
+        data.notificar = document.getElementById('c-notificar').checked; 
+        data.status = document.getElementById('a-status').value;
+        data.descricao = document.getElementById('a-desc').value; 
+        data.numero_processo = document.getElementById('c-num-proc').value;
     }
 
     try {
-        const res = await fetch(URL_SCRIPT, { method: "POST", credentials: "include", body: JSON.stringify(data) });
+        const res = await fetch(URL_SCRIPT, { 
+            method: "POST", 
+            credentials: "include", 
+            body: JSON.stringify(data) 
+        });
         const result = await res.json();
-        if(result.status === "ok") { closeModal('modal-client'); openModal('modal-success'); carregarClientes(); }
-    } catch(e) {} finally { hideSinc(); }
+        if(result.status === "ok") { 
+            closeModal('modal-client'); 
+            openModal('modal-success'); 
+            carregarClientes(); 
+        }
+    } catch(e) {
+        console.error("Erro ao salvar:", e);
+    } finally { 
+        hideSinc(); 
+    }
 }
 
 async function deleteClient(email) {
