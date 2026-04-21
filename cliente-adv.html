@@ -9,6 +9,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">  
     <script>  
     tailwind.config = { darkMode: 'class', theme: { extend: { colors: { pearl: '#FDFCF8', softBlack: '#1A1A1A', satinGold: '#C5A059', darkGold: '#A37E3B' }, fontFamily: { serif: ['Cinzel', 'serif'], sans: ['Montserrat', 'sans-serif'] } } } }
+    
+    if (localStorage.getItem('ADV_GLOBAL_THEME') === 'dark') {
+        document.documentElement.classList.add('dark');
+        document.documentElement.classList.remove('light');
+    } else {
+        document.documentElement.classList.add('light');
+        document.documentElement.classList.remove('dark');
+    }
     </script>  
     <style>  
         /* 🚫 PROTEÇÕES DE INTERFACE EXTREMAS */
@@ -37,7 +45,7 @@
         <span class="font-serif font-bold text-darkGold tracking-widest text-xs uppercase">Área do Cliente</span>
     </div>
     <div class="flex gap-4 items-center">  
-        <button onclick="toggleDarkMode()" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-800 transition-all"><i class="fas fa-moon text-satinGold text-xl"></i></button>  
+        <button onclick="toggleDarkMode()" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-800 transition-all"><i id="themeIcon" class="fas fa-moon text-satinGold text-xl"></i></button>  
         <button onclick="sairTimeline()" class="bg-red-500/10 text-red-500 px-4 py-2 rounded-full text-[10px] font-bold uppercase">Sair</button>
     </div>
 </header>  
@@ -77,7 +85,19 @@ if (!sessionStorage.getItem('ADV_AUTH_SESS')) {
 function showLoading() { document.getElementById('globalLoader').style.display = 'flex'; }
 function hideLoading() { document.getElementById('globalLoader').style.display = 'none'; }
 
-window.onload = () => { setTimeout(carregarTimeline, 400); };
+window.onload = () => { 
+    // Aplicação persistente do tema
+    const themeIcon = document.getElementById('themeIcon');
+    if (localStorage.getItem('ADV_GLOBAL_THEME') === 'dark') {
+        document.documentElement.classList.add('dark');
+        if (themeIcon) themeIcon.classList.replace('fa-moon', 'fa-sun');
+    } else {
+        document.documentElement.classList.remove('dark');
+        if (themeIcon) themeIcon.classList.replace('fa-sun', 'fa-moon');
+    }
+    
+    setTimeout(carregarTimeline, 400); 
+};
 
 async function carregarTimeline() {
     showLoading();
@@ -105,7 +125,19 @@ function renderTimeline(eventos) {
 }
 
 function sairTimeline() { sessionStorage.removeItem('ADV_AUTH_SESS'); window.location.href = "index.html"; }
-function toggleDarkMode() { document.documentElement.classList.toggle('dark'); }
+
+function toggleDarkMode() {
+    const isDark = document.documentElement.classList.toggle('dark');
+    const themeIcon = document.getElementById('themeIcon');
+    
+    if (isDark) {
+        localStorage.setItem('ADV_GLOBAL_THEME', 'dark');
+        if (themeIcon) themeIcon.classList.replace('fa-moon', 'fa-sun');
+    } else {
+        localStorage.setItem('ADV_GLOBAL_THEME', 'light');
+        if (themeIcon) themeIcon.classList.replace('fa-sun', 'fa-moon');
+    }
+}
 </script>
 </body>  
 </html>
