@@ -29,70 +29,23 @@
     </script>
 
     <style>
-/* Bloqueia a seleção de texto e o arraste de imagens */
-body {
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-}
-
-/* Mantém os campos de texto funcionando (senão você não consegue digitar o login) */
-input, select, textarea {
-    -webkit-user-select: text !important;
-    -moz-user-select: text !important;
-    -ms-user-select: text !important;
-    user-select: text !important;
-}
-
-/* Proteção extra para imagens */
-img {
-    pointer-events: none !important;
-    -webkit-user-drag: none !important;
-}
-
-        
+body { -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
+input, select, textarea { -webkit-user-select: text !important; -moz-user-select: text !important; -ms-user-select: text !important; user-select: text !important; }
+img { pointer-events: none !important; -webkit-user-drag: none !important; }
         .modal-blur { backdrop-filter: blur(8px); }
         .gold-gradient { background: linear-gradient(135deg, #C5A059 0%, #A37E3B 100%); }
         .client-card { transition: all 0.3s ease; }
         .client-card:hover { transform: translateY(-2px); border-color: #C5A059; }
-        
-        /* ESTILO INTEGRALMENTE CINZA PARA CARD FINALIZADO */
-        .card-finalizado { 
-            background-color: #e5e7eb !important; 
-            border-color: #9ca3af !important; 
-        }
-        .card-finalizado h4, .card-finalizado p, .card-finalizado i { 
-            color: #6b7280 !important; 
-        }
-        .card-finalizado button { 
-            background-color: #d1d5db !important; 
-            color: #6b7280 !important; 
-        }
-
-        /* MODO ESCURO - CARD FINALIZADO */
-        .dark .card-finalizado { 
-            background-color: #334155 !important; 
-            border-color: #475569 !important; 
-        }
-        .dark .card-finalizado h4, .dark .card-finalizado p, .dark .card-finalizado i { 
-            color: #94a3b8 !important; 
-        }
-        .dark .card-finalizado button { 
-            background-color: #1e293b !important; 
-            color: #94a3b8 !important; 
-        }
-
+        .card-finalizado { background-color: #e5e7eb !important; border-color: #9ca3af !important; }
+        .card-finalizado h4, .card-finalizado p, .card-finalizado i { color: #6b7280 !important; }
+        .card-finalizado button { background-color: #d1d5db !important; color: #6b7280 !important; }
+        .dark .card-finalizado { background-color: #334155 !important; border-color: #475569 !important; }
+        .dark .card-finalizado h4, .dark .card-finalizado p, .dark .card-finalizado i { color: #94a3b8 !important; }
+        .dark .card-finalizado button { background-color: #1e293b !important; color: #94a3b8 !important; }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: #C5A059; border-radius: 10px; }
-
-        .tab-indicator {
-            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .active-tab {
-            color: #C5A059 !important;
-            opacity: 1 !important;
-        }
+        .tab-indicator { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        .active-tab { color: #C5A059 !important; opacity: 1 !important; }
     </style>
 </head>
 
@@ -100,27 +53,18 @@ img {
 
 <header class="fixed top-0 w-full z-50 p-4 flex justify-between items-center bg-pearl/80 dark:bg-softBlack/80 backdrop-blur-md border-b border-satinGold/20">
     <div class="flex items-center gap-3">
-        <div class="w-10 h-10 gold-gradient rounded-full flex items-center justify-center text-white shadow-lg">
-            <i class="fas fa-gavel"></i>
-        </div>
+        <div class="w-10 h-10 gold-gradient rounded-full flex items-center justify-center text-white shadow-lg"><i class="fas fa-gavel"></i></div>
         <h1 class="font-serif font-bold text-darkGold tracking-tighter hidden sm:block text-xl">PAINEL DE GESTÃO</h1>
     </div>
-    
     <div class="flex gap-4 items-center">
-        <button onclick="toggleDarkMode()" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-800 transition-all">
-            <i id="themeIcon" class="fas fa-moon text-satinGold text-xl"></i>
-        </button>
-        <button onclick="logoutAdmin()" class="bg-red-500/10 text-red-500 px-4 py-2 rounded-full text-xs font-bold hover:bg-red-500 hover:text-white transition-all uppercase tracking-widest">
-            Sair
-        </button>
+        <button onclick="toggleDarkMode()" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-800 transition-all"><i id="themeIcon" class="fas fa-moon text-satinGold text-xl"></i></button>
+        <button onclick="logoutAdmin()" class="bg-red-500/10 text-red-500 px-4 py-2 rounded-full text-xs font-bold hover:bg-red-500 hover:text-white transition-all uppercase tracking-widest">Sair</button>
     </div>
 </header>
 
 <main class="pt-28 pb-20 px-4 max-w-4xl mx-auto">
-    
     <div class="relative flex mb-8 bg-gray-100 dark:bg-zinc-900 p-1 rounded-2xl h-14">
         <div id="tab-pill" class="tab-indicator absolute top-1 bottom-1 left-1 w-[calc(50%-4px)] bg-white dark:bg-zinc-800 rounded-xl shadow-sm z-0"></div>
-        
         <button onclick="switchTab('tab-clientes')" id="btn-tab-clientes" class="relative z-10 flex-1 py-4 rounded-xl font-bold text-sm uppercase tracking-widest transition-all active-tab">Clientes</button>
         <button onclick="switchTab('tab-perfil')" id="btn-tab-perfil" class="relative z-10 flex-1 py-4 rounded-xl font-bold text-sm uppercase tracking-widest transition-all opacity-50">Meu Perfil</button>
     </div>
@@ -131,51 +75,24 @@ img {
                 <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-satinGold opacity-50"></i>
                 <input type="text" id="adminSearch" onkeyup="filterClients()" placeholder="Buscar cliente..." class="w-full pl-12 pr-4 py-3 rounded-2xl bg-white dark:bg-zinc-900 border border-satinGold/20 outline-none focus:border-satinGold shadow-sm">
             </div>
-            <button onclick="openClientModal()" class="w-full sm:w-auto gold-gradient text-white px-8 py-3 rounded-2xl font-bold shadow-lg hover:scale-105 transition-transform text-sm uppercase tracking-widest">
-                <i class="fas fa-user-plus mr-2"></i>Novo Cliente
-            </button>
+            <button onclick="openClientModal()" class="w-full sm:w-auto gold-gradient text-white px-8 py-3 rounded-2xl font-bold shadow-lg hover:scale-105 transition-transform text-sm uppercase tracking-widest"><i class="fas fa-user-plus mr-2"></i>Novo Cliente</button>
         </div>
-
-        <div id="admin-client-list" class="grid grid-cols-1 gap-4">
-        </div>
+        <div id="admin-client-list" class="grid grid-cols-1 gap-4"></div>
     </section>
 
     <section id="tab-perfil" class="hidden">
         <div class="bg-white dark:bg-zinc-900 p-8 rounded-[30px] shadow-xl border border-satinGold/10 space-y-6">
             <h3 class="font-serif text-3xl text-darkGold border-b border-satinGold/20 pb-4">Informações do Consultório</h3>
-            
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div class="space-y-2">
-                    <label class="text-sm font-bold text-satinGold uppercase">Nome Profissional</label>
-                    <input type="text" id="config-name" class="w-full p-3 rounded-xl border dark:bg-zinc-800 outline-none focus:border-satinGold">
-                </div>
-                <div class="space-y-2">
-                    <label class="text-sm font-bold text-satinGold uppercase">Registro OAB</label>
-                    <input type="text" id="config-oab" class="w-full p-3 rounded-xl border dark:bg-zinc-800 outline-none focus:border-satinGold">
-                </div>
-                <div class="space-y-2">
-                    <label class="text-sm font-bold text-satinGold uppercase">URL da Foto (Perfil)</label>
-                    <input type="text" id="config-img" class="w-full p-3 rounded-xl border dark:bg-zinc-800 outline-none focus:border-satinGold">
-                </div>
-                <div class="space-y-2">
-                    <label class="text-sm font-bold text-satinGold uppercase">WhatsApp Comercial</label>
-                    <input type="text" id="config-phone" class="w-full p-3 rounded-xl border dark:bg-zinc-800 outline-none focus:border-satinGold">
-                </div>
+                <div class="space-y-2"><label class="text-sm font-bold text-satinGold uppercase">Nome Profissional</label><input type="text" id="config-name" class="w-full p-3 rounded-xl border dark:bg-zinc-800 outline-none focus:border-satinGold"></div>
+                <div class="space-y-2"><label class="text-sm font-bold text-satinGold uppercase">Registro OAB</label><input type="text" id="config-oab" class="w-full p-3 rounded-xl border dark:bg-zinc-800 outline-none focus:border-satinGold"></div>
+                <div class="space-y-2"><label class="text-sm font-bold text-satinGold uppercase">URL da Foto (Perfil)</label><input type="text" id="config-img" class="w-full p-3 rounded-xl border dark:bg-zinc-800 outline-none focus:border-satinGold"></div>
+                <div class="space-y-2"><label class="text-sm font-bold text-satinGold uppercase">WhatsApp Comercial</label><input type="text" id="config-phone" class="w-full p-3 rounded-xl border dark:bg-zinc-800 outline-none focus:border-satinGold"></div>
             </div>
-
-            <div class="space-y-2">
-                <label class="text-sm font-bold text-satinGold uppercase">E-mail Profissional</label>
-                <input type="text" id="config-email" class="w-full p-3 rounded-xl border dark:bg-zinc-800 outline-none focus:border-satinGold">
-            </div>
-
-            <div class="space-y-2">
-                <label class="text-sm font-bold text-satinGold uppercase">Breve Biografia / Especialidade</label>
-                <textarea id="config-desc" class="w-full p-3 rounded-xl border dark:bg-zinc-800 outline-none focus:border-satinGold h-24"></textarea>
-            </div>
-
+            <div class="space-y-2"><label class="text-sm font-bold text-satinGold uppercase">E-mail Profissional</label><input type="text" id="config-email" class="w-full p-3 rounded-xl border dark:bg-zinc-800 outline-none focus:border-satinGold"></div>
+            <div class="space-y-2"><label class="text-sm font-bold text-satinGold uppercase">Breve Biografia / Especialidade</label><textarea id="config-desc" class="w-full p-3 rounded-xl border dark:bg-zinc-800 outline-none focus:border-satinGold h-24"></textarea></div>
             <div class="pt-6 border-t border-satinGold/20">
                 <h4 class="font-serif text-xl text-darkGold mb-4 uppercase tracking-tighter">Segurança</h4>
-                
                 <div class="relative mb-4">
                     <label class="text-sm font-bold text-satinGold uppercase mb-1 block">Palavra Secreta Atual</label>
                     <div class="relative">
@@ -185,72 +102,18 @@ img {
                         </div>
                     </div>
                 </div>
-
-                <div id="container-new-secret" class="hidden space-y-2 mb-6">
-                    <label class="text-sm font-bold text-darkGold uppercase">Nova Palavra Secreta</label>
-                    <input type="text" id="config-new-secret" placeholder="Digite a nova palavra" class="w-full p-4 rounded-xl border-2 border-darkGold bg-white dark:bg-zinc-900 font-bold">
-                </div>
-
+                <div id="container-new-secret" class="hidden space-y-2 mb-6"><label class="text-sm font-bold text-darkGold uppercase">Nova Palavra Secreta</label><input type="text" id="config-new-secret" placeholder="Digite a nova palavra" class="w-full p-4 rounded-xl border-2 border-darkGold bg-white dark:bg-zinc-900 font-bold"></div>
                 <button onclick="triggerConfirm('perfil')" class="w-full gold-gradient text-white py-4 rounded-2xl font-bold shadow-xl uppercase tracking-widest">Salvar Alterações</button>
             </div>
         </div>
     </section>
 </main>
 
-<div id="modal-client" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4 modal-blur bg-black/60 overflow-y-auto">
-    <div class="bg-pearl dark:bg-zinc-900 w-full max-w-xl p-8 my-auto rounded-[40px] border border-satinGold/30 shadow-2xl">
-        <div class="flex justify-between items-center mb-6">
-            <h3 id="modal-title" class="font-serif text-3xl text-darkGold">Novo Processo</h3>
-            <button onclick="closeModal('modal-client')" class="text-satinGold opacity-50 hover:opacity-100"><i class="fas fa-times text-xl"></i></button>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-            <div class="space-y-1">
-                <label class="text-sm font-bold opacity-70 uppercase">Nome do Reclamante</label>
-                <input type="text" id="c-nome" class="w-full p-3 rounded-xl border dark:bg-zinc-800">
-            </div>
-            <div class="space-y-1">
-                <label class="text-sm font-bold opacity-70 uppercase">E-mail para Login</label>
-                <input type="email" id="c-email" class="w-full p-3 rounded-xl border dark:bg-zinc-800">
-            </div>
-        </div>
-
-        <div class="bg-gray-50 dark:bg-zinc-800/50 p-6 rounded-3xl border border-satinGold/20 space-y-4">
-            <div class="flex items-center justify-between">
-                <label class="text-sm font-bold text-satinGold uppercase tracking-widest">Status do Processo</label>
-                <div class="flex items-center gap-2">
-                    <input type="checkbox" id="a-new-card" class="accent-satinGold" checked>
-                    <label for="a-new-card" class="text-[10px] font-bold opacity-70 uppercase">Criar Novo Card</label>
-                </div>
-            </div>
-            
-            <select id="a-status" class="w-full p-4 rounded-xl border-2 border-satinGold/30 dark:bg-zinc-900 font-bold text-sm">
-                <option value="Petição Inicial Protocolada">Petição Inicial Protocolada</option>
-                <option value="Aguardando Citação">Aguardando Citação</option>
-                <option value="Audiência de Conciliação Designada">Audiência de Conciliação Designada</option>
-                <option value="Audiência de Instrução e Julgamento">Audiência de Instrução e Julgamento</option>
-                <option value="Sentença Proferida">Sentença Proferida</option>
-                <option value="Fase de Execução / Cálculos">Fase de Execução / Cálculos</option>
-                <option value="Processo Finalizado / Arquivado">Processo Finalizado / Arquivado</option>
-            </select>
-
-            <textarea id="a-desc" placeholder="Descreva os detalhes..." class="w-full p-4 rounded-xl border dark:bg-zinc-900 h-32 text-sm"></textarea>
-        </div>
-
-        <div class="flex gap-3 mt-8">
-            <button onclick="closeModal('modal-client')" class="flex-1 py-4 font-bold opacity-50 text-xs uppercase tracking-widest">Cancelar</button>
-            <button onclick="triggerConfirm('cliente')" class="flex-1 gold-gradient text-white py-4 rounded-2xl font-bold shadow-xl text-xs uppercase tracking-widest">Salvar Registro</button>
-        </div>
-    </div>
-</div>
-
 <div id="modal-confirm" class="fixed inset-0 z-[200] hidden flex items-center justify-center p-4 modal-blur bg-black/80">
     <div class="bg-pearl dark:bg-zinc-900 w-full max-w-sm p-8 rounded-[30px] border-2 border-satinGold text-center shadow-2xl">
-        <div class="w-16 h-16 gold-gradient rounded-full flex items-center justify-center text-white text-2xl mx-auto mb-4">
-            <i class="fas fa-question"></i>
-        </div>
+        <div class="w-16 h-16 gold-gradient rounded-full flex items-center justify-center text-white text-2xl mx-auto mb-4"><i class="fas fa-question"></i></div>
         <h3 class="font-serif text-xl text-darkGold mb-2 uppercase">Confirmar Ação?</h3>
-        <p class="text-sm opacity-70 mb-8" id="confirm-text">Deseja realmente salvar estas alterações no sistema?</p>
+        <p class="text-sm opacity-70 mb-8" id="confirm-text">Deseja realmente salvar estas alterações?</p>
         <div class="flex gap-3">
             <button onclick="closeModal('modal-confirm')" class="flex-1 py-3 text-xs font-bold uppercase opacity-50">Não</button>
             <button id="btn-confirm-yes" class="flex-1 gold-gradient text-white py-3 rounded-xl text-xs font-bold uppercase shadow-lg">Sim, Confirmar</button>
@@ -260,61 +123,34 @@ img {
 
 <div id="modal-success" class="fixed inset-0 z-[300] hidden flex items-center justify-center p-4 modal-blur bg-black/60">
     <div class="bg-pearl dark:bg-zinc-900 w-full max-w-xs p-8 rounded-[30px] border-2 border-green-500 text-center shadow-2xl">
-        <div class="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center text-white text-2xl mx-auto mb-4">
-            <i class="fas fa-check"></i>
-        </div>
+        <div class="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center text-white text-2xl mx-auto mb-4"><i class="fas fa-check"></i></div>
         <h3 class="font-serif text-xl text-green-600 mb-2 uppercase font-bold">Sucesso!</h3>
-        <p class="text-sm opacity-70 mb-6">Atualizações salvas com sucesso no banco de dados.</p>
+        <p class="text-sm opacity-70 mb-6">Alterações salvas com sucesso.</p>
         <button onclick="closeModal('modal-success')" class="w-full bg-green-500 text-white py-3 rounded-xl text-xs font-bold uppercase">Fechar</button>
     </div>
 </div>
 
 <script>
-// 🚫 PROTEÇÕES DE INTERFACE SILENCIOSAS
+// 🚫 PROTEÇÕES SILENCIOSAS
 document.addEventListener('contextmenu', e => e.preventDefault());
 document.addEventListener('selectstart', e => e.preventDefault());
-document.addEventListener('copy', e => e.preventDefault());
-document.addEventListener('cut', e => e.preventDefault());
-document.addEventListener('dragstart', e => e.preventDefault());
+document.addEventListener('keydown', function(e) { if ((e.ctrlKey && ['c','u','s','p'].includes(e.key.toLowerCase())) || (e.ctrlKey && e.shiftKey && ['i','j','c'].includes(e.key.toLowerCase())) || e.key === "F12") e.preventDefault(); });
+setInterval(function() { if (window.outerWidth - window.innerWidth > 160 || window.outerHeight - window.innerHeight > 160) document.body.innerHTML = ""; }, 1000);
 
-document.addEventListener('keydown', function(e) {
-    if ((e.ctrlKey && ['c','u','s','p'].includes(e.key.toLowerCase())) ||
-        (e.ctrlKey && e.shiftKey && ['i','j','c'].includes(e.key.toLowerCase())) ||
-        e.key === "F12") {
-        e.preventDefault();
-        return false;
-    }
-});
-
-setInterval(function() {
-    if (window.outerWidth - window.innerWidth > 160 || window.outerHeight - window.innerHeight > 160) {
-        document.body.innerHTML = "";
-    }
-}, 1000);
-
-// 🛡️ LÓGICA DE COMUNICAÇÃO SEGURA
 const URL_SCRIPT = "https://api-advogada.siterefrigeracaoeliezer.workers.dev/api/v1";
 
-let dbClients = [
-    {name: "João da Silva", email: "joao@email.com", status: "Audiência de Conciliação Designada", finalizado: false},
-    {name: "Maria Oliveira", email: "maria@email.com", status: "Processo Finalizado / Arquivado", finalizado: true}
-];
-
-let tempoInatividade;
-function resetarCronometro() {
-    clearTimeout(tempoInatividade);
-    tempoInatividade = setTimeout(logoutAdmin, 5 * 60 * 1000); 
-}
-
-window.onmousemove = resetarCronometro;
-
 window.onload = () => {
-    if (!sessionStorage.getItem('ADV_ADMIN_AUTH')) {
-        window.location.href = "https://site-advogado.github.io/site/";
-        return;
-    }
-    resetarCronometro();
-    renderClients();
+    if (!sessionStorage.getItem('ADV_ADMIN_AUTH')) { window.location.href = "https://site-advogado.github.io/site/"; return; }
+    // Carregar dados da Bio para preencher os campos automaticamente
+    fetch(URL_SCRIPT, { method: "POST", credentials: "include", body: JSON.stringify({ action: "bio" }) })
+    .then(res => res.json()).then(data => {
+        document.getElementById('config-name').value = data.name || "";
+        document.getElementById('config-oab').value = data.oab || "";
+        document.getElementById('config-img').value = data.img || "";
+        document.getElementById('config-phone').value = data.phone || "";
+        document.getElementById('config-email').value = data.email || "";
+        document.getElementById('config-desc').value = data.desc || "";
+    });
 };
 
 async function saveProfileData() {
@@ -326,27 +162,17 @@ async function saveProfileData() {
         phone: document.getElementById('config-phone').value,
         email: document.getElementById('config-email').value,
         desc: document.getElementById('config-desc').value,
-        current_secret: document.getElementById('config-secret').value,
-        new_secret: document.getElementById('config-new-secret').value
+        new_secret: document.getElementById('check-change-secret').checked ? document.getElementById('config-new-secret').value : null
     };
-
     try {
-        const res = await fetch(URL_SCRIPT, {
-            method: "POST",
-            credentials: "include", 
-            body: JSON.stringify(data)
-        });
+        const res = await fetch(URL_SCRIPT, { method: "POST", credentials: "include", body: JSON.stringify(data) });
         const result = await res.json();
         if(result.status === "ok") openModal('modal-success');
         else alert(result.message);
     } catch(e) { }
 }
 
-function logoutAdmin() {
-    sessionStorage.removeItem('ADV_ADMIN_AUTH');
-    window.location.href = "https://site-advogado.github.io/site/";
-}
-
+function logoutAdmin() { sessionStorage.removeItem('ADV_ADMIN_AUTH'); window.location.href = "https://site-advogado.github.io/site/"; }
 function switchTab(tabId) {
     const pill = document.getElementById('tab-pill');
     const isClientes = tabId === 'tab-clientes';
@@ -356,40 +182,11 @@ function switchTab(tabId) {
     document.getElementById('btn-tab-clientes').classList.toggle('active-tab', isClientes);
     document.getElementById('btn-tab-perfil').classList.toggle('active-tab', !isClientes);
 }
-
 function openModal(id) { document.getElementById(id).classList.add('flex'); document.getElementById(id).classList.remove('hidden'); }
 function closeModal(id) { document.getElementById(id).classList.add('hidden'); document.getElementById(id).classList.remove('flex'); }
-
-function renderClients() {
-    const list = document.getElementById('admin-client-list');
-    list.innerHTML = '';
-    dbClients.forEach((c) => {
-        const isF = c.status.includes("Finalizado");
-        list.innerHTML += `
-            <div class="bg-white dark:bg-zinc-900 p-6 rounded-[25px] border border-satinGold/10 flex justify-between items-center ${isF ? 'card-finalizado' : ''}">
-                <div>
-                    <h4 class="font-bold text-darkGold text-lg">${c.name}</h4>
-                    <p class="text-xs uppercase font-bold">${c.status}</p>
-                </div>
-                <button class="w-10 h-10 rounded-full bg-gray-100 dark:bg-zinc-800 text-satinGold"><i class="fas fa-pen text-sm"></i></button>
-            </div>`;
-    });
-}
-
-function triggerConfirm(tipo) {
-    openModal('modal-confirm');
-    document.getElementById('btn-confirm-yes').onclick = () => {
-        closeModal('modal-confirm');
-        if(tipo === 'perfil') saveProfileData();
-    };
-}
-
+function triggerConfirm(tipo) { openModal('modal-confirm'); document.getElementById('btn-confirm-yes').onclick = () => { closeModal('modal-confirm'); if(tipo === 'perfil') saveProfileData(); }; }
 function toggleDarkMode() { document.documentElement.classList.toggle('dark'); }
-function toggleNewSecretField() {
-    const check = document.getElementById('check-change-secret');
-    document.getElementById('container-new-secret').classList.toggle('hidden', !check.checked);
-}
+function toggleNewSecretField() { const check = document.getElementById('check-change-secret'); document.getElementById('container-new-secret').classList.toggle('hidden', !check.checked); }
 </script>
-
 </body>
 </html>
