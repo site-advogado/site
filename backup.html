@@ -124,7 +124,7 @@ const URL_SCRIPT = "https://api-advogada.siterefrigeracaoeliezer.workers.dev/api
 
 // ✅ VERIFICAÇÃO DE ENTRADA
 if (!sessionStorage.getItem('ADV_AUTH_SESS')) {
-    sessionStorage.setItem('ADV_AUTH_SESS', 'true'); // Forçado para teste visual
+    window.location.href = "index.html";
 }
 
 let allProcessData = {}; 
@@ -150,15 +150,15 @@ window.onload = () => {
 async function carregarTimeline() {
     showLoading();
     try {
-        // Simulação de dados fictícios para visualização
-        const dataFicticia = [
-            { numero_processo: "0012345-67.2023.8.19.0001", data: "20/04/2026", status: "Audiência Realizada", descricao: "A audiência de instrução e julgamento ocorreu conforme o planejado. Aguardando prazos." },
-            { numero_processo: "0012345-67.2023.8.19.0001", data: "15/03/2026", status: "Citação", descricao: "A parte ré foi devidamente citada para apresentar contestação no prazo legal." },
-            { numero_processo: "0098765-43.2024.5.02.0000", data: "10/04/2026", status: "Sentença Favorável", descricao: "O juiz proferiu sentença julgando procedentes os pedidos iniciais. Vitória importante!" },
-            { numero_processo: "0098765-43.2024.5.02.0000", data: "01/02/2024", status: "Protocolo Inicial", descricao: "Ação distribuída com sucesso no tribunal competente." }
-        ];
-        
-        organizeData(dataFicticia);
+        const response = await fetch(URL_SCRIPT, {
+            method: "POST", credentials: "include", headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ action: "timeline", ip: "0.0.0.0" })
+        });
+        const data = await response.json();
+        if (data.status === "expirado") sairTimeline();
+        else {
+            organizeData(data);
+        }
     } catch (e) { sairTimeline(); } finally { hideLoading(); }
 }
 
