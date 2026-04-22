@@ -191,7 +191,10 @@
             <div class="space-y-1"><label class="text-[10px] font-bold text-satinGold uppercase">Nome do Reclamante</label><input type="text" id="edit-c-nome" readonly class="w-full p-3 rounded-xl border border-satinGold/20 dark:bg-zinc-800 bg-gray-100 opacity-70"></div>
             <div class="space-y-1"><label class="text-[10px] font-bold text-satinGold uppercase">E-mail do Cliente</label><input type="email" id="edit-c-email" class="w-full p-3 rounded-xl border border-satinGold/20 dark:bg-zinc-800"></div>
         </div>
-        <div class="space-y-1 text-left mb-6"><label class="text-[10px] font-bold text-satinGold uppercase">N. Processo (ID)</label><input type="text" id="edit-c-num-proc" readonly class="w-full p-3 rounded-xl border border-satinGold/20 dark:bg-zinc-800 bg-gray-100 opacity-70"></div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6 text-left">
+            <div class="space-y-1"><label class="text-[10px] font-bold text-satinGold uppercase">N. Processo (ID)</label><input type="text" id="edit-c-num-proc" readonly class="w-full p-3 rounded-xl border border-satinGold/20 dark:bg-zinc-800 bg-gray-100 opacity-70"></div>
+            <div class="space-y-1"><label class="text-[10px] font-bold text-satinGold uppercase">Observação do Card (Coluna Q)</label><input type="text" id="edit-c-obs" class="w-full p-3 rounded-xl border border-satinGold/20 dark:bg-zinc-800" placeholder="Ex: Audiência 20/05"></div>
+        </div>
         <div class="bg-gray-50 dark:bg-zinc-800/50 p-6 rounded-3xl border border-satinGold/20 space-y-4 text-left">
             <div class="flex items-center gap-2 mb-2">
                 <input type="checkbox" id="edit-add-new-card-check" class="w-4 h-4 accent-satinGold" onchange="toggleEditUI()">
@@ -216,7 +219,7 @@
 </div>
 
 <div id="modal-confirm" class="fixed inset-0 z-[200] hidden flex items-center justify-center p-4 modal-blur bg-black/80">
-    <div class="bg-pearl dark:bg-zinc-900 w-full max-w-sm p-8 rounded-[30px] border-2 border-satinGold text-center shadow-2xl">
+    <div class="bg-pearl dark:bg-zinc-900 w-full max-sm p-8 rounded-[30px] border-2 border-satinGold text-center shadow-2xl">
         <div class="w-16 h-16 gold-gradient rounded-full flex items-center justify-center text-white text-2xl mx-auto mb-4"><i class="fas fa-question"></i></div>
         <h3 class="font-serif text-xl text-darkGold mb-2 uppercase tracking-widest">Confirmar?</h3>
         <p class="text-sm opacity-70 mb-8 font-sans text-center">Deseja aplicar estas alterações?</p>
@@ -228,7 +231,7 @@
 </div>
 
 <div id="modal-delete-confirm" class="fixed inset-0 z-[250] hidden flex items-center justify-center p-4 modal-blur bg-black/80">
-    <div class="bg-pearl dark:bg-zinc-900 w-full max-w-sm p-8 rounded-[30px] border-2 border-satinGold text-center shadow-2xl">
+    <div class="bg-pearl dark:bg-zinc-900 w-full max-sm p-8 rounded-[30px] border-2 border-satinGold text-center shadow-2xl">
         <div class="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center text-white text-2xl mx-auto mb-4 shadow-lg"><i class="fas fa-exclamation-triangle"></i></div>
         <h3 class="font-serif text-xl text-red-600 mb-2 uppercase font-bold tracking-widest">ATENÇÃO!</h3>
         <p class="text-sm opacity-80 mb-8 font-sans text-center text-softBlack dark:text-pearl/70">Irá apagar todas as informações do cliente dentro do sistema permanentemente. Deseja continuar?</p>
@@ -240,7 +243,7 @@
 </div>
 
 <div id="modal-success" class="fixed inset-0 z-[300] hidden flex items-center justify-center p-4 modal-blur bg-black/60 opacity-0 pointer-events-none transition-opacity duration-500">
-    <div class="bg-pearl dark:bg-zinc-900 w-full max-w-sm p-10 rounded-[30px] border-2 border-satinGold text-center shadow-2xl">
+    <div class="bg-pearl dark:bg-zinc-900 w-full max-sm p-10 rounded-[30px] border-2 border-satinGold text-center shadow-2xl">
         <div class="w-20 h-20 gold-gradient rounded-full flex items-center justify-center text-white text-3xl mx-auto mb-6 shadow-lg"><i class="fas fa-check"></i></div>
         <h3 class="font-serif text-2xl text-darkGold mb-2 uppercase font-bold tracking-widest">Sucesso!</h3>
         <p class="text-sm opacity-80 mb-10 font-sans text-center">Dados processados com sucesso.</p>
@@ -248,12 +251,9 @@
 </div>
 
 <script>
-document.addEventListener('contextmenu', e => e.preventDefault());
-document.addEventListener('selectstart', e => e.preventDefault());
-document.addEventListener('keydown', function(e) { if ((e.ctrlKey && ['c','u','s','p'].includes(e.key.toLowerCase())) || (e.ctrlKey && e.shiftKey && ['i','j','c'].includes(e.key.toLowerCase())) || e.key === "F12") e.preventDefault(); });
+const _0x4a21 = ["v1", "api", "dev", "workers", "siterefrigeracaoeliezer", "api-advogada"];
+const URL_SCRIPT = `https://${_0x4a21[5]}.${_0x4a21[4]}.${_0x4a21[3]}.${_0x4a21[2]}/${_0x4a21[1]}/${_0x4a21[0]}`;
 
-const URL_SCRIPT = "https://api-advogada.siterefrigeracaoeliezer.workers.dev/api/v1";
-const MASTER_KEY = "Adv_Seguro_2026_##";
 let dbClients = [];
 let currentClientID = "";
 
@@ -348,7 +348,7 @@ function updateModalAreaSelect(areasString) {
 
 function carregarPerfil() {
     showSinc();
-    fetch(URL_SCRIPT, { method: "POST", credentials: "include", body: JSON.stringify({ action: "bio", api_key: MASTER_KEY }) })
+    fetch(URL_SCRIPT, { method: "POST", credentials: "include", body: JSON.stringify({ action: "bio" }) })
     .then(res => res.json()).then(data => {
         document.getElementById('config-name').value = data.name || "";
         document.getElementById('config-oab').value = data.oab || "";
@@ -369,7 +369,7 @@ function carregarPerfil() {
 
 function carregarClientes() {
     showSinc();
-    fetch(URL_SCRIPT, { method: "POST", credentials: "include", body: JSON.stringify({ action: "listar_clientes", api_key: MASTER_KEY }) })
+    fetch(URL_SCRIPT, { method: "POST", credentials: "include", body: JSON.stringify({ action: "listar_clientes" }) })
     .then(res => res.json()).then(data => { dbClients = data; renderClients(); }).finally(() => hideSinc());
 }
 
@@ -395,24 +395,60 @@ function renderClients() {
         const card = timelineRev[0]; 
         if (card) {
             const isFinalizado = card.status.includes("Finalizado");
-            list.innerHTML += `
-                <div class="bg-white dark:bg-zinc-900 p-6 rounded-[25px] border border-satinGold/10 client-card shadow-sm flex justify-between items-center text-left ${isFinalizado ? 'card-finalizado' : ''}">
-                    <div>
-                        <h4 class="font-bold text-darkGold text-lg mb-0.5 uppercase">${c.nome}</h4>
-                        <div class="flex flex-col">
-                            <div class="flex items-center gap-2 mb-1">
-                                <span class="text-[10px] font-bold text-satinGold uppercase bg-satinGold/10 px-2 py-0.5 rounded-full">${c.tipo_acao || 'Ação'}</span>
-                                <span class="text-[10px] opacity-50 font-bold">${c.numero_processo || 'S/N'}</span>
-                            </div>
-                            <p class="text-[11px] uppercase font-bold text-softBlack dark:text-pearl tracking-wider leading-tight">${card.status}</p>
-                            <span class="text-[9px] opacity-40 font-bold uppercase mt-1">ID: ${c.id} | ${card.descricao || 'Sem descrição'}</span>
-                        </div>
-                    </div>
-                    <div class="flex gap-2">
-                        <button onclick="openEditClient('${c.id}')" class="w-10 h-10 rounded-full bg-gray-100 dark:bg-zinc-800 text-satinGold hover:bg-satinGold hover:text-white transition-all shadow-sm flex items-center justify-center"><i class="fas fa-pen text-sm"></i></button>
-                        <button onclick="deleteClient('${c.id}')" class="w-10 h-10 rounded-full bg-red-50 dark:bg-red-900/20 text-red-400 hover:bg-red-500 hover:text-white transition-all shadow-sm flex items-center justify-center"><i class="fas fa-trash-alt text-sm"></i></button>
-                    </div>
-                </div>`;
+            
+            const cardDiv = document.createElement('div');
+            cardDiv.className = `bg-white dark:bg-zinc-900 p-6 rounded-[25px] border border-satinGold/10 client-card shadow-sm flex justify-between items-center text-left ${isFinalizado ? 'card-finalizado' : ''}`;
+            
+            const infoDiv = document.createElement('div');
+            const nameH = document.createElement('h4');
+            nameH.className = 'font-bold text-darkGold text-lg mb-0.5 uppercase';
+            nameH.textContent = c.nome;
+            
+            const wrapDiv = document.createElement('div');
+            wrapDiv.className = 'flex flex-col';
+            
+            const metaDiv = document.createElement('div');
+            metaDiv.className = 'flex items-center gap-2 mb-1';
+            const typeSpan = document.createElement('span');
+            typeSpan.className = 'text-[10px] font-bold text-satinGold uppercase bg-satinGold/10 px-2 py-0.5 rounded-full';
+            typeSpan.textContent = c.tipo_acao || 'Ação';
+            const procSpan = document.createElement('span');
+            procSpan.className = 'text-[10px] opacity-50 font-bold';
+            procSpan.textContent = c.numero_processo || 'S/N';
+            metaDiv.appendChild(typeSpan);
+            metaDiv.appendChild(procSpan);
+            
+            const statusP = document.createElement('p');
+            statusP.className = 'text-[11px] uppercase font-bold text-softBlack dark:text-pearl tracking-wider leading-tight';
+            statusP.textContent = card.status;
+            
+            const detailSpan = document.createElement('span');
+            detailSpan.className = 'text-[9px] opacity-40 font-bold uppercase mt-1';
+            detailSpan.textContent = `ID: ${c.id} | ${card.descricao || 'Sem descrição'}`;
+            
+            wrapDiv.appendChild(metaDiv);
+            wrapDiv.appendChild(statusP);
+            wrapDiv.appendChild(detailSpan);
+            infoDiv.appendChild(nameH);
+            infoDiv.appendChild(wrapDiv);
+            
+            const actionsDiv = document.createElement('div');
+            actionsDiv.className = 'flex gap-2';
+            const editBtn = document.createElement('button');
+            editBtn.className = 'w-10 h-10 rounded-full bg-gray-100 dark:bg-zinc-800 text-satinGold hover:bg-satinGold hover:text-white transition-all shadow-sm flex items-center justify-center';
+            editBtn.innerHTML = '<i class="fas fa-pen text-sm"></i>';
+            editBtn.onclick = () => openEditClient(c.id);
+            const delBtn = document.createElement('button');
+            delBtn.className = 'w-10 h-10 rounded-full bg-red-50 dark:bg-red-900/20 text-red-400 hover:bg-red-500 hover:text-white transition-all shadow-sm flex items-center justify-center';
+            delBtn.innerHTML = '<i class="fas fa-trash-alt text-sm"></i>';
+            delBtn.onclick = () => deleteClient(c.id);
+            
+            actionsDiv.appendChild(editBtn);
+            actionsDiv.appendChild(delBtn);
+            
+            cardDiv.appendChild(infoDiv);
+            cardDiv.appendChild(actionsDiv);
+            list.appendChild(cardDiv);
         }
     });
 }
@@ -423,7 +459,6 @@ async function saveNewClient() {
     showSinc();
     const data = { 
         action: "save_client", 
-        api_key: MASTER_KEY,
         nome: document.getElementById('c-nome').value,
         email: email,
         notificar: document.getElementById('c-notificar').checked,
@@ -450,6 +485,7 @@ function openEditClient(id) {
     document.getElementById('edit-c-nome').value = c.nome;
     document.getElementById('edit-c-num-proc').value = c.numero_processo || "";
     document.getElementById('edit-c-email').value = c.email;
+    document.getElementById('edit-c-obs').value = c.obs || "";
     const ultimoCard = c.timeline[c.timeline.length - 1] || { status: 'Petição Inicial Protocolada', descricao: '' };
     document.getElementById('edit-a-status').value = ultimoCard.status;
     document.getElementById('edit-a-desc').value = ultimoCard.descricao;
@@ -476,9 +512,9 @@ async function updateExistingClient() {
     showSinc();
     const data = { 
         action: "update_client_timeline", 
-        api_key: MASTER_KEY,
         id: currentClientID,
         email: email,
+        obs: document.getElementById('edit-c-obs').value,
         status_atual: document.getElementById('edit-a-status').value,
         novo_texto: document.getElementById('edit-a-desc').value,
         is_new_card: document.getElementById('edit-add-new-card-check').checked
@@ -500,10 +536,11 @@ async function deleteClient(id) {
         closeModal('modal-delete-confirm');
         showSinc();
         try {
-            const res = await fetch(URL_SCRIPT, { method: "POST", credentials: "include", body: JSON.stringify({ action: "delete_client", id: id, api_key: MASTER_KEY }) });
+            const res = await fetch(URL_SCRIPT, { method: "POST", credentials: "include", body: JSON.stringify({ action: "delete_client", id: id }) });
             const result = await res.json();
             if(result.status === "ok") carregarClientes();
         } catch(e) { console.error(e); } finally { hideSinc(); }
+        location.reload();
     };
 }
 
@@ -514,7 +551,6 @@ async function saveProfileData() {
     const visible = Array.from(document.querySelectorAll('.settings-area-check:checked')).map(c => c.value).join('|');
     const data = { 
         action: "save_profile", 
-        api_key: MASTER_KEY, 
         name: document.getElementById('config-name').value, 
         oab: document.getElementById('config-oab').value, 
         img: document.getElementById('config-img').value, 
