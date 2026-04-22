@@ -210,34 +210,34 @@
 </div>
 
 <div id="modal-confirm" class="fixed inset-0 z-[200] hidden flex items-center justify-center p-4 modal-blur bg-black/80">
-    <div class="bg-pearl dark:bg-zinc-900 w-full max-w-xs p-8 rounded-[30px] border-2 border-satinGold text-center shadow-2xl">
+    <div class="bg-pearl dark:bg-zinc-900 w-full max-w-sm p-8 rounded-[30px] border-2 border-satinGold text-center shadow-2xl">
         <div class="w-16 h-16 gold-gradient rounded-full flex items-center justify-center text-white text-2xl mx-auto mb-4"><i class="fas fa-question"></i></div>
         <h3 class="font-serif text-xl text-darkGold mb-2 uppercase tracking-widest">Confirmar?</h3>
         <p class="text-sm opacity-70 mb-8 font-sans text-center">Deseja aplicar estas alterações?</p>
         <div class="flex gap-3">
             <button onclick="closeModal('modal-confirm')" class="flex-1 py-3 text-xs font-bold uppercase opacity-50">Não</button>
-            <button id="btn-confirm-yes" class="flex-1 gold-gradient text-white py-3 rounded-xl text-xs font-bold uppercase shadow-lg">Sim</button>
+            <button id="btn-confirm-yes" class="flex-1 gold-gradient text-white py-4 rounded-xl text-xs font-bold uppercase shadow-lg">Sim</button>
         </div>
     </div>
 </div>
 
 <div id="modal-delete-confirm" class="fixed inset-0 z-[250] hidden flex items-center justify-center p-4 modal-blur bg-black/80">
-    <div class="bg-pearl dark:bg-zinc-900 w-full max-w-xs p-8 rounded-[30px] border-2 border-satinGold text-center shadow-2xl">
+    <div class="bg-pearl dark:bg-zinc-900 w-full max-w-sm p-8 rounded-[30px] border-2 border-satinGold text-center shadow-2xl">
         <div class="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center text-white text-2xl mx-auto mb-4 shadow-lg"><i class="fas fa-exclamation-triangle"></i></div>
         <h3 class="font-serif text-xl text-red-600 mb-2 uppercase font-bold tracking-widest">ATENÇÃO!</h3>
-        <p class="text-sm opacity-80 mb-8 font-sans text-center text-softBlack dark:text-pearl/70">Irá apagar todos os dados permanentemente.</p>
+        <p class="text-sm opacity-80 mb-8 font-sans text-center text-softBlack dark:text-pearl/70">Irá apagar todas as informações do cliente dentro do sistema permanentemente. Deseja continuar?</p>
         <div class="flex gap-3">
             <button onclick="closeModal('modal-delete-confirm')" class="flex-1 py-3 text-xs font-bold uppercase opacity-50">Cancelar</button>
-            <button id="btn-confirm-delete" class="flex-1 gold-gradient text-white py-3 rounded-xl text-xs font-bold uppercase shadow-lg">Sim, Excluir</button>
+            <button id="btn-confirm-delete" class="flex-1 gold-gradient text-white py-4 rounded-xl text-xs font-bold uppercase shadow-lg">Sim, Excluir</button>
         </div>
     </div>
 </div>
 
-<div id="modal-success" class="fixed inset-0 z-[300] hidden flex items-center justify-center p-4 modal-blur bg-black/60">
-    <div class="bg-pearl dark:bg-zinc-900 w-full max-w-xs p-10 rounded-[30px] border-2 border-satinGold text-center shadow-2xl">
+<div id="modal-success" class="fixed inset-0 z-[300] hidden flex items-center justify-center p-4 modal-blur bg-black/60 opacity-0 pointer-events-none transition-opacity duration-500">
+    <div class="bg-pearl dark:bg-zinc-900 w-full max-w-sm p-10 rounded-[30px] border-2 border-satinGold text-center shadow-2xl">
         <div class="w-20 h-20 gold-gradient rounded-full flex items-center justify-center text-white text-3xl mx-auto mb-6 shadow-lg"><i class="fas fa-check"></i></div>
         <h3 class="font-serif text-2xl text-darkGold mb-2 uppercase font-bold tracking-widest">Sucesso!</h3>
-        <p class="text-sm opacity-80 font-sans">Dados processados com sucesso.</p>
+        <p class="text-sm opacity-80 mb-10 font-sans">Dados processados com sucesso.</p>
     </div>
 </div>
 
@@ -285,29 +285,22 @@ window.onload = () => {
         if (themeIcon) themeIcon.classList.replace('fa-moon', 'fa-sun');
     }
     initAreaSettings();
-    carregarPerfil(); 
-    carregarClientes();
+    carregarPerfil(); carregarClientes();
 };
 
 function initAreaSettings() {
     const container = document.getElementById('settings-area-list');
-    const saved = JSON.parse(localStorage.getItem('ADV_VISIBLE_AREAS') || 'null');
-    const visibleAreas = saved || AREAS_DIREITO;
-    
     container.innerHTML = AREAS_DIREITO.map(area => `
         <label class="flex items-center gap-3 p-2 hover:bg-gray-100 dark:hover:bg-zinc-700 rounded-lg cursor-pointer transition-all">
-            <input type="checkbox" value="${area}" ${visibleAreas.includes(area) ? 'checked' : ''} class="settings-area-check accent-satinGold w-4 h-4">
+            <input type="checkbox" value="${area}" class="settings-area-check accent-satinGold w-4 h-4">
             <span class="text-[10px] font-bold uppercase opacity-80">${area}</span>
         </label>
     `).join('');
-    updateModalAreaSelect();
 }
 
-function updateModalAreaSelect() {
-    const checks = document.querySelectorAll('.settings-area-check:checked');
+function updateModalAreaSelect(areasString) {
     const select = document.getElementById('c-tipo-acao');
-    const visibleAreas = Array.from(checks).map(c => c.value);
-    localStorage.setItem('ADV_VISIBLE_AREAS', JSON.stringify(visibleAreas));
+    const visibleAreas = areasString ? areasString.split('|') : AREAS_DIREITO;
     select.innerHTML = visibleAreas.map(area => `<option value="${area}">${area}</option>`).join('');
 }
 
@@ -322,13 +315,13 @@ function carregarPerfil() {
         document.getElementById('config-email').value = data.email_advogada || ""; 
         document.getElementById('config-desc').value = data.desc || "";
         
-        if(data.areas_visiveis) {
-           const visible = data.areas_visiveis.split('|');
-           document.querySelectorAll('.settings-area-check').forEach(ck => {
-               ck.checked = visible.includes(ck.value);
-           });
-           updateModalAreaSelect();
-        }
+        const areasVisiveis = data.areas_visiveis || "";
+        const listaAreas = areasVisiveis.split('|');
+        document.querySelectorAll('.settings-area-check').forEach(ck => {
+            ck.checked = listaAreas.includes(ck.value);
+        });
+        updateModalAreaSelect(areasVisiveis);
+        sessionStorage.setItem('ADV_AREAS_SYNC', areasVisiveis);
     }).finally(() => hideSinc());
 }
 
@@ -345,7 +338,7 @@ function openModalNovoCliente() {
     document.getElementById('a-status').value = "Petição Inicial Protocolada"; 
     document.getElementById('a-desc').value = "";
     document.getElementById('c-notificar').checked = true;
-    updateModalAreaSelect(); 
+    updateModalAreaSelect(sessionStorage.getItem('ADV_AREAS_SYNC'));
     openModal('modal-client');
 }
 
@@ -486,6 +479,7 @@ async function saveProfileData() {
     };
     try { 
         await fetch(URL_SCRIPT, { method: "POST", credentials: "include", body: JSON.stringify(data) }); 
+        sessionStorage.setItem('ADV_AREAS_SYNC', visible);
         showQuickSuccess(); 
     } catch(e) {} finally { hideSinc(); }
 }
@@ -493,7 +487,7 @@ async function saveProfileData() {
 function showQuickSuccess() {
     const modal = document.getElementById('modal-success');
     modal.classList.replace('hidden', 'flex');
-    modal.style.opacity = '1';
+    setTimeout(() => { modal.style.opacity = '1'; }, 10);
     setTimeout(() => {
         modal.style.opacity = '0';
         setTimeout(() => {
