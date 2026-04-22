@@ -228,16 +228,7 @@ document.getElementById('installApp')?.addEventListener('click', async () => {
 function showLoading() { document.getElementById('globalLoader').classList.replace('hidden', 'flex'); }
 function hideLoading() { document.getElementById('globalLoader').classList.replace('flex', 'hidden'); }
 
-// --- LÓGICA PALAVRA SECRETA ---
-let secretKeys = "";
-window.addEventListener("keydown", (e) => {
-    secretKeys += e.key.toLowerCase();
-    if (secretKeys.endsWith("admin")) { 
-        openAdminModal();
-        secretKeys = "";
-    }
-    if (secretKeys.length > 20) secretKeys = secretKeys.substring(10);
-});
+
 
 function openAdminModal() {
     document.getElementById('modalAdmin').classList.remove('hidden');
