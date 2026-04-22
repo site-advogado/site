@@ -121,10 +121,8 @@ setInterval(function() {
 
 const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbwqZ-KxP0Y9uKov0kQG1P6Q67l6tHl7m7q7m7q7m7q7m/exec"; 
 
-// ✅ VERIFICAÇÃO DE ENTRADA
-if (!sessionStorage.getItem('ADV_AUTH_SESS')) {
-    window.location.href = "index.html";
-}
+// ✅ SIMULAÇÃO DE SESSÃO PARA VISUALIZAÇÃO
+sessionStorage.setItem('ADV_AUTH_SESS', 'session_ficticia_teste');
 
 let allProcessData = {}; 
 let currentProcessId = "";
@@ -148,15 +146,31 @@ window.onload = () => {
 async function carregarTimeline() {
     showLoading();
     try {
-        const response = await fetch(URL_SCRIPT, {
-            method: "POST", headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ action: "timeline", token: sessionStorage.getItem('ADV_AUTH_SESS'), api_key: "Adv_Seguro_2026_##" })
-        });
-        const data = await response.json();
-        if (data.status === "expirado") sairTimeline();
-        else {
-            organizeData(data);
-        }
+        // Dados fictícios para visualização imediata
+        const dataFicticia = [
+            {
+                numero_processo: "0001234-55.2026.8.00.0001",
+                tipo_acao: "Ação de Cobrança",
+                atualizacoes: [
+                    { data: "10/01/2026", status: "Petição Inicial Protocolada", descricao: "O processo foi iniciado e a petição inicial foi protocolada no sistema do tribunal." },
+                    { data: "25/01/2026", status: "Citação Expedida", descricao: "A justiça enviou a notificação oficial para a parte contrária tomar ciência do processo." },
+                    { data: "15/02/2026", status: "Audiência de Conciliação", descricao: "Realizada audiência para tentativa de acordo entre as partes envolvidas." }
+                ]
+            },
+            {
+                numero_processo: "0009876-11.2025.8.00.0002",
+                tipo_acao: "Indenização por Danos Morais",
+                atualizacoes: [
+                    { data: "05/11/2025", status: "Petição Inicial", descricao: "Ingresso da ação judicial para reparação de danos." },
+                    { data: "20/12/2025", status: "Sentença Proferida", descricao: "O juiz analisou o caso e publicou a decisão de primeira instância favorável ao cliente." },
+                    { data: "10/02/2026", status: "Cálculos de Liquidação", descricao: "Fase de apuração dos valores finais devidos conforme determinado na sentença." }
+                ]
+            }
+        ];
+        
+        // Simulando o comportamento de organizar os dados
+        organizeData(dataFicticia);
+        
     } catch (e) { sairTimeline(); } finally { hideLoading(); }
 }
 
