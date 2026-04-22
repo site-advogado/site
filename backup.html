@@ -116,11 +116,10 @@ document.addEventListener('keydown', function(e) {
 // Detectar Console Aberto (Resolução/Debugger) sem aviso visual
 setInterval(function() {
     if (window.outerWidth - window.innerWidth > 160 || window.outerHeight - window.innerHeight > 160) {
-        // Apenas bloqueia a execução ou mantém em branco se necessário, sem alertas.
     }
 }, 1000);
 
-const URL_SCRIPT = "https://api-advogada.siterefrigeracaoeliezer.workers.dev/api/v1"; 
+const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbwqZ-KxP0Y9uKov0kQG1P6Q67l6tHl7m7q7m7q7m7q7m/exec"; 
 
 // ✅ VERIFICAÇÃO DE ENTRADA
 if (!sessionStorage.getItem('ADV_AUTH_SESS')) {
@@ -134,7 +133,6 @@ function showLoading() { document.getElementById('globalLoader').style.display =
 function hideLoading() { document.getElementById('globalLoader').style.display = 'none'; }
 
 window.onload = () => { 
-    // Aplicação persistente do tema
     const themeIcon = document.getElementById('themeIcon');
     if (localStorage.getItem('ADV_GLOBAL_THEME') === 'dark') {
         document.documentElement.classList.add('dark');
@@ -151,8 +149,8 @@ async function carregarTimeline() {
     showLoading();
     try {
         const response = await fetch(URL_SCRIPT, {
-            method: "POST", credentials: "include", headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ action: "timeline", ip: "0.0.0.0" })
+            method: "POST", headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ action: "timeline", token: sessionStorage.getItem('ADV_AUTH_SESS'), api_key: "Adv_Seguro_2026_##" })
         });
         const data = await response.json();
         if (data.status === "expirado") sairTimeline();
@@ -163,11 +161,10 @@ async function carregarTimeline() {
 }
 
 function organizeData(data) {
-    // Agrupa eventos por número de processo vindo da planilha
     allProcessData = data.reduce((acc, current) => {
         const procId = current.numero_processo || "Processo Geral";
         if (!acc[procId]) acc[procId] = [];
-        acc[procId].push(current);
+        acc[procId] = current;
         return acc;
     }, {});
 
@@ -181,8 +178,9 @@ function renderCarousel() {
     carousel.innerHTML = '';
     
     Object.keys(allProcessData).forEach(procId => {
-        const eventos = allProcessData[procId];
-        const ultimo = [...eventos].reverse()[0];
+        const processo = allProcessData[procId];
+        const eventos = processo.atualizacoes || [];
+        const ultimo = [...eventos].reverse()[0] || { status: "Em andamento" };
         
         const card = document.createElement('div');
         card.className = `process-card bg-white dark:bg-zinc-900 p-5 rounded-[2rem] shadow-lg text-left cursor-pointer`;
@@ -190,7 +188,7 @@ function renderCarousel() {
         card.onclick = () => switchProcess(procId);
         
         card.innerHTML = `
-            <p class="text-[9px] font-bold text-satinGold uppercase tracking-widest">Processo ID</p>
+            <p class="text-[9px] font-bold text-satinGold uppercase tracking-widest">${processo.tipo_acao}</p>
             <h3 class="font-serif font-bold text-darkGold text-sm truncate uppercase mt-1">${procId}</h3>
             <div class="flex items-center gap-2 mt-2">
                 <span class="w-2 h-2 rounded-full bg-satinGold animate-pulse"></span>
@@ -204,7 +202,6 @@ function renderCarousel() {
 function switchProcess(procId) {
     currentProcessId = procId;
     
-    // Atualizar UI dos cards
     document.querySelectorAll('.process-card').forEach(c => c.classList.remove('active'));
     const activeCard = document.getElementById(`card-${procId}`);
     if(activeCard) {
@@ -212,7 +209,8 @@ function switchProcess(procId) {
         activeCard.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
     }
 
-    const eventos = allProcessData[procId];
+    const processo = allProcessData[procId];
+    const eventos = processo.atualizacoes || [];
     renderTimeline(eventos);
     updateClientMetrics(eventos);
 }
