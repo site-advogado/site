@@ -113,13 +113,6 @@ document.addEventListener('keydown', function(e) {
     }
 });
 
-// Detectar Console Aberto (Resolução/Debugger) sem aviso visual
-setInterval(function() {
-    if (window.outerWidth - window.innerWidth > 160 || window.outerHeight - window.innerHeight > 160) {
-        // Apenas bloqueia a execução ou mantém em branco se necessário, sem alertas.
-    }
-}, 1000);
-
 const URL_SCRIPT = "https://api-advogada.siterefrigeracaoeliezer.workers.dev/api/v1"; 
 
 // ✅ VERIFICAÇÃO DE ENTRADA
@@ -154,19 +147,29 @@ async function carregarTimeline() {
             method: "POST", credentials: "include", headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ action: "timeline", ip: "0.0.0.0" })
         });
+        
         const data = await response.json();
-        if (data.status === "expirado") sairTimeline();
-        else {
+        
+        // Verifica se a resposta do servidor é válida antes de processar
+        if (data.status === "expirado") {
+            sairTimeline();
+        } else if (Array.isArray(data)) {
             organizeData(data);
+        } else {
+            console.error("Dados inválidos recebidos");
+            // Se não houver dados válidos, apenas para o loading para evitar loop de expulsão
+            hideLoading();
         }
-    } catch (e) { sairTimeline(); } finally { hideLoading(); }
+    } catch (e) { 
+        console.error("Erro na requisição:", e);
+        hideLoading();
+    }
 }
 
 function organizeData(data) {
     // Agrupa eventos processuais da Coluna H (Atualizacoes) por ID da Coluna A
     allProcessData = data.reduce((acc, current) => {
         const procId = current.id || "Processo Geral";
-        // A planilha traz as atualizações em formato JSON na coluna H
         let eventos = [];
         try {
             eventos = typeof current.atualizacoes === 'string' ? JSON.parse(current.atualizacoes) : current.atualizacoes;
@@ -180,6 +183,7 @@ function organizeData(data) {
     renderCarousel();
     const firstProc = Object.keys(allProcessData)[0];
     if(firstProc) switchProcess(firstProc);
+    hideLoading();
 }
 
 function renderCarousel() {
@@ -192,7 +196,7 @@ function renderCarousel() {
         
         const card = document.createElement('div');
         card.className = `process-card bg-white dark:bg-zinc-900 p-5 rounded-[2rem] shadow-lg text-left cursor-pointer`;
-        card.id = `card-${procId}`;
+        card.id = `card-${procId.replace(/\s+/g, '-')}`;
         card.onclick = () => switchProcess(procId);
         
         card.innerHTML = `
@@ -212,7 +216,8 @@ function switchProcess(procId) {
     
     // Atualizar UI dos cards
     document.querySelectorAll('.process-card').forEach(c => c.classList.remove('active'));
-    const activeCard = document.getElementById(`card-${procId}`);
+    const cardElementId = `card-${procId.replace(/\s+/g, '-')}`;
+    const activeCard = document.getElementById(cardElementId);
     if(activeCard) {
         activeCard.classList.add('active');
         activeCard.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
@@ -224,19 +229,24 @@ function switchProcess(procId) {
 }
 
 function updateClientMetrics(eventos) {
+    const statusEl = document.getElementById('client-main-status');
+    const updateEl = document.getElementById('total-updates');
+    const barEl = document.getElementById('progress-bar');
+    const textEl = document.getElementById('progress-text');
+
     if (!eventos || eventos.length === 0) {
-        document.getElementById('client-main-status').innerText = "Sem Dados";
-        document.getElementById('total-updates').innerText = "0";
-        document.getElementById('progress-bar').style.width = "0%";
-        document.getElementById('progress-text').innerText = "0% CONCLUÍDO";
+        statusEl.innerText = "Sem Dados";
+        updateEl.innerText = "0";
+        barEl.style.width = "0%";
+        textEl.innerText = "0% CONCLUÍDO";
         return;
     }
 
     const ultimoEvento = eventos[eventos.length - 1];
     const statusText = ultimoEvento.status || "";
     
-    document.getElementById('client-main-status').innerText = statusText;
-    document.getElementById('total-updates').innerText = eventos.length;
+    statusEl.innerText = statusText;
+    updateEl.innerText = eventos.length;
 
     let progresso = 15;
     if (statusText.includes("Citação")) progresso = 30;
@@ -245,12 +255,9 @@ function updateClientMetrics(eventos) {
     if (statusText.includes("Execução") || statusText.includes("Cálculos")) progresso = 90;
     if (statusText.includes("Finalizado") || statusText.includes("Arquivado")) progresso = 100;
 
-    const bar = document.getElementById('progress-bar');
-    const txt = document.getElementById('progress-text');
-    
-    if(bar && txt) {
-        bar.style.width = progresso + "%";
-        txt.innerText = progresso + "% CONCLUÍDO";
+    if(barEl && textEl) {
+        barEl.style.width = progresso + "%";
+        textEl.innerText = progresso + "% CONCLUÍDO";
     }
 }
 
@@ -267,12 +274,15 @@ function renderTimeline(eventos) {
         container.innerHTML += `<div class="relative bg-white dark:bg-zinc-800 p-5 rounded-2xl shadow-md border-l-4 border-satinGold mb-4">
             <p class="text-[10px] font-bold text-satinGold uppercase mb-1">${ev.data || ''}</p>
             <h4 class="font-serif font-bold text-lg text-darkGold">${ev.status || ''}</h4>
-            <p class="text-sm opacity-80 mt-2">${ev.descricao || 'Movimentação registrada.'}</p>
+            <p class="text-sm opacity-80 mt-2">${ev.descricao || 'Movimentação registrada no sistema.'}</p>
         </div>`;
     });
 }
 
-function sairTimeline() { sessionStorage.removeItem('ADV_AUTH_SESS'); window.location.href = "index.html"; }
+function sairTimeline() { 
+    sessionStorage.removeItem('ADV_AUTH_SESS'); 
+    window.location.href = "index.html"; 
+}
 
 function toggleDarkMode() {
     const isDark = document.documentElement.classList.toggle('dark');
