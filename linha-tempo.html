@@ -47,8 +47,10 @@
             gap: 16px;
             padding: 10px 0 20px 0;
             scrollbar-width: none;
-            justify-content: center;
+            justify-content: flex-start;
+            cursor: grab;
         }
+        #process-carousel:active { cursor: grabbing; }
         #process-carousel::-webkit-scrollbar { display: none; }
         
         .process-card {
@@ -160,6 +162,7 @@
         const WEB_APP_URL = "https://api-advogada.siterefrigeracaoeliezer.workers.dev/api/v1"; 
         const MASTER_API_KEY = "Adv_Seguro_2026_##";
         let globalData = [];
+        let isLooping = false;
 
         async function init() {
             const email = localStorage.getItem('ADV_USER_EMAIL');
@@ -191,11 +194,20 @@
                 const mockFallback = [
                     {
                         id: "001",
-                        cliente: "A sincronizando falhou",
-                        numero_processo: "0000000-00.0.00.0.0000000",
-                        tipo_acao: "A sincronizando falhou",
+                        cliente: "Nome do Cliente 1",
+                        numero_processo: "1234567-89.2026.8.00.0001",
+                        tipo_acao: "Direito Civil",
                         atualizacoes: [
-                            { data: "00/00/0000", status: "A sincronizando falhou", descricao: "A sincronizando falhou" }
+                            { data: "22/04/2026", status: "Em andamento", descricao: "O processo segue os trâmites legais aguardando despacho." }
+                        ]
+                    },
+                    {
+                        id: "002",
+                        cliente: "Nome do Cliente 1",
+                        numero_processo: "9876543-21.2026.8.00.0002",
+                        tipo_acao: "Direito do Trabalho",
+                        atualizacoes: [
+                            { data: "21/04/2026", status: "Audiência Marcada", descricao: "Audiência de conciliação agendada para o próximo mês." }
                         ]
                     }
                 ];
@@ -211,14 +223,20 @@
 
         function renderCarousel() {
             const carousel = document.getElementById('process-carousel');
+            
+            let displayData = [...globalData];
             if (globalData.length > 1) {
+                displayData = [...globalData, ...globalData, ...globalData];
+                isLooping = true;
                 carousel.style.justifyContent = "flex-start";
             } else {
+                isLooping = false;
                 carousel.style.justifyContent = "center";
             }
-            carousel.innerHTML = globalData.map(proc => `
+
+            carousel.innerHTML = displayData.map((proc, index) => `
                 <div class="process-card bg-white dark:bg-zinc-900 p-6 rounded-[2.5rem] shadow-md cursor-pointer" 
-                     id="card-${proc.id}" onclick="selectProcess('${proc.id}')">
+                     data-id="${proc.id}" data-index="${index}" id="card-idx-${index}" onclick="selectProcess('${proc.id}', ${index})">
                     <p class="text-[9px] font-bold text-satinGold uppercase tracking-widest">${proc.tipo_acao}</p>
                     <h4 class="font-serif font-bold text-darkGold text-sm mt-1 truncate">${proc.numero_processo}</h4>
                     <div class="flex items-center gap-2 mt-4">
@@ -227,16 +245,82 @@
                     </div>
                 </div>
             `).join('');
+
+            if (isLooping) {
+                const centerOffset = globalData.length * (carousel.offsetWidth * 0.85 + 16);
+                carousel.scrollLeft = centerOffset;
+            }
+
+            setupDraggableCarousel(carousel);
+            setupCarouselObserver(carousel);
         }
 
-        function selectProcess(id) {
+        function setupCarouselObserver(carousel) {
+            const options = {
+                root: carousel,
+                threshold: 0.6
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const id = entry.target.getAttribute('data-id');
+                        const index = entry.target.getAttribute('data-index');
+                        selectProcess(id, index);
+                    }
+                });
+            }, options);
+
+            document.querySelectorAll('.process-card').forEach(card => observer.observe(card));
+
+            carousel.addEventListener('scroll', () => {
+                if (!isLooping) return;
+                const scrollLeft = carousel.scrollLeft;
+                const cardWidth = document.querySelector('.process-card').offsetWidth + 16;
+                const totalWidth = globalData.length * cardWidth;
+
+                if (scrollLeft <= 0) {
+                    carousel.scrollLeft = totalWidth;
+                } else if (scrollLeft >= carousel.scrollWidth - carousel.offsetWidth) {
+                    carousel.scrollLeft = carousel.scrollWidth - carousel.offsetWidth - totalWidth;
+                }
+            });
+        }
+
+        function setupDraggableCarousel(slider) {
+            let isDown = false;
+            let startX;
+            let scrollLeft;
+
+            slider.addEventListener('mousedown', (e) => {
+                isDown = true;
+                slider.classList.add('active');
+                startX = e.pageX - slider.offsetLeft;
+                scrollLeft = slider.scrollLeft;
+            });
+            slider.addEventListener('mouseleave', () => {
+                isDown = false;
+            });
+            slider.addEventListener('mouseup', () => {
+                isDown = false;
+            });
+            slider.addEventListener('mousemove', (e) => {
+                if (!isDown) return;
+                e.preventDefault();
+                const x = e.pageX - slider.offsetLeft;
+                const walk = (x - startX) * 2;
+                slider.scrollLeft = scrollLeft - walk;
+            });
+        }
+
+        function selectProcess(id, elementIndex) {
             const proc = globalData.find(p => p.id === id);
             if(!proc) return;
 
             document.getElementById('client-name-display').innerText = proc.cliente || "Usuário";
             
             document.querySelectorAll('.process-card').forEach(c => c.classList.remove('active'));
-            const selectedCard = document.getElementById(`card-${id}`);
+            const selectedCard = document.getElementById(`card-idx-${elementIndex}`);
             if(selectedCard) selectedCard.classList.add('active');
 
             const lastEvent = proc.atualizacoes[proc.atualizacoes.length - 1] || { status: "Nenhum" };
