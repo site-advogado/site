@@ -132,8 +132,8 @@
     </section>
 </main>
 
-<div id="modal-client" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4 modal-blur bg-black/60 overflow-y-auto">
-    <div class="bg-pearl dark:bg-zinc-900 w-full max-w-xl p-8 my-auto rounded-[40px] border border-satinGold/30 shadow-2xl">
+<div id="modal-client" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4 modal-blur bg-black/60">
+    <div class="bg-pearl dark:bg-zinc-900 w-full max-w-xl p-8 rounded-[40px] border border-satinGold/30 shadow-2xl">
         <div class="flex justify-between items-center mb-6">
             <h3 class="font-serif text-3xl text-darkGold uppercase tracking-widest">Novo Registro</h3>
             <button onclick="closeModal('modal-client')" class="text-satinGold opacity-50 hover:opacity-100"><i class="fas fa-times text-xl"></i></button>
@@ -181,8 +181,8 @@
     </div>
 </div>
 
-<div id="modal-edit-client" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4 modal-blur bg-black/60 overflow-y-auto">
-    <div class="bg-pearl dark:bg-zinc-900 w-full max-w-xl p-8 my-auto rounded-[40px] border border-satinGold/30 shadow-2xl">
+<div id="modal-edit-client" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4 modal-blur bg-black/60">
+    <div class="bg-pearl dark:bg-zinc-900 w-full max-w-xl p-8 rounded-[40px] border border-satinGold/30 shadow-2xl">
         <div class="flex justify-between items-center mb-6">
             <h3 class="font-serif text-3xl text-darkGold uppercase tracking-widest">Editar Registro</h3>
             <button onclick="closeModal('modal-edit-client')" class="text-satinGold opacity-50 hover:opacity-100"><i class="fas fa-times text-xl"></i></button>
@@ -191,11 +191,20 @@
             <div class="space-y-1"><label class="text-[10px] font-bold text-satinGold uppercase">Nome do Reclamante</label><input type="text" id="edit-c-nome" readonly class="w-full p-3 rounded-xl border border-satinGold/20 dark:bg-zinc-800 bg-gray-100 opacity-70"></div>
             <div class="space-y-1"><label class="text-[10px] font-bold text-satinGold uppercase">E-mail do Cliente</label><input type="email" id="edit-c-email" class="w-full p-3 rounded-xl border border-satinGold/20 dark:bg-zinc-800"></div>
         </div>
-        <div class="space-y-1 text-left mb-6"><label class="text-[10px] font-bold text-satinGold uppercase">N. Processo (ID)</label><input type="text" id="edit-c-num-proc" readonly class="w-full p-3 rounded-xl border border-satinGold/20 dark:bg-zinc-800 bg-gray-100 opacity-70"></div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6 text-left">
+            <div class="space-y-1"><label class="text-[10px] font-bold text-satinGold uppercase">N. Processo (ID)</label><input type="text" id="edit-c-num-proc" readonly class="w-full p-3 rounded-xl border border-satinGold/20 dark:bg-zinc-800 bg-gray-100 opacity-70"></div>
+            <div class="space-y-1"><label class="text-[10px] font-bold text-satinGold uppercase">Observação do Card (Coluna Q)</label><input type="text" id="edit-c-obs" class="w-full p-3 rounded-xl border border-satinGold/20 dark:bg-zinc-800" placeholder="Ex: Audiência 20/05"></div>
+        </div>
         <div class="bg-gray-50 dark:bg-zinc-800/50 p-6 rounded-3xl border border-satinGold/20 space-y-4 text-left">
-            <div class="flex items-center gap-2 mb-2">
-                <input type="checkbox" id="edit-add-new-card-check" class="w-4 h-4 accent-satinGold" onchange="toggleEditUI()">
-                <label class="text-[10px] font-bold uppercase text-satinGold">Adicionar Como Novo Card no Histórico</label>
+            <div class="flex items-center justify-between gap-2 mb-2">
+                <div class="flex items-center gap-2">
+                   <input type="checkbox" id="edit-add-new-card-check" class="w-4 h-4 accent-satinGold" onchange="toggleEditUI()">
+                   <label class="text-[10px] font-bold uppercase text-satinGold">Novo Card</label>
+                </div>
+                <div class="flex items-center gap-2">
+                    <input type="checkbox" id="edit-notificar" class="accent-satinGold">
+                    <label for="edit-notificar" class="text-[10px] font-bold opacity-70 uppercase">Notificar e-mail</label>
+                </div>
             </div>
             <select id="edit-a-status" class="w-full p-4 mb-4 rounded-xl border-2 border-satinGold/30 dark:bg-zinc-900 font-bold text-sm">
                 <option value="Petição Inicial Protocolada">Petição Inicial Protocolada</option>
@@ -421,7 +430,7 @@ function renderClients() {
             
             const detailSpan = document.createElement('span');
             detailSpan.className = 'text-[9px] opacity-40 font-bold uppercase mt-1';
-            detailSpan.textContent = `ID: ${c.id} | ${card.descricao || 'Sem descrição'}`;
+            detailSpan.textContent = `Descrição: ${card.descricao || 'Sem descrição'}`;
             
             wrapDiv.appendChild(metaDiv);
             wrapDiv.appendChild(statusP);
@@ -458,7 +467,7 @@ async function saveNewClient() {
         action: "save_client", 
         nome: document.getElementById('c-nome').value,
         email: email,
-        notificar: document.getElementById('c-notificar').checked,
+        notificar: document.getElementById('c-notificar').checked ? "SIM" : "NAO",
         status: document.getElementById('a-status').value,
         descricao: document.getElementById('a-desc').value,
         numero_processo: document.getElementById('c-num-proc').value,
@@ -482,6 +491,8 @@ function openEditClient(id) {
     document.getElementById('edit-c-nome').value = c.nome;
     document.getElementById('edit-c-num-proc').value = c.numero_processo || "";
     document.getElementById('edit-c-email').value = c.email;
+    document.getElementById('edit-c-obs').value = c.obs || "";
+    document.getElementById('edit-notificar').checked = c.notificar === "SIM";
     const ultimoCard = c.timeline[c.timeline.length - 1] || { status: 'Petição Inicial Protocolada', descricao: '' };
     document.getElementById('edit-a-status').value = ultimoCard.status;
     document.getElementById('edit-a-desc').value = ultimoCard.descricao;
@@ -510,6 +521,8 @@ async function updateExistingClient() {
         action: "update_client_timeline", 
         id: currentClientID,
         email: email,
+        obs: document.getElementById('edit-c-obs').value,
+        notificar: document.getElementById('edit-notificar').checked ? "SIM" : "NAO",
         status_atual: document.getElementById('edit-a-status').value,
         novo_texto: document.getElementById('edit-a-desc').value,
         is_new_card: document.getElementById('edit-add-new-card-check').checked
@@ -535,6 +548,7 @@ async function deleteClient(id) {
             const result = await res.json();
             if(result.status === "ok") carregarClientes();
         } catch(e) { console.error(e); } finally { hideSinc(); }
+        location.reload();
     };
 }
 
