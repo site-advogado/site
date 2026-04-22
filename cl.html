@@ -151,7 +151,7 @@
         function logout() {
             localStorage.removeItem('ADV_USER_EMAIL');
             localStorage.removeItem('ADV_USER_TOKEN');
-            window.location.reload();
+            window.location.href = "index.html";
         }
 
         async function init() {
