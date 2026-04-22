@@ -58,6 +58,7 @@
             scroll-snap-align: center;
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             border: 2px solid transparent;
+            pointer-events: auto !important;
         }
         .process-card.active {
             border-color: #C5A059;
@@ -109,7 +110,7 @@
         
         <section class="mb-6 animate-pulse text-center">
             <p class="text-[10px] font-bold text-satinGold uppercase tracking-[0.3em] mb-1">Bem-vindo(a)</p>
-            <h2 id="client-name-display" class="font-serif text-2xl font-bold text-darkGold uppercase">
+            <h2 id="client-name-display" class="font-serif text-xl font-bold text-darkGold uppercase">
                 Carregando...
             </h2>
         </section>
@@ -178,12 +179,11 @@
                 });
                 
                 const data = await res.json();
-
                 globalData = data;
                 
                 if(globalData.length > 0) {
                     renderCarousel();
-                    selectProcess(globalData[0].id);
+                    selectProcess(globalData[0].id, 0);
                 } else {
                     document.getElementById('client-name-display').innerText = "Nenhum processo encontrado";
                     document.getElementById('current-status-text').innerText = "Sem dados";
@@ -194,7 +194,7 @@
                 const mockFallback = [
                     {
                         id: "001",
-                        cliente: "Nome do Cliente 1",
+                        cliente: "Teste de Nome Longo para Visualização do Cliente",
                         numero_processo: "1234567-89.2026.8.00.0001",
                         tipo_acao: "Direito Civil",
                         atualizacoes: [
@@ -203,7 +203,7 @@
                     },
                     {
                         id: "002",
-                        cliente: "Nome do Cliente 1",
+                        cliente: "Teste de Nome Longo para Visualização do Cliente",
                         numero_processo: "9876543-21.2026.8.00.0002",
                         tipo_acao: "Direito do Trabalho",
                         atualizacoes: [
@@ -213,7 +213,7 @@
                 ];
                 globalData = mockFallback;
                 renderCarousel();
-                selectProcess(globalData[0].id);
+                selectProcess(globalData[0].id, 0);
             } finally {
                 setTimeout(() => {
                     document.getElementById('globalLoader').style.display = 'none';
@@ -247,7 +247,8 @@
             `).join('');
 
             if (isLooping) {
-                const centerOffset = globalData.length * (carousel.offsetWidth * 0.85 + 16);
+                const cardWidth = carousel.offsetWidth * 0.85 + 16;
+                const centerOffset = globalData.length * cardWidth;
                 carousel.scrollLeft = centerOffset;
             }
 
