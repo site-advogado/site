@@ -45,7 +45,7 @@
             overflow-x: auto;
             scroll-snap-type: x mandatory;
             gap: 16px;
-            padding: 10px 0 20px 0;
+            padding: 10px 0 10px 0;
             scrollbar-width: none;
             justify-content: flex-start;
             cursor: grab;
@@ -77,6 +77,9 @@
         
         ::-webkit-scrollbar { width: 5px; }
         ::-webkit-scrollbar-thumb { background: #C5A059; border-radius: 10px; }
+
+        .dot { width: 8px; height: 8px; border-radius: 50%; background-color: #C5A059; opacity: 0.3; transition: opacity 0.3s; }
+        .dot.active { opacity: 1; transform: scale(1.2); }
     </style>
 </head>
 
@@ -120,7 +123,9 @@
             <div class="w-12 h-1 gold-gradient mx-auto mt-2 rounded-full opacity-50"></div>
         </section>
 
-        <div id="process-carousel" class="mb-6"></div>
+        <div id="process-carousel" class="mb-2"></div>
+        
+        <div id="carousel-dots" class="flex justify-center gap-2 mb-6"></div>
 
         <div class="grid grid-cols-2 gap-4 mb-10">
             <div class="col-span-2 bg-white dark:bg-zinc-900 p-6 rounded-[2rem] border border-satinGold/10 shadow-sm">
@@ -223,6 +228,7 @@
 
         function renderCarousel() {
             const carousel = document.getElementById('process-carousel');
+            const dotsContainer = document.getElementById('carousel-dots');
             
             let displayData = [...globalData];
             if (globalData.length > 1) {
@@ -245,6 +251,8 @@
                     </div>
                 </div>
             `).join('');
+
+            dotsContainer.innerHTML = globalData.map((_, i) => `<div class="dot" id="dot-${i}"></div>`).join('');
 
             if (isLooping) {
                 const cardWidth = carousel.offsetWidth * 0.85 + 16;
@@ -324,6 +332,11 @@
             const selectedCard = document.getElementById(`card-idx-${elementIndex}`);
             if(selectedCard) selectedCard.classList.add('active');
 
+            const actualIndex = elementIndex % globalData.length;
+            document.querySelectorAll('.dot').forEach((d, i) => {
+                d.classList.toggle('active', i === actualIndex);
+            });
+
             const lastEvent = proc.atualizacoes[proc.atualizacoes.length - 1] || { status: "Nenhum", descricao: "Nenhuma descrição disponível" };
             document.getElementById('current-status-text').innerText = lastEvent.status;
             document.getElementById('event-count').innerText = proc.atualizacoes.length;
@@ -343,7 +356,7 @@
                     <div class="absolute -left-[41px] top-1/2 -translate-y-1/2 w-4 h-4 rounded-full gold-gradient border-4 border-pearl dark:border-softBlack shadow-sm"></div>
                     <p class="text-[9px] font-bold text-satinGold uppercase mb-1 tracking-widest">${ev.data}</p>
                     <h5 class="font-serif font-bold text-darkGold text-base mb-2 uppercase">${ev.status}</h5>
-                    <p class="text-xs opacity-70 leading-relaxed font-medium">${ev.descricao || "Descrição de teste para visualização do card"}</p>
+                    <p class="text-xs opacity-70 leading-relaxed font-medium">${ev.descricao || "DESCRIÇÃO PARA TEXTE, DESCRIÇÃO PARA TEXTE, DESCRIÇÃO PARA TEXTE, DESCRIÇÃO PARA TEXTE."}</p>
                 </div>
             `).join('');
         }
