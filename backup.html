@@ -96,17 +96,23 @@
             </div>
 
             <div class="pt-6 border-t border-satinGold/20">
-                <h3 class="font-serif text-xl text-darkGold mb-6 text-center">Informações do Consultório</h3>
+                <h3 class="font-serif text-xl text-darkGold mb-6 text-center uppercase tracking-widest">Informações do Consultório</h3>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div class="space-y-2"><label class="text-[10px] font-bold text-satinGold uppercase">Nome Profissional</label><input type="text" id="config-name" class="w-full p-3 rounded-xl border border-satinGold/20 dark:bg-zinc-800"></div>
-                    <div class="space-y-2"><label class="text-[10px] font-bold text-satinGold uppercase">Registro OAB</label><input type="text" id="config-oab" class="w-full p-3 rounded-xl border border-satinGold/20 dark:bg-zinc-800"></div>
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-bold text-satinGold uppercase">Registro OAB</label>
+                        <input type="text" id="config-oab" oninput="maskOAB(this)" placeholder="OAB/XX 000.000" class="w-full p-3 rounded-xl border border-satinGold/20 dark:bg-zinc-800">
+                    </div>
                     <div class="space-y-2"><label class="text-[10px] font-bold text-satinGold uppercase">URL da Foto</label><input type="text" id="config-img" class="w-full p-3 rounded-xl border border-satinGold/20 dark:bg-zinc-800"></div>
-                    <div class="space-y-2"><label class="text-[10px] font-bold text-satinGold uppercase">WhatsApp</label><input type="text" id="config-phone" class="w-full p-3 rounded-xl border border-satinGold/20 dark:bg-zinc-800"></div>
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-bold text-satinGold uppercase">WhatsApp</label>
+                        <input type="text" id="config-phone" oninput="maskPhone(this)" placeholder="(00) 00000-0000" class="w-full p-3 rounded-xl border border-satinGold/20 dark:bg-zinc-800">
+                    </div>
                 </div>
                 
                 <div class="space-y-2 mt-4">
                     <label class="text-[10px] font-bold text-satinGold uppercase">E-mail Profissional (Coluna I)</label>
-                    <input type="text" id="config-email" class="w-full p-3 rounded-xl border border-satinGold/20 dark:bg-zinc-800" placeholder="Ex: advocacia@email.com">
+                    <input type="email" id="config-email" class="w-full p-3 rounded-xl border border-satinGold/20 dark:bg-zinc-800" placeholder="Ex: advocacia@email.com">
                 </div>
 
                 <div class="space-y-2 mt-4"><label class="text-[10px] font-bold text-satinGold uppercase">Breve Biografia</label><textarea id="config-desc" class="w-full p-3 rounded-xl border border-satinGold/20 dark:bg-zinc-800 h-24"></textarea></div>
@@ -145,11 +151,11 @@
             </div>
             <div class="space-y-1">
                 <label class="text-[10px] font-bold text-satinGold uppercase">N. Processo (ID)</label>
-                <input type="text" id="c-num-proc" class="w-full p-3 rounded-xl border border-satinGold/20 dark:bg-zinc-800">
+                <input type="text" id="c-num-proc" oninput="maskProcess(this)" placeholder="0000000-00.0000.0.00.0000" class="w-full p-3 rounded-xl border border-satinGold/20 dark:bg-zinc-800">
             </div>
         </div>
 
-        <div class="bg-gray-50 dark:bg-zinc-800/50 p-6 rounded-3xl border border-satinGold/20 space-y-4">
+        <div class="bg-gray-50 dark:bg-zinc-800/50 p-6 rounded-3xl border border-satinGold/20 space-y-4 text-left">
             <div class="flex items-center justify-between">
                 <label class="text-sm font-bold text-satinGold uppercase tracking-widest">Status Inicial</label>
                 <div class="flex items-center gap-2">
@@ -186,7 +192,7 @@
             <div class="space-y-1"><label class="text-[10px] font-bold text-satinGold uppercase">E-mail do Cliente</label><input type="email" id="edit-c-email" class="w-full p-3 rounded-xl border border-satinGold/20 dark:bg-zinc-800"></div>
         </div>
         <div class="space-y-1 text-left mb-6"><label class="text-[10px] font-bold text-satinGold uppercase">N. Processo (ID)</label><input type="text" id="edit-c-num-proc" readonly class="w-full p-3 rounded-xl border border-satinGold/20 dark:bg-zinc-800 bg-gray-100 opacity-70"></div>
-        <div class="bg-gray-50 dark:bg-zinc-800/50 p-6 rounded-3xl border border-satinGold/20 space-y-4">
+        <div class="bg-gray-50 dark:bg-zinc-800/50 p-6 rounded-3xl border border-satinGold/20 space-y-4 text-left">
             <div class="flex items-center gap-2 mb-2">
                 <input type="checkbox" id="edit-add-new-card-check" class="w-4 h-4 accent-satinGold" onchange="toggleEditUI()">
                 <label class="text-[10px] font-bold uppercase text-satinGold">Adicionar Como Novo Card no Histórico</label>
@@ -216,7 +222,7 @@
         <p class="text-sm opacity-70 mb-8 font-sans text-center">Deseja aplicar estas alterações?</p>
         <div class="flex gap-3">
             <button onclick="closeModal('modal-confirm')" class="flex-1 py-3 text-xs font-bold uppercase opacity-50">Não</button>
-            <button id="btn-confirm-yes" class="flex-1 gold-gradient text-white py-4 rounded-xl text-xs font-bold uppercase shadow-lg">Sim</button>
+            <button id="btn-confirm-yes" class="flex-1 gold-gradient text-white py-3 rounded-xl text-xs font-bold uppercase shadow-lg">Sim</button>
         </div>
     </div>
 </div>
@@ -228,7 +234,7 @@
         <p class="text-sm opacity-80 mb-8 font-sans text-center text-softBlack dark:text-pearl/70">Irá apagar todas as informações do cliente dentro do sistema permanentemente. Deseja continuar?</p>
         <div class="flex gap-3">
             <button onclick="closeModal('modal-delete-confirm')" class="flex-1 py-3 text-xs font-bold uppercase opacity-50">Cancelar</button>
-            <button id="btn-confirm-delete" class="flex-1 gold-gradient text-white py-4 rounded-xl text-xs font-bold uppercase shadow-lg">Sim, Excluir</button>
+            <button id="btn-confirm-delete" class="flex-1 gold-gradient text-white py-3 rounded-xl text-xs font-bold uppercase shadow-lg">Sim, Excluir</button>
         </div>
     </div>
 </div>
@@ -237,7 +243,7 @@
     <div class="bg-pearl dark:bg-zinc-900 w-full max-w-sm p-10 rounded-[30px] border-2 border-satinGold text-center shadow-2xl">
         <div class="w-20 h-20 gold-gradient rounded-full flex items-center justify-center text-white text-3xl mx-auto mb-6 shadow-lg"><i class="fas fa-check"></i></div>
         <h3 class="font-serif text-2xl text-darkGold mb-2 uppercase font-bold tracking-widest">Sucesso!</h3>
-        <p class="text-sm opacity-80 mb-10 font-sans">Dados processados com sucesso.</p>
+        <p class="text-sm opacity-80 mb-10 font-sans text-center">Dados processados com sucesso.</p>
     </div>
 </div>
 
@@ -263,6 +269,42 @@ const AREAS_DIREITO = [
     "Direito Digital",
     "Direito Empresarial"
 ];
+
+function maskProcess(i) {
+    let v = i.value.replace(/\D/g, "");
+    if (v.length > 20) v = v.substring(0, 20);
+    v = v.replace(/^(\d{7})(\d)/, "$1-$2");
+    v = v.replace(/-(\d{2})(\d)/, "-$1.$2");
+    v = v.replace(/\.(\d{4})(\d)/, ".$1.$2");
+    v = v.replace(/\.(\d{1})(\d)/, ".$1.$2");
+    v = v.replace(/\.(\d{2})(\d)/, ".$1.$2");
+    i.value = v;
+}
+
+function maskPhone(i) {
+    let v = i.value.replace(/\D/g, "");
+    if (v.length > 11) v = v.substring(0, 11);
+    v = v.replace(/^(\d{2})(\d)/g, "($1) $2");
+    v = v.replace(/(\d{5})(\d)/, "$1-$2");
+    i.value = v;
+}
+
+function maskOAB(i) {
+    let v = i.value.toUpperCase();
+    if (!v.startsWith("OAB/")) v = "OAB/";
+    let parts = v.split("/");
+    let content = parts[1] || "";
+    content = content.replace(/[^A-Z0-9]/g, "");
+    let state = content.substring(0, 2).replace(/[0-9]/g, "");
+    let num = content.substring(state.length).replace(/\D/g, "");
+    if (num.length > 6) num = num.substring(0, 6);
+    if (num.length > 3) num = num.replace(/^(\d{3})(\d)/, "$1.$2");
+    i.value = "OAB/" + state + (num ? " " + num : "");
+}
+
+function validateEmail(email) {
+    return String(email).toLowerCase().match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/);
+}
 
 function showSinc() { document.getElementById('globalLoader').classList.replace('hidden', 'flex'); }
 function hideSinc() { document.getElementById('globalLoader').classList.replace('flex', 'hidden'); }
@@ -360,7 +402,7 @@ function renderClients() {
                         <div class="flex flex-col">
                             <div class="flex items-center gap-2 mb-1">
                                 <span class="text-[10px] font-bold text-satinGold uppercase bg-satinGold/10 px-2 py-0.5 rounded-full">${c.tipo_acao || 'Ação'}</span>
-                                <span class="text-[10px] opacity-50 font-bold">#${c.numero_processo || 'S/N'}</span>
+                                <span class="text-[10px] opacity-50 font-bold">${c.numero_processo || 'S/N'}</span>
                             </div>
                             <p class="text-[11px] uppercase font-bold text-softBlack dark:text-pearl tracking-wider leading-tight">${card.status}</p>
                             <span class="text-[9px] opacity-40 font-bold uppercase mt-1">ID: ${c.id} | ${card.descricao || 'Sem descrição'}</span>
@@ -376,12 +418,14 @@ function renderClients() {
 }
 
 async function saveNewClient() {
+    const email = document.getElementById('c-email').value;
+    if(!validateEmail(email)) return alert("E-mail inválido.");
     showSinc();
     const data = { 
         action: "save_client", 
         api_key: MASTER_KEY,
         nome: document.getElementById('c-nome').value,
-        email: document.getElementById('c-email').value,
+        email: email,
         notificar: document.getElementById('c-notificar').checked,
         status: document.getElementById('a-status').value,
         descricao: document.getElementById('a-desc').value,
@@ -427,12 +471,14 @@ function toggleEditUI() {
 }
 
 async function updateExistingClient() {
+    const email = document.getElementById('edit-c-email').value;
+    if(!validateEmail(email)) return alert("E-mail inválido.");
     showSinc();
     const data = { 
         action: "update_client_timeline", 
         api_key: MASTER_KEY,
         id: currentClientID,
-        email: document.getElementById('edit-c-email').value,
+        email: email,
         status_atual: document.getElementById('edit-a-status').value,
         novo_texto: document.getElementById('edit-a-desc').value,
         is_new_card: document.getElementById('edit-add-new-card-check').checked
@@ -462,6 +508,8 @@ async function deleteClient(id) {
 }
 
 async function saveProfileData() {
+    const email = document.getElementById('config-email').value;
+    if(!validateEmail(email)) return alert("E-mail inválido.");
     showSinc();
     const visible = Array.from(document.querySelectorAll('.settings-area-check:checked')).map(c => c.value).join('|');
     const data = { 
@@ -471,7 +519,7 @@ async function saveProfileData() {
         oab: document.getElementById('config-oab').value, 
         img: document.getElementById('config-img').value, 
         phone: document.getElementById('config-phone').value, 
-        email: document.getElementById('config-email').value, 
+        email: email, 
         desc: document.getElementById('config-desc').value, 
         new_pass: document.getElementById('config-pass').value, 
         new_secret: document.getElementById('check-change-secret').checked ? document.getElementById('config-new-secret').value : null,
@@ -545,4 +593,4 @@ function toggleNewSecretField() { const check = document.getElementById('check-c
 function logoutAdmin() { sessionStorage.removeItem('ADV_AUTH_SESS'); window.location.href = "index.html"; }
 </script>
 </body>
-</html>
+</html>```
