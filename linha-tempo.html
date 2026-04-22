@@ -203,7 +203,8 @@
                         numero_processo: "1234567-89.2026.8.00.0001",
                         tipo_acao: "Direito Civil",
                         atualizacoes: [
-                            { data: "22/04/2026", status: "Em andamento", descricao: "O processo segue os trâmites legais aguardando despacho." }
+                            { data: "22/04/2026", status: "Petição inicial protocolada", descricao: "Descrição de teste para visualização do card." },
+                            { data: "23/04/2026", status: "Despacho do juiz", descricao: "Outra descrição de teste para visualização." }
                         ]
                     },
                     {
@@ -212,7 +213,7 @@
                         numero_processo: "9876543-21.2026.8.00.0002",
                         tipo_acao: "Direito do Trabalho",
                         atualizacoes: [
-                            { data: "21/04/2026", status: "Audiência Marcada", descricao: "Audiência de conciliação agendada para o próximo mês." }
+                            { data: "21/04/2026", status: "Fase de execução", descricao: "Descrição de teste para visualização do card." }
                         ]
                     }
                 ];
@@ -294,6 +295,29 @@
                     carousel.scrollLeft = carousel.scrollWidth - carousel.offsetWidth - totalWidth;
                 }
             });
+
+            carousel.addEventListener('scroll', () => {
+                const cards = document.querySelectorAll('.process-card');
+                let closest = null;
+                let closestOffset = Infinity;
+
+                cards.forEach(card => {
+                    const rect = card.getBoundingClientRect();
+                    const center = window.innerWidth / 2;
+                    const offset = Math.abs(rect.left + rect.width / 2 - center);
+
+                    if (offset < closestOffset) {
+                        closestOffset = offset;
+                        closest = card;
+                    }
+                });
+
+                if (closest) {
+                    const id = closest.getAttribute('data-id');
+                    const index = closest.getAttribute('data-index');
+                    selectProcess(id, index);
+                }
+            });
         }
 
         function setupDraggableCarousel(slider) {
@@ -317,7 +341,7 @@
                 if (!isDown) return;
                 e.preventDefault();
                 const x = e.pageX - slider.offsetLeft;
-                const walk = (x - startX) * 2;
+                const walk = (x - startX) * 1;
                 slider.scrollLeft = scrollLeft - walk;
             });
         }
@@ -356,7 +380,7 @@
                     <div class="absolute -left-[41px] top-1/2 -translate-y-1/2 w-4 h-4 rounded-full gold-gradient border-4 border-pearl dark:border-softBlack shadow-sm"></div>
                     <p class="text-[9px] font-bold text-satinGold uppercase mb-1 tracking-widest">${ev.data}</p>
                     <h5 class="font-serif font-bold text-darkGold text-base mb-2 uppercase">${ev.status}</h5>
-                    <p class="text-xs opacity-70 leading-relaxed font-medium">${ev.descricao || "DESCRIÇÃO PARA TEXTE, DESCRIÇÃO PARA TEXTE, DESCRIÇÃO PARA TEXTE, DESCRIÇÃO PARA TEXTE."}</p>
+                    <p class="text-xs opacity-70 leading-relaxed font-medium">${ev.descricao || "Descrição de teste para visualização do card."}</p>
                 </div>
             `).join('');
         }
