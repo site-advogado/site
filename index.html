@@ -333,7 +333,7 @@ async function confirmCode() {
         if (data.status === "ok") {
             closeModal();
             sessionStorage.setItem('ADV_AUTH_SESS', 'true');
-            setTimeout(() => { window.location.href = "backup.html"; }, 500);
+            setTimeout(() => { window.location.href = "configuracao.html"; }, 500);
         } else {
             showErrorModal(data.message || "Código inválido.");
         }
