@@ -132,8 +132,8 @@
     </section>
 </main>
 
-<div id="modal-client" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4 modal-blur bg-black/60 overflow-y-auto">
-    <div class="bg-pearl dark:bg-zinc-900 w-full max-w-xl p-8 my-auto rounded-[40px] border border-satinGold/30 shadow-2xl">
+<div id="modal-client" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4 modal-blur bg-black/60">
+    <div class="bg-pearl dark:bg-zinc-900 w-full max-w-xl p-8 rounded-[40px] border border-satinGold/30 shadow-2xl">
         <div class="flex justify-between items-center mb-6">
             <h3 class="font-serif text-3xl text-darkGold uppercase tracking-widest">Novo Registro</h3>
             <button onclick="closeModal('modal-client')" class="text-satinGold opacity-50 hover:opacity-100"><i class="fas fa-times text-xl"></i></button>
@@ -181,8 +181,8 @@
     </div>
 </div>
 
-<div id="modal-edit-client" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4 modal-blur bg-black/60 overflow-y-auto">
-    <div class="bg-pearl dark:bg-zinc-900 w-full max-w-xl p-8 my-auto rounded-[40px] border border-satinGold/30 shadow-2xl">
+<div id="modal-edit-client" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4 modal-blur bg-black/60">
+    <div class="bg-pearl dark:bg-zinc-900 w-full max-w-xl p-8 rounded-[40px] border border-satinGold/30 shadow-2xl">
         <div class="flex justify-between items-center mb-6">
             <h3 class="font-serif text-3xl text-darkGold uppercase tracking-widest">Editar Registro</h3>
             <button onclick="closeModal('modal-edit-client')" class="text-satinGold opacity-50 hover:opacity-100"><i class="fas fa-times text-xl"></i></button>
@@ -196,9 +196,15 @@
             <div class="space-y-1"><label class="text-[10px] font-bold text-satinGold uppercase">Observação do Card (Coluna Q)</label><input type="text" id="edit-c-obs" class="w-full p-3 rounded-xl border border-satinGold/20 dark:bg-zinc-800" placeholder="Ex: Audiência 20/05"></div>
         </div>
         <div class="bg-gray-50 dark:bg-zinc-800/50 p-6 rounded-3xl border border-satinGold/20 space-y-4 text-left">
-            <div class="flex items-center gap-2 mb-2">
-                <input type="checkbox" id="edit-add-new-card-check" class="w-4 h-4 accent-satinGold" onchange="toggleEditUI()">
-                <label class="text-[10px] font-bold uppercase text-satinGold">Adicionar Como Novo Card no Histórico</label>
+            <div class="flex items-center justify-between gap-2 mb-2">
+                <div class="flex items-center gap-2">
+                   <input type="checkbox" id="edit-add-new-card-check" class="w-4 h-4 accent-satinGold" onchange="toggleEditUI()">
+                   <label class="text-[10px] font-bold uppercase text-satinGold">Novo Card</label>
+                </div>
+                <div class="flex items-center gap-2">
+                    <input type="checkbox" id="edit-notificar" class="accent-satinGold">
+                    <label for="edit-notificar" class="text-[10px] font-bold opacity-70 uppercase">Notificar e-mail</label>
+                </div>
             </div>
             <select id="edit-a-status" class="w-full p-4 mb-4 rounded-xl border-2 border-satinGold/30 dark:bg-zinc-900 font-bold text-sm">
                 <option value="Petição Inicial Protocolada">Petição Inicial Protocolada</option>
@@ -219,7 +225,7 @@
 </div>
 
 <div id="modal-confirm" class="fixed inset-0 z-[200] hidden flex items-center justify-center p-4 modal-blur bg-black/80">
-    <div class="bg-pearl dark:bg-zinc-900 w-full max-sm p-8 rounded-[30px] border-2 border-satinGold text-center shadow-2xl">
+    <div class="bg-pearl dark:bg-zinc-900 w-full max-w-sm p-8 rounded-[30px] border-2 border-satinGold text-center shadow-2xl">
         <div class="w-16 h-16 gold-gradient rounded-full flex items-center justify-center text-white text-2xl mx-auto mb-4"><i class="fas fa-question"></i></div>
         <h3 class="font-serif text-xl text-darkGold mb-2 uppercase tracking-widest">Confirmar?</h3>
         <p class="text-sm opacity-70 mb-8 font-sans text-center">Deseja aplicar estas alterações?</p>
@@ -231,7 +237,7 @@
 </div>
 
 <div id="modal-delete-confirm" class="fixed inset-0 z-[250] hidden flex items-center justify-center p-4 modal-blur bg-black/80">
-    <div class="bg-pearl dark:bg-zinc-900 w-full max-sm p-8 rounded-[30px] border-2 border-satinGold text-center shadow-2xl">
+    <div class="bg-pearl dark:bg-zinc-900 w-full max-w-sm p-8 rounded-[30px] border-2 border-satinGold text-center shadow-2xl">
         <div class="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center text-white text-2xl mx-auto mb-4 shadow-lg"><i class="fas fa-exclamation-triangle"></i></div>
         <h3 class="font-serif text-xl text-red-600 mb-2 uppercase font-bold tracking-widest">ATENÇÃO!</h3>
         <p class="text-sm opacity-80 mb-8 font-sans text-center text-softBlack dark:text-pearl/70">Irá apagar todas as informações do cliente dentro do sistema permanentemente. Deseja continuar?</p>
@@ -243,7 +249,7 @@
 </div>
 
 <div id="modal-success" class="fixed inset-0 z-[300] hidden flex items-center justify-center p-4 modal-blur bg-black/60 opacity-0 pointer-events-none transition-opacity duration-500">
-    <div class="bg-pearl dark:bg-zinc-900 w-full max-sm p-10 rounded-[30px] border-2 border-satinGold text-center shadow-2xl">
+    <div class="bg-pearl dark:bg-zinc-900 w-full max-w-sm p-10 rounded-[30px] border-2 border-satinGold text-center shadow-2xl">
         <div class="w-20 h-20 gold-gradient rounded-full flex items-center justify-center text-white text-3xl mx-auto mb-6 shadow-lg"><i class="fas fa-check"></i></div>
         <h3 class="font-serif text-2xl text-darkGold mb-2 uppercase font-bold tracking-widest">Sucesso!</h3>
         <p class="text-sm opacity-80 mb-10 font-sans text-center">Dados processados com sucesso.</p>
@@ -461,7 +467,7 @@ async function saveNewClient() {
         action: "save_client", 
         nome: document.getElementById('c-nome').value,
         email: email,
-        notificar: document.getElementById('c-notificar').checked,
+        notificar: document.getElementById('c-notificar').checked ? "SIM" : "NAO",
         status: document.getElementById('a-status').value,
         descricao: document.getElementById('a-desc').value,
         numero_processo: document.getElementById('c-num-proc').value,
@@ -486,6 +492,7 @@ function openEditClient(id) {
     document.getElementById('edit-c-num-proc').value = c.numero_processo || "";
     document.getElementById('edit-c-email').value = c.email;
     document.getElementById('edit-c-obs').value = c.obs || "";
+    document.getElementById('edit-notificar').checked = c.notificar === "SIM";
     const ultimoCard = c.timeline[c.timeline.length - 1] || { status: 'Petição Inicial Protocolada', descricao: '' };
     document.getElementById('edit-a-status').value = ultimoCard.status;
     document.getElementById('edit-a-desc').value = ultimoCard.descricao;
@@ -515,6 +522,7 @@ async function updateExistingClient() {
         id: currentClientID,
         email: email,
         obs: document.getElementById('edit-c-obs').value,
+        notificar: document.getElementById('edit-notificar').checked ? "SIM" : "NAO",
         status_atual: document.getElementById('edit-a-status').value,
         novo_texto: document.getElementById('edit-a-desc').value,
         is_new_card: document.getElementById('edit-add-new-card-check').checked
