@@ -1,0 +1,294 @@
+<!DOCTYPE html>  
+<html lang="pt-br" class="light">  
+<head>  
+    <meta charset="UTF-8">  
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">  
+    <title>Minha Linha do Tempo | Gestão Jurídica</title>  
+    <script src="https://cdn.tailwindcss.com"></script>  
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">  
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">  
+    <script>  
+    tailwind.config = { darkMode: 'class', theme: { extend: { colors: { pearl: '#FDFCF8', softBlack: '#1A1A1A', satinGold: '#C5A059', darkGold: '#A37E3B' }, fontFamily: { serif: ['Cinzel', 'serif'], sans: ['Montserrat', 'sans-serif'] } } } }
+    
+    if (localStorage.getItem('ADV_GLOBAL_THEME') === 'dark') {
+        document.documentElement.classList.add('dark');
+        document.documentElement.classList.remove('light');
+    } else {
+        document.documentElement.classList.add('light');
+        document.documentElement.classList.remove('dark');
+    }
+    </script>  
+    <style>  
+        body { -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
+        img { pointer-events: none !important; -webkit-user-drag: none !important; }
+        .gold-gradient { background: linear-gradient(135deg, #C5A059 0%, #A37E3B 100%); }  
+        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #C5A059; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #C5A059; border-radius: 10px; }
+
+        #process-carousel {
+            display: flex;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            gap: 12px;
+            padding-bottom: 15px;
+            scrollbar-width: none;
+        }
+        #process-carousel::-webkit-scrollbar { display: none; }
+        .process-card {
+            flex: 0 0 85%;
+            scroll-snap-align: center;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        .process-card.active { 
+            border-color: #C5A059; 
+            transform: scale(1.02);
+            box-shadow: 0 10px 15px -3px rgba(197, 160, 89, 0.2);
+        }
+    </style>
+</head>  
+
+<body class="bg-pearl dark:bg-softBlack text-softBlack dark:text-pearl min-h-screen font-sans transition-colors duration-300">  
+
+<div id="globalLoader" class="fixed inset-0 z-[200] flex items-center justify-center bg-black/20 backdrop-blur-sm">
+    <div class="bg-white dark:bg-zinc-900 p-8 rounded-3xl shadow-2xl flex flex-col items-center">
+        <div class="loader mb-4"></div>
+        <p class="text-satinGold font-bold text-sm tracking-widest uppercase">Sincronizando...</p>
+    </div>
+</div>
+
+<header class="fixed top-0 w-full z-50 p-4 flex justify-between items-center bg-pearl/80 dark:bg-softBlack/80 backdrop-blur-md border-b border-satinGold/20">  
+    <div class="flex items-center gap-2">
+        <div class="w-8 h-8 gold-gradient rounded-full flex items-center justify-center text-white shadow-md"><i class="fas fa-user-shield text-xs"></i></div>
+        <span class="font-serif font-bold text-darkGold tracking-widest text-xs uppercase">Área do Cliente</span>
+    </div>
+    <div class="flex gap-4 items-center">  
+        <button onclick="toggleDarkMode()" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-800 transition-all"><i id="themeIcon" class="fas fa-moon text-satinGold text-xl"></i></button>  
+        <button onclick="sairTimeline()" class="bg-red-500/10 text-red-500 px-4 py-2 rounded-full text-[10px] font-bold uppercase">Sair</button>
+    </div>
+</header>  
+
+<main class="pt-28 pb-12 px-4 max-w-lg mx-auto">  
+    <section class="text-center mb-6">
+        <h2 class="font-serif text-2xl font-bold text-darkGold uppercase tracking-tighter">Meus Processos</h2>
+        <p class="text-[10px] opacity-50 uppercase font-bold tracking-widest mt-1">Deslize para alternar entre as ações</p>
+    </section>
+
+    <div id="process-carousel" class="mb-8"></div>
+
+    <div id="client-dashboard" class="grid grid-cols-2 gap-3 mb-10">
+        <div class="col-span-2 bg-white dark:bg-zinc-800 p-6 rounded-[2rem] border border-satinGold/20 shadow-sm text-center">
+            <p class="text-[10px] font-bold text-satinGold uppercase tracking-widest mb-1">Status Atual</p>
+            <h2 id="client-main-status" class="text-xl font-serif text-darkGold font-bold uppercase">Sincronizando...</h2>
+        </div>
+        <div class="bg-white dark:bg-zinc-800 p-4 rounded-[2rem] border border-satinGold/20 shadow-sm text-center">
+            <p class="text-[9px] font-bold text-satinGold uppercase tracking-widest mb-1">Fase do Caso</p>
+            <div class="w-full bg-gray-200 dark:bg-zinc-700 h-2 rounded-full mt-3 overflow-hidden">
+                <div id="progress-bar" class="gold-gradient h-full transition-all duration-1000" style="width: 0%"></div>
+            </div>
+            <p id="progress-text" class="text-[10px] mt-2 font-bold opacity-60">0%</p>
+        </div>
+        <div class="bg-white dark:bg-zinc-800 p-4 rounded-[2rem] border border-satinGold/20 shadow-sm text-center">
+            <p class="text-[9px] font-bold text-satinGold uppercase tracking-widest mb-1">Movimentações</p>
+            <h2 id="total-updates" class="text-2xl font-serif text-darkGold mt-1">0</h2>
+            <p class="text-[8px] opacity-50 uppercase font-bold">Eventos registrados</p>
+        </div>
+    </div>
+
+    <div class="border-l-4 border-satinGold/30 pl-6 ml-2 space-y-8" id="timeline-content"></div>  
+</main>  
+
+<script>
+document.addEventListener('contextmenu', e => e.preventDefault());
+document.addEventListener('selectstart', e => e.preventDefault());
+document.addEventListener('keydown', function(e) {
+    if (e.key === "F12" || (e.ctrlKey && e.shiftKey && e.key === "I") || (e.ctrlKey && e.key === "u") || (e.ctrlKey && e.shiftKey && e.key === "J") || (e.ctrlKey && e.shiftKey && e.key === "C")) {
+        e.preventDefault();
+        return false;
+    }
+});
+
+setInterval(function() {
+    if (window.outerWidth - window.innerWidth > 160 || window.outerHeight - window.innerHeight > 160) {
+    }
+}, 1000);
+
+const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbwqZ-KxP0Y9uKov0kQG1P6Q67l6tHl7m7q7m7q7m7q7m/exec"; 
+const MASTER_API_KEY = "Adv_Seguro_2026_##";
+
+let allProcessData = {}; 
+let currentProcessId = "";
+
+function showLoading() { document.getElementById('globalLoader').style.display = 'flex'; }
+function hideLoading() { document.getElementById('globalLoader').style.display = 'none'; }
+
+window.onload = () => { 
+    const themeIcon = document.getElementById('themeIcon');
+    if (localStorage.getItem('ADV_GLOBAL_THEME') === 'dark') {
+        document.documentElement.classList.add('dark');
+        if (themeIcon) themeIcon.classList.replace('fa-moon', 'fa-sun');
+    } else {
+        document.documentElement.classList.remove('dark');
+        if (themeIcon) themeIcon.classList.replace('fa-sun', 'fa-moon');
+    }
+    
+    setTimeout(carregarTimeline, 400); 
+};
+
+async function carregarTimeline() {
+    showLoading();
+    const token = sessionStorage.getItem('ADV_AUTH_SESS');
+    const emailCliente = sessionStorage.getItem('CLIENT_EMAIL');
+
+    try {
+        const response = await fetch(URL_SCRIPT, {
+            method: 'POST',
+            body: JSON.stringify({
+                api_key: MASTER_API_KEY,
+                action: 'timeline',
+                token: token,
+                usuario: emailCliente
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (Array.isArray(data)) {
+            organizeData(data);
+        } else if (data && typeof data === 'object' && data.status !== "expirado" && data.status !== "erro") {
+             organizeData([data]);
+        }
+        
+    } catch (e) { 
+        console.error("Erro na requisição:", e);
+    } finally { hideLoading(); }
+}
+
+function organizeData(data) {
+    if(!data || data.length === 0) return;
+    
+    allProcessData = data.reduce((acc, current) => {
+        const procId = current.numero_processo || "Processo Geral";
+        acc[procId] = current;
+        return acc;
+    }, {});
+
+    renderCarousel();
+    const keys = Object.keys(allProcessData);
+    if (keys.length > 0) {
+        switchProcess(keys[0]);
+    }
+}
+
+function renderCarousel() {
+    const carousel = document.getElementById('process-carousel');
+    carousel.innerHTML = '';
+    
+    Object.keys(allProcessData).forEach(procId => {
+        const processo = allProcessData[procId];
+        const eventos = processo.atualizacoes || [];
+        const ultimo = [...eventos].reverse()[0] || { status: "Em andamento" };
+        
+        const card = document.createElement('div');
+        card.className = `process-card bg-white dark:bg-zinc-900 p-5 rounded-[2rem] shadow-lg text-left cursor-pointer`;
+        card.id = `card-${procId.replace(/[^a-zA-Z0-9]/g, '')}`;
+        card.onclick = () => switchProcess(procId);
+        
+        card.innerHTML = `
+            <p class="text-[9px] font-bold text-satinGold uppercase tracking-widest">${processo.tipo_acao || 'Ação Judicial'}</p>
+            <h3 class="font-serif font-bold text-darkGold text-sm truncate uppercase mt-1">${procId}</h3>
+            <div class="flex items-center gap-2 mt-2">
+                <span class="w-2 h-2 rounded-full bg-satinGold animate-pulse"></span>
+                <p class="text-[10px] font-semibold opacity-70 uppercase truncate">${ultimo.status || 'Atualizando...'}</p>
+            </div>
+            <p class="text-[10px] mt-2 opacity-60">Acompanhamento processual detalhado disponível no card.</p>
+        `;
+        carousel.appendChild(card);
+    });
+}
+
+function switchProcess(procId) {
+    currentProcessId = procId;
+    
+    document.querySelectorAll('.process-card').forEach(c => c.classList.remove('active'));
+    const activeCardId = `card-${procId.replace(/[^a-zA-Z0-9]/g, '')}`;
+    const activeCard = document.getElementById(activeCardId);
+    if(activeCard) {
+        activeCard.classList.add('active');
+        activeCard.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+    }
+
+    const processo = allProcessData[procId];
+    const eventos = processo.atualizacoes || [];
+    renderTimeline(eventos);
+    updateClientMetrics(eventos);
+}
+
+function updateClientMetrics(eventos) {
+    if (!eventos || eventos.length === 0) {
+        document.getElementById('client-main-status').innerText = "Em análise";
+        document.getElementById('total-updates').innerText = "0";
+        document.getElementById('progress-bar').style.width = "5%";
+        document.getElementById('progress-text').innerText = "5% CONCLUÍDO";
+        return;
+    }
+
+    const timelineReversa = [...eventos].reverse();
+    const ultimoEvento = timelineReversa[0];
+    const statusText = ultimoEvento.status || "";
+    
+    document.getElementById('client-main-status').innerText = statusText;
+    document.getElementById('total-updates').innerText = eventos.length;
+
+    let progresso = 15;
+    const lowerStatus = statusText.toLowerCase();
+    if (lowerStatus.includes("citação")) progresso = 30;
+    if (lowerStatus.includes("audiência")) progresso = 50;
+    if (lowerStatus.includes("sentença")) progresso = 75;
+    if (lowerStatus.includes("execução") || lowerStatus.includes("cálculos")) progresso = 90;
+    if (lowerStatus.includes("finalizado") || lowerStatus.includes("arquivado")) progresso = 100;
+
+    const bar = document.getElementById('progress-bar');
+    const txt = document.getElementById('progress-text');
+    
+    if(bar && txt) {
+        bar.style.width = progresso + "%";
+        txt.innerText = progresso + "% CONCLUÍDO";
+    }
+}
+
+function renderTimeline(eventos) {
+    const container = document.getElementById('timeline-content');
+    container.innerHTML = '';
+    if(!eventos || eventos.length === 0) {
+        container.innerHTML = '<p class="text-center opacity-50">Nenhuma atualização registrada.</p>';
+        return;
+    }
+    [...eventos].reverse().forEach(ev => {
+        container.innerHTML += `<div class="relative bg-white dark:bg-zinc-800 p-5 rounded-2xl shadow-md border-l-4 border-satinGold mb-4">
+            <p class="text-[10px] font-bold text-satinGold uppercase mb-1">${ev.data || ''}</p>
+            <h4 class="font-serif font-bold text-lg text-darkGold">${ev.status || ''}</h4>
+            <p class="text-sm opacity-80 mt-2">${ev.descricao || 'Informação processual registrada para visualização e conferência.'}</p>
+        </div>`;
+    });
+}
+
+function sairTimeline() { sessionStorage.removeItem('ADV_AUTH_SESS'); sessionStorage.removeItem('CLIENT_EMAIL'); window.location.href = "index.html"; }
+
+function toggleDarkMode() {
+    const isDark = document.documentElement.classList.toggle('dark');
+    const themeIcon = document.getElementById('themeIcon');
+    
+    if (isDark) {
+        localStorage.setItem('ADV_GLOBAL_THEME', 'dark');
+        if (themeIcon) themeIcon.classList.replace('fa-moon', 'fa-sun');
+    } else {
+        localStorage.setItem('ADV_GLOBAL_THEME', 'light');
+        if (themeIcon) themeIcon.classList.replace('fa-sun', 'fa-moon');
+    }
+}
+</script>
+</body>  
+</html>
