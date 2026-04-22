@@ -19,7 +19,6 @@
     }
     </script>  
     <style>  
-        /* 🚫 PROTEÇÕES DE INTERFACE EXTREMAS */
         body { -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
         img { pointer-events: none !important; -webkit-user-drag: none !important; }
         .gold-gradient { background: linear-gradient(135deg, #C5A059 0%, #A37E3B 100%); }  
@@ -28,7 +27,6 @@
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: #C5A059; border-radius: 10px; }
 
-        /* Estilos Carrossel */
         #process-carousel {
             display: flex;
             overflow-x: auto;
@@ -103,7 +101,6 @@
 </main>  
 
 <script>
-// 🚫 PROTEÇÕES DE INTERFACE SILENCIOSAS (ANTI-INSPEÇÃO)
 document.addEventListener('contextmenu', e => e.preventDefault());
 document.addEventListener('selectstart', e => e.preventDefault());
 document.addEventListener('keydown', function(e) {
@@ -113,7 +110,6 @@ document.addEventListener('keydown', function(e) {
     }
 });
 
-// Detectar Console Aberto (Resolução/Debugger) sem aviso visual
 setInterval(function() {
     if (window.outerWidth - window.innerWidth > 160 || window.outerHeight - window.innerHeight > 160) {
     }
@@ -145,7 +141,6 @@ async function carregarTimeline() {
     showLoading();
     const token = sessionStorage.getItem('ADV_AUTH_SESS');
     
-    // CORREÇÃO DE COMUNICAÇÃO: O token é verificado conforme o sistema principal.
     if (!token) { 
         console.warn("Sessão não encontrada.");
         sairTimeline(); 
@@ -215,6 +210,7 @@ function renderCarousel() {
                 <span class="w-2 h-2 rounded-full bg-satinGold animate-pulse"></span>
                 <p class="text-[10px] font-semibold opacity-70 uppercase truncate">${ultimo.status || 'Atualizando...'}</p>
             </div>
+            <p class="text-[10px] mt-2 opacity-60">Descrição de teste para visualização do card</p>
         `;
         carousel.appendChild(card);
     });
@@ -276,7 +272,7 @@ function renderTimeline(eventos) {
         container.innerHTML += `<div class="relative bg-white dark:bg-zinc-800 p-5 rounded-2xl shadow-md border-l-4 border-satinGold mb-4">
             <p class="text-[10px] font-bold text-satinGold uppercase mb-1">${ev.data || ''}</p>
             <h4 class="font-serif font-bold text-lg text-darkGold">${ev.status || ''}</h4>
-            <p class="text-sm opacity-80 mt-2">${ev.descricao || 'Informação processual registrada no sistema de acompanhamento.'}</p>
+            <p class="text-sm opacity-80 mt-2">${ev.descricao || 'Descrição de teste para visualização.'}</p>
         </div>`;
     });
 }
