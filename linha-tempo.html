@@ -183,7 +183,7 @@
                 
                 if(globalData.length > 0) {
                     renderCarousel();
-                    selectProcess(globalData[0].id, 0);
+                    selectProcess(globalData[0].id, isLooping ? globalData.length : 0);
                 } else {
                     document.getElementById('client-name-display').innerText = "Nenhum processo encontrado";
                     document.getElementById('current-status-text').innerText = "Sem dados";
@@ -194,26 +194,26 @@
                 const mockFallback = [
                     {
                         id: "001",
-                        cliente: "Erro ao sincronizar",
-                        numero_processo: "0000000-00.0000.0.00.0000",
-                        tipo_acao: "Erro ao sincronizar",
+                        cliente: "Teste de Nome Longo para Visualização do Cliente",
+                        numero_processo: "1234567-89.2026.8.00.0001",
+                        tipo_acao: "Direito Civil",
                         atualizacoes: [
-                            { data: "00/00/0000", status: "Erro ao sincronizar", descricao: "Erro ao sincronizar" }
+                            { data: "22/04/2026", status: "Em andamento", descricao: "O processo segue os trâmites legais aguardando despacho." }
                         ]
                     },
                     {
                         id: "002",
-                        cliente: "Erro ao sincronizar",
-                        numero_processo: "0000000-00.0000.0.00.0000",
-                        tipo_acao: "Erro ao sincronizar",
+                        cliente: "Teste de Nome Longo para Visualização do Cliente",
+                        numero_processo: "9876543-21.2026.8.00.0002",
+                        tipo_acao: "Direito do Trabalho",
                         atualizacoes: [
-                            { data: "00/00/0000", status: "Erro ao sincronizar", descricao: "Erro ao sincronizar" }
+                            { data: "21/04/2026", status: "Audiência Marcada", descricao: "Audiência de conciliação agendada para o próximo mês." }
                         ]
                     }
                 ];
                 globalData = mockFallback;
                 renderCarousel();
-                selectProcess(globalData[0].id, 0);
+                selectProcess(globalData[0].id, isLooping ? globalData.length : 0);
             } finally {
                 setTimeout(() => {
                     document.getElementById('globalLoader').style.display = 'none';
@@ -324,7 +324,7 @@
             const selectedCard = document.getElementById(`card-idx-${elementIndex}`);
             if(selectedCard) selectedCard.classList.add('active');
 
-            const lastEvent = proc.atualizacoes[proc.atualizacoes.length - 1] || { status: "Nenhum" };
+            const lastEvent = proc.atualizacoes[proc.atualizacoes.length - 1] || { status: "Nenhum", descricao: "Nenhuma descrição disponível" };
             document.getElementById('current-status-text').innerText = lastEvent.status;
             document.getElementById('event-count').innerText = proc.atualizacoes.length;
             
