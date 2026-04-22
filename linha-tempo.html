@@ -169,6 +169,7 @@
         const MASTER_API_KEY = "Adv_Seguro_2026_##";
         let globalData = [];
         let isLooping = false;
+        let scrollTimeout;
 
         async function init() {
             const email = localStorage.getItem('ADV_USER_EMAIL');
@@ -188,7 +189,6 @@
                 
                 if(globalData.length > 0) {
                     renderCarousel();
-                    selectProcess(globalData[0].id, isLooping ? globalData.length : 0);
                 } else {
                     document.getElementById('client-name-display').innerText = "Nenhum processo encontrado";
                     document.getElementById('current-status-text').innerText = "Sem dados";
@@ -199,27 +199,26 @@
                 const mockFallback = [
                     {
                         id: "001",
-                        cliente: "Teste de Nome Longo para Visualização do Cliente",
-                        numero_processo: "1234567-89.2026.8.00.0001",
-                        tipo_acao: "Direito Civil",
+                        cliente: "Falha na sincronização",
+                        numero_processo: "0000000-00.0000.0.00.0000",
+                        tipo_acao: "Falha na sincronização",
                         atualizacoes: [
-                            { data: "22/04/2026", status: "Petição inicial protocolada", descricao: "Descrição de teste para visualização do card." },
-                            { data: "23/04/2026", status: "Despacho do juiz", descricao: "Outra descrição de teste para visualização." }
+                            { data: "22/04/2026", status: "Petição inicial protocolada", descricao: "Ação distribuída com sucesso no tribunal." },
+                            { data: "23/04/2026", status: "Despacho do juiz", descricao: "O juiz analisou o pedido liminar." }
                         ]
                     },
                     {
                         id: "002",
-                        cliente: "Teste de Nome Longo para Visualização do Cliente",
+                        cliente: "Cliente Teste Loop",
                         numero_processo: "9876543-21.2026.8.00.0002",
                         tipo_acao: "Direito do Trabalho",
                         atualizacoes: [
-                            { data: "21/04/2026", status: "Fase de execução", descricao: "Descrição de teste para visualização do card." }
+                            { data: "21/04/2026", status: "Fase de execução", descricao: "Cálculos homologados pela contadoria judicial." }
                         ]
                     }
                 ];
                 globalData = mockFallback;
                 renderCarousel();
-                selectProcess(globalData[0].id, isLooping ? globalData.length : 0);
             } finally {
                 setTimeout(() => {
                     document.getElementById('globalLoader').style.display = 'none';
@@ -243,7 +242,7 @@
 
             carousel.innerHTML = displayData.map((proc, index) => `
                 <div class="process-card bg-white dark:bg-zinc-900 p-6 rounded-[2.5rem] shadow-md cursor-pointer" 
-                     data-id="${proc.id}" data-index="${index}" id="card-idx-${index}" onclick="selectProcess('${proc.id}', ${index})">
+                     data-id="${proc.id}">
                     <p class="text-[9px] font-bold text-satinGold uppercase tracking-widest">${proc.tipo_acao}</p>
                     <h4 class="font-serif font-bold text-darkGold text-sm mt-1 truncate">${proc.numero_processo}</h4>
                     <div class="flex items-center gap-2 mt-4">
@@ -262,62 +261,48 @@
             }
 
             setupDraggableCarousel(carousel);
-            setupCarouselObserver(carousel);
+            
+            carousel.addEventListener('scroll', () => {
+                if (isLooping) {
+                    const scrollLeft = carousel.scrollLeft;
+                    const cardWidth = carousel.querySelector('.process-card').offsetWidth + 16;
+                    const totalWidth = globalData.length * cardWidth;
+
+                    if (scrollLeft <= 0) {
+                        carousel.scrollLeft = totalWidth;
+                    } else if (scrollLeft >= carousel.scrollWidth - carousel.offsetWidth) {
+                        carousel.scrollLeft = carousel.scrollWidth - carousel.offsetWidth - totalWidth;
+                    }
+                }
+
+                clearTimeout(scrollTimeout);
+                scrollTimeout = setTimeout(() => {
+                    updateActiveFromScroll(carousel);
+                }, 80ms);
+            });
+
+            updateActiveFromScroll(carousel);
         }
 
-        function setupCarouselObserver(carousel) {
-            const options = {
-                root: carousel,
-                threshold: 0.6
-            };
+        function updateActiveFromScroll(carousel) {
+            const cards = carousel.querySelectorAll('.process-card');
+            let closest = null;
+            let closestOffset = Infinity;
+            const center = window.innerWidth / 2;
 
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        const id = entry.target.getAttribute('data-id');
-                        const index = entry.target.getAttribute('data-index');
-                        selectProcess(id, index);
-                    }
-                });
-            }, options);
-
-            document.querySelectorAll('.process-card').forEach(card => observer.observe(card));
-
-            carousel.addEventListener('scroll', () => {
-                if (!isLooping) return;
-                const scrollLeft = carousel.scrollLeft;
-                const cardWidth = document.querySelector('.process-card').offsetWidth + 16;
-                const totalWidth = globalData.length * cardWidth;
-
-                if (scrollLeft <= 0) {
-                    carousel.scrollLeft = totalWidth;
-                } else if (scrollLeft >= carousel.scrollWidth - carousel.offsetWidth) {
-                    carousel.scrollLeft = carousel.scrollWidth - carousel.offsetWidth - totalWidth;
+            cards.forEach(card => {
+                const rect = card.getBoundingClientRect();
+                const offset = Math.abs(rect.left + rect.width / 2 - center);
+                if (offset < closestOffset) {
+                    closestOffset = offset;
+                    closest = card;
                 }
             });
 
-            carousel.addEventListener('scroll', () => {
-                const cards = document.querySelectorAll('.process-card');
-                let closest = null;
-                let closestOffset = Infinity;
-
-                cards.forEach(card => {
-                    const rect = card.getBoundingClientRect();
-                    const center = window.innerWidth / 2;
-                    const offset = Math.abs(rect.left + rect.width / 2 - center);
-
-                    if (offset < closestOffset) {
-                        closestOffset = offset;
-                        closest = card;
-                    }
-                });
-
-                if (closest) {
-                    const id = closest.getAttribute('data-id');
-                    const index = closest.getAttribute('data-index');
-                    selectProcess(id, index);
-                }
-            });
+            if (closest) {
+                const id = closest.getAttribute('data-id');
+                selectProcess(id);
+            }
         }
 
         function setupDraggableCarousel(slider) {
@@ -331,12 +316,8 @@
                 startX = e.pageX - slider.offsetLeft;
                 scrollLeft = slider.scrollLeft;
             });
-            slider.addEventListener('mouseleave', () => {
-                isDown = false;
-            });
-            slider.addEventListener('mouseup', () => {
-                isDown = false;
-            });
+            slider.addEventListener('mouseleave', () => { isDown = false; });
+            slider.addEventListener('mouseup', () => { isDown = false; });
             slider.addEventListener('mousemove', (e) => {
                 if (!isDown) return;
                 e.preventDefault();
@@ -346,17 +327,17 @@
             });
         }
 
-        function selectProcess(id, elementIndex) {
+        function selectProcess(id) {
             const proc = globalData.find(p => p.id === id);
             if(!proc) return;
 
             document.getElementById('client-name-display').innerText = proc.cliente || "Usuário";
             
-            document.querySelectorAll('.process-card').forEach(c => c.classList.remove('active'));
-            const selectedCard = document.getElementById(`card-idx-${elementIndex}`);
-            if(selectedCard) selectedCard.classList.add('active');
+            document.querySelectorAll('.process-card').forEach(c => {
+                c.classList.toggle('active', c.getAttribute('data-id') === id);
+            });
 
-            const actualIndex = elementIndex % globalData.length;
+            const actualIndex = globalData.findIndex(p => p.id === id);
             document.querySelectorAll('.dot').forEach((d, i) => {
                 d.classList.toggle('active', i === actualIndex);
             });
