@@ -181,24 +181,6 @@ img {
 </div>
 
 <script>
-// 🚫 PROTEÇÕES DE INTERFACE (ANTI-INSPEÇÃO)
-document.addEventListener('contextmenu', e => e.preventDefault());
-document.addEventListener('selectstart', e => e.preventDefault());
-document.addEventListener('keydown', function(e) {
-    if ((e.ctrlKey && ['c','u','s','p'].includes(e.key.toLowerCase())) ||
-        (e.ctrlKey && e.shiftKey && ['i','j','c'].includes(e.key.toLowerCase())) ||
-        e.key === "F12") {
-        e.preventDefault();
-        return false;
-    }
-});
-
-// Detectar Console Aberto (Resolução/Debugger)
-setInterval(function() {
-    if (window.outerWidth - window.innerWidth > 160 || window.outerHeight - window.innerHeight > 160) {
-        document.body.innerHTML = "<h1 style='color:red;text-align:center;margin-top:20%;font-family:sans-serif;'>Acesso bloqueado por motivos de segurança.</h1>";
-    }
-}, 1000);
 
 const URL_SCRIPT = "https://api-advogada.siterefrigeracaoeliezer.workers.dev/api/v1"; 
 
