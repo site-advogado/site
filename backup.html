@@ -211,7 +211,8 @@ function switchProcess(procId) {
     currentProcessId = procId;
     
     document.querySelectorAll('.process-card').forEach(c => c.classList.remove('active'));
-    const activeCard = document.getElementById(`card-${procId.replace(/[^a-zA-Z0-9]/g, '')}`);
+    const activeCardId = `card-${procId.replace(/[^a-zA-Z0-9]/g, '')}`;
+    const activeCard = document.getElementById(activeCardId);
     if(activeCard) {
         activeCard.classList.add('active');
         activeCard.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
@@ -259,6 +260,10 @@ function updateClientMetrics(eventos) {
 function renderTimeline(eventos) {
     const container = document.getElementById('timeline-content');
     container.innerHTML = '';
+    if(!eventos || eventos.length === 0) {
+        container.innerHTML = '<p class="text-center opacity-50">Nenhuma atualização registrada.</p>';
+        return;
+    }
     [...eventos].reverse().forEach(ev => {
         container.innerHTML += `<div class="relative bg-white dark:bg-zinc-800 p-5 rounded-2xl shadow-md border-l-4 border-satinGold mb-4">
             <p class="text-[10px] font-bold text-satinGold uppercase mb-1">${ev.data || ''}</p>
