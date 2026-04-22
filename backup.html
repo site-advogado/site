@@ -120,9 +120,7 @@ setInterval(function() {
 }, 1000);
 
 const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbwqZ-KxP0Y9uKov0kQG1P6Q67l6tHl7m7q7m7q7m7q7m/exec"; 
-
-// ✅ SIMULAÇÃO DE SESSÃO PARA VISUALIZAÇÃO
-sessionStorage.setItem('ADV_AUTH_SESS', 'session_ficticia_teste');
+const MASTER_API_KEY = "Adv_Seguro_2026_##";
 
 let allProcessData = {}; 
 let currentProcessId = "";
@@ -145,31 +143,25 @@ window.onload = () => {
 
 async function carregarTimeline() {
     showLoading();
+    const token = sessionStorage.getItem('ADV_AUTH_SESS');
+    if (!token) { sairTimeline(); return; }
+
     try {
-        // Dados fictícios para visualização imediata
-        const dataFicticia = [
-            {
-                numero_processo: "0001234-55.2026.8.00.0001",
-                tipo_acao: "Ação de Cobrança",
-                atualizacoes: [
-                    { data: "10/01/2026", status: "Petição Inicial Protocolada", descricao: "O processo foi iniciado e a petição inicial foi protocolada no sistema do tribunal." },
-                    { data: "25/01/2026", status: "Citação Expedida", descricao: "A justiça enviou a notificação oficial para a parte contrária tomar ciência do processo." },
-                    { data: "15/02/2026", status: "Audiência de Conciliação", descricao: "Realizada audiência para tentativa de acordo entre as partes envolvidas." }
-                ]
-            },
-            {
-                numero_processo: "0009876-11.2025.8.00.0002",
-                tipo_acao: "Indenização por Danos Morais",
-                atualizacoes: [
-                    { data: "05/11/2025", status: "Petição Inicial", descricao: "Ingresso da ação judicial para reparação de danos." },
-                    { data: "20/12/2025", status: "Sentença Proferida", descricao: "O juiz analisou o caso e publicou a decisão de primeira instância favorável ao cliente." },
-                    { data: "10/02/2026", status: "Cálculos de Liquidação", descricao: "Fase de apuração dos valores finais devidos conforme determinado na sentença." }
-                ]
-            }
-        ];
+        const response = await fetch(URL_SCRIPT, {
+            method: 'POST',
+            body: JSON.stringify({
+                api_key: MASTER_API_KEY,
+                action: 'timeline',
+                token: token
+            })
+        });
+        const data = await response.json();
         
-        // Simulando o comportamento de organizar os dados
-        organizeData(dataFicticia);
+        if (data.status === "expirado") {
+            sairTimeline();
+        } else {
+            organizeData(data);
+        }
         
     } catch (e) { sairTimeline(); } finally { hideLoading(); }
 }
@@ -177,14 +169,15 @@ async function carregarTimeline() {
 function organizeData(data) {
     allProcessData = data.reduce((acc, current) => {
         const procId = current.numero_processo || "Processo Geral";
-        if (!acc[procId]) acc[procId] = [];
         acc[procId] = current;
         return acc;
     }, {});
 
     renderCarousel();
-    const firstProc = Object.keys(allProcessData)[0];
-    switchProcess(firstProc);
+    const keys = Object.keys(allProcessData);
+    if (keys.length > 0) {
+        switchProcess(keys[0]);
+    }
 }
 
 function renderCarousel() {
@@ -198,7 +191,7 @@ function renderCarousel() {
         
         const card = document.createElement('div');
         card.className = `process-card bg-white dark:bg-zinc-900 p-5 rounded-[2rem] shadow-lg text-left cursor-pointer`;
-        card.id = `card-${procId}`;
+        card.id = `card-${procId.replace(/[^a-zA-Z0-9]/g, '')}`;
         card.onclick = () => switchProcess(procId);
         
         card.innerHTML = `
@@ -217,7 +210,7 @@ function switchProcess(procId) {
     currentProcessId = procId;
     
     document.querySelectorAll('.process-card').forEach(c => c.classList.remove('active'));
-    const activeCard = document.getElementById(`card-${procId}`);
+    const activeCard = document.getElementById(`card-${procId.replace(/[^a-zA-Z0-9]/g, '')}`);
     if(activeCard) {
         activeCard.classList.add('active');
         activeCard.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
@@ -230,7 +223,13 @@ function switchProcess(procId) {
 }
 
 function updateClientMetrics(eventos) {
-    if (!eventos || eventos.length === 0) return;
+    if (!eventos || eventos.length === 0) {
+        document.getElementById('client-main-status').innerText = "Em análise";
+        document.getElementById('total-updates').innerText = "0";
+        document.getElementById('progress-bar').style.width = "5%";
+        document.getElementById('progress-text').innerText = "5% CONCLUÍDO";
+        return;
+    }
 
     const timelineReversa = [...eventos].reverse();
     const ultimoEvento = timelineReversa[0];
@@ -240,11 +239,11 @@ function updateClientMetrics(eventos) {
     document.getElementById('total-updates').innerText = eventos.length;
 
     let progresso = 15;
-    if (statusText.includes("Citação")) progresso = 30;
-    if (statusText.includes("Audiência")) progresso = 50;
-    if (statusText.includes("Sentença")) progresso = 75;
-    if (statusText.includes("Execução") || statusText.includes("Cálculos")) progresso = 90;
-    if (statusText.includes("Finalizado") || statusText.includes("Arquivado")) progresso = 100;
+    if (statusText.toLowerCase().includes("citação")) progresso = 30;
+    if (statusText.toLowerCase().includes("audiência")) progresso = 50;
+    if (statusText.toLowerCase().includes("sentença")) progresso = 75;
+    if (statusText.toLowerCase().includes("execução") || statusText.toLowerCase().includes("cálculos")) progresso = 90;
+    if (statusText.toLowerCase().includes("finalizado") || statusText.toLowerCase().includes("arquivado")) progresso = 100;
 
     const bar = document.getElementById('progress-bar');
     const txt = document.getElementById('progress-text');
