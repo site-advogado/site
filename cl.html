@@ -73,7 +73,7 @@
                 <button onclick="toggleDarkMode()" class="w-10 h-10 flex items-center justify-center rounded-full bg-white dark:bg-zinc-900 border border-satinGold/20 shadow-sm transition-all active:scale-90">
                     <i id="themeIcon" class="fas fa-moon text-satinGold"></i>
                 </button>
-                <button onclick="console.log('Sair')" class="bg-red-500/10 text-red-500 px-5 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all">Sair</button>
+                <button onclick="logout()" class="bg-red-500/10 text-red-500 px-5 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all">Sair</button>
             </div>
         </div>
     </header>
@@ -132,8 +132,27 @@
         let isLooping = false;
         let scrollLocked = false;
 
-        // Converte qualquer valor para string para comparação segura
         function toStr(val) { return String(val); }
+
+        function formatDateOnly(isoString) {
+            if (!isoString) return "";
+            if (isoString.includes('/')) return isoString;
+            try {
+                const date = new Date(isoString);
+                const day = String(date.getDate()).padStart(2, '0');
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const year = date.getFullYear();
+                return `${day}/${month}/${year}`;
+            } catch (e) {
+                return isoString;
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('ADV_USER_EMAIL');
+            localStorage.removeItem('ADV_USER_TOKEN');
+            window.location.reload();
+        }
 
         async function init() {
             const email = localStorage.getItem('ADV_USER_EMAIL');
@@ -158,18 +177,10 @@
                         cliente: "Teste de Nome Longo para Visualização do Cliente",
                         numero_processo: "1234567-89.2026.8.00.0001",
                         tipo_acao: "Direito Civil",
+                        obs: "Audiência marcada para o dia 15/05 às 14h.",
                         atualizacoes: [
-                            { data: "22/04/2026", status: "Petição inicial protocolada", descricao: "Descrição de teste." },
-                            { data: "23/04/2026", status: "Despacho do juiz", descricao: "Outra descrição de teste." }
-                        ]
-                    },
-                    {
-                        id: "002",
-                        cliente: "Teste de Nome Longo para Visualização do Cliente",
-                        numero_processo: "9876543-21.2026.8.00.0002",
-                        tipo_acao: "Direito do Trabalho",
-                        atualizacoes: [
-                            { data: "21/04/2026", status: "Fase de execução", descricao: "Descrição de teste." }
+                            { data: "2026-04-22T22:20:46.256Z", status: "Petição inicial protocolada", descricao: "Descrição de teste." },
+                            { data: "2026-04-23T10:00:00.000Z", status: "Despacho do juiz", descricao: "Outra descrição de teste." }
                         ]
                     }
                 ];
@@ -199,13 +210,12 @@
                     <p class="text-[9px] font-bold text-satinGold uppercase tracking-widest">${proc.tipo_acao}</p>
                     <h4 class="font-serif font-bold text-darkGold text-sm mt-1 truncate">${proc.numero_processo}</h4>
                     <div class="flex items-center gap-2 mt-4">
-                        <i class="fas fa-eye text-[10px] text-satinGold opacity-50"></i>
-                        <span class="text-[9px] font-bold opacity-40 uppercase">Toque para detalhar</span>
+                        <i class="fas fa-info-circle text-[10px] text-satinGold opacity-50"></i>
+                        <span class="text-[9px] font-bold opacity-40 uppercase">${proc.obs || "Sem observações adicionais"}</span>
                     </div>
                 </div>
             `).join('');
 
-            // Eventos de toque/clique — sem onclick inline
             document.querySelectorAll('.process-card').forEach(card => {
                 let touchMoved = false;
                 card.addEventListener('touchstart', () => { touchMoved = false; }, { passive: true });
@@ -232,7 +242,6 @@
                     selectProcess(toStr(globalData[0].id));
                 }, 150);
             } else {
-                // Pequeno delay para garantir que o DOM está pronto
                 setTimeout(() => { selectProcess(toStr(globalData[0].id)); }, 50);
             }
 
@@ -285,43 +294,33 @@
         }
 
         function selectProcess(id) {
-            // Garante comparação como string — resolve bug quando API retorna id numérico
             const idStr = toStr(id);
             const proc = globalData.find(p => toStr(p.id) === idStr);
 
-            if (!proc) {
-                console.warn('selectProcess: processo não encontrado para id =', id, '| ids disponíveis:', globalData.map(p => p.id));
-                return;
-            }
+            if (!proc) return;
 
-            // Atualiza nome
             document.getElementById('client-name-display').innerText = proc.cliente || "Usuário";
 
-            // Ativa cards com esse id (pode haver 3 cópias no loop)
             document.querySelectorAll('.process-card').forEach(card => {
                 card.classList.toggle('active', card.getAttribute('data-id') === idStr);
             });
 
-            // Atualiza dots
             const actualIndex = globalData.findIndex(p => toStr(p.id) === idStr);
             document.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i === actualIndex));
 
-            // Status e eventos
             const lastEvent = proc.atualizacoes[proc.atualizacoes.length - 1] || { status: "Nenhum" };
             document.getElementById('current-status-text').innerText = lastEvent.status;
             document.getElementById('event-count').innerText = proc.atualizacoes.length;
 
-            // Progresso circular
             const progressValue = Math.min(proc.atualizacoes.length * 20, 100);
             const offset = (2 * Math.PI * 28) * (1 - progressValue / 100);
             document.getElementById('progress-circle').style.strokeDashoffset = offset;
             document.getElementById('progress-percentage').innerText = progressValue + '%';
 
-            // Timeline
             document.getElementById('timeline-container').innerHTML = [...proc.atualizacoes].reverse().map((ev, i) => `
                 <div class="timeline-item relative bg-white dark:bg-zinc-900 p-6 rounded-[2rem] border border-satinGold/10 shadow-sm" style="animation-delay:${i * 0.1}s">
                     <div class="absolute -left-[41px] top-1/2 -translate-y-1/2 w-4 h-4 rounded-full gold-gradient border-4 border-pearl dark:border-softBlack shadow-sm"></div>
-                    <p class="text-[9px] font-bold text-satinGold uppercase mb-1 tracking-widest">${ev.data}</p>
+                    <p class="text-[9px] font-bold text-satinGold uppercase mb-1 tracking-widest">${formatDateOnly(ev.data)}</p>
                     <h5 class="font-serif font-bold text-darkGold text-base mb-2 uppercase">${ev.status}</h5>
                     <p class="text-xs opacity-70 leading-relaxed font-medium">${ev.descricao || "Sem descrição."}</p>
                 </div>
