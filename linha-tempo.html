@@ -4,85 +4,54 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Minha Linha do Tempo | Gestão Jurídica</title>
-    
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
-    
     <script>
         tailwind.config = {
             darkMode: 'class',
             theme: {
                 extend: {
-                    colors: {
-                        pearl: '#FDFCF8',
-                        softBlack: '#1A1A1A',
-                        satinGold: '#C5A059',
-                        darkGold: '#A37E3B'
-                    },
-                    fontFamily: {
-                        serif: ['Cinzel', 'serif'],
-                        sans: ['Montserrat', 'sans-serif']
-                    }
+                    colors: { pearl: '#FDFCF8', softBlack: '#1A1A1A', satinGold: '#C5A059', darkGold: '#A37E3B' },
+                    fontFamily: { serif: ['Cinzel', 'serif'], sans: ['Montserrat', 'sans-serif'] }
                 }
             }
         }
-
         if (localStorage.getItem('ADV_GLOBAL_THEME') === 'dark') {
             document.documentElement.classList.add('dark');
         } else {
             document.documentElement.classList.add('light');
         }
     </script>
-
     <style>
         body { -webkit-user-select: none; user-select: none; scroll-behavior: smooth; }
         .gold-gradient { background: linear-gradient(135deg, #C5A059 0%, #A37E3B 100%); }
-        .gold-text-gradient { background: linear-gradient(135deg, #C5A059 0%, #A37E3B 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        
         #process-carousel {
-            display: flex;
-            overflow-x: auto;
-            scroll-snap-type: x mandatory;
-            gap: 16px;
-            padding: 10px 0 10px 0;
-            scrollbar-width: none;
-            justify-content: flex-start;
-            cursor: grab;
+            display: flex; overflow-x: auto; scroll-snap-type: x mandatory;
+            gap: 16px; padding: 10px 0; scrollbar-width: none;
+            justify-content: flex-start; cursor: grab;
         }
         #process-carousel:active { cursor: grabbing; }
         #process-carousel::-webkit-scrollbar { display: none; }
-        
         .process-card {
-            flex: 0 0 85%;
-            scroll-snap-align: center;
+            flex: 0 0 85%; scroll-snap-align: center;
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            border: 2px solid transparent;
-            pointer-events: auto !important;
+            border: 2px solid transparent; pointer-events: auto !important;
         }
         .process-card.active {
-            border-color: #C5A059;
-            transform: scale(1.02);
-            box-shadow: 0 20px 25px -5px rgba(197, 160, 89, 0.15);
+            border-color: #C5A059; transform: scale(1.02);
+            box-shadow: 0 20px 25px -5px rgba(197,160,89,0.15);
         }
-
         .timeline-item { animation: fadeInUp 0.5s ease forwards; opacity: 0; }
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
+        @keyframes fadeInUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
         .loader { border: 3px solid #f3f3f3; border-top: 3px solid #C5A059; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        
+        @keyframes spin { 0% { transform:rotate(0deg); } 100% { transform:rotate(360deg); } }
         ::-webkit-scrollbar { width: 5px; }
         ::-webkit-scrollbar-thumb { background: #C5A059; border-radius: 10px; }
-
-        .dot { width: 8px; height: 8px; border-radius: 50%; background-color: #C5A059; opacity: 0.3; transition: opacity 0.3s; }
-        .dot.active { opacity: 1; transform: scale(1.2); }
+        .dot { width:8px; height:8px; border-radius:50%; background-color:#C5A059; opacity:0.3; transition:opacity 0.3s; }
+        .dot.active { opacity:1; transform:scale(1.2); }
     </style>
 </head>
-
 <body class="bg-pearl dark:bg-softBlack text-softBlack dark:text-pearl min-h-screen font-sans transition-colors duration-300">
 
     <div id="globalLoader" class="fixed inset-0 z-[200] flex items-center justify-center bg-pearl/60 dark:bg-softBlack/60 backdrop-blur-md">
@@ -110,21 +79,16 @@
     </header>
 
     <main class="pt-24 pb-20 px-4 max-w-lg mx-auto">
-        
         <section class="mb-6 animate-pulse text-center">
             <p class="text-[10px] font-bold text-satinGold uppercase tracking-[0.3em] mb-1">Bem-vindo(a)</p>
-            <h2 id="client-name-display" class="font-serif text-xl font-bold text-darkGold uppercase">
-                Carregando...
-            </h2>
+            <h2 id="client-name-display" class="font-serif text-xl font-bold text-darkGold uppercase">Carregando...</h2>
         </section>
-        
         <section class="mb-8 mt-4 text-center">
             <h2 class="font-serif text-3xl font-bold text-darkGold uppercase tracking-tighter">Linha do Tempo</h2>
             <div class="w-12 h-1 gold-gradient mx-auto mt-2 rounded-full opacity-50"></div>
         </section>
 
         <div id="process-carousel" class="mb-2"></div>
-        
         <div id="carousel-dots" class="flex justify-center gap-2 mb-6"></div>
 
         <div class="grid grid-cols-2 gap-4 mb-10">
@@ -135,24 +99,22 @@
                 </div>
                 <h3 id="current-status-text" class="font-serif text-lg text-darkGold font-bold uppercase leading-tight">Carregando...</h3>
             </div>
-
             <div class="bg-white dark:bg-zinc-900 p-5 rounded-[2rem] border border-satinGold/10 shadow-sm">
                 <p class="text-[9px] font-bold text-satinGold uppercase tracking-widest mb-3 text-center">Progresso</p>
                 <div class="relative h-16 w-16 mx-auto flex items-center justify-center">
                     <svg class="w-full h-full transform -rotate-90">
-                        <circle cx="32" cy="32" r="28" stroke="currentColor" stroke-width="4" fill="transparent" class="text-gray-100 dark:text-zinc-800" />
-                        <circle id="progress-circle" cx="32" cy="32" r="28" stroke="url(#goldGradient)" stroke-width="4" fill="transparent" stroke-dasharray="175.9" stroke-dashoffset="175.9" class="transition-all duration-1000 ease-out" />
+                        <circle cx="32" cy="32" r="28" stroke="currentColor" stroke-width="4" fill="transparent" class="text-gray-100 dark:text-zinc-800"/>
+                        <circle id="progress-circle" cx="32" cy="32" r="28" stroke="url(#goldGradient)" stroke-width="4" fill="transparent" stroke-dasharray="175.9" stroke-dashoffset="175.9" class="transition-all duration-1000 ease-out"/>
                         <defs>
                             <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                                <stop offset="0%" stop-color="#C5A059" />
-                                <stop offset="100%" stop-color="#A37E3B" />
+                                <stop offset="0%" stop-color="#C5A059"/>
+                                <stop offset="100%" stop-color="#A37E3B"/>
                             </linearGradient>
                         </defs>
                     </svg>
                     <span id="progress-percentage" class="absolute font-bold text-[11px]">0%</span>
                 </div>
             </div>
-
             <div class="bg-white dark:bg-zinc-900 p-5 rounded-[2rem] border border-satinGold/10 shadow-sm flex flex-col justify-center items-center">
                 <p class="text-[9px] font-bold text-satinGold uppercase tracking-widest mb-1">Eventos</p>
                 <span id="event-count" class="font-serif text-3xl font-bold text-darkGold">0</span>
@@ -161,50 +123,44 @@
         </div>
 
         <div id="timeline-container" class="relative border-l-2 border-satinGold/20 ml-3 pl-8 space-y-8"></div>
-
     </main>
 
     <script>
-        const WEB_APP_URL = "https://api-advogada.siterefrigeracaoeliezer.workers.dev/api/v1"; 
+        const WEB_APP_URL = "https://api-advogada.siterefrigeracaoeliezer.workers.dev/api/v1";
         const MASTER_API_KEY = "Adv_Seguro_2026_##";
         let globalData = [];
         let isLooping = false;
+        let scrollLocked = false;
+
+        // Converte qualquer valor para string para comparação segura
+        function toStr(val) { return String(val); }
 
         async function init() {
             const email = localStorage.getItem('ADV_USER_EMAIL');
-            
             try {
                 const res = await fetch(WEB_APP_URL, {
                     method: 'POST',
-                    body: JSON.stringify({
-                        api_key: MASTER_API_KEY,
-                        action: 'timeline',
-                        email: email
-                    })
+                    body: JSON.stringify({ api_key: MASTER_API_KEY, action: 'timeline', email: email })
                 });
-                
                 const data = await res.json();
                 globalData = data;
-                
-                if(globalData.length > 0) {
+                if (globalData.length > 0) {
                     renderCarousel();
-                    selectProcess(globalData[0].id, isLooping ? globalData.length : 0);
                 } else {
                     document.getElementById('client-name-display').innerText = "Nenhum processo encontrado";
                     document.getElementById('current-status-text').innerText = "Sem dados";
                 }
-
             } catch (error) {
                 console.error("Erro ao buscar dados:", error);
-                const mockFallback = [
+                globalData = [
                     {
                         id: "001",
                         cliente: "Teste de Nome Longo para Visualização do Cliente",
                         numero_processo: "1234567-89.2026.8.00.0001",
                         tipo_acao: "Direito Civil",
                         atualizacoes: [
-                            { data: "22/04/2026", status: "Petição inicial protocolada", descricao: "Descrição de teste para visualização do card." },
-                            { data: "23/04/2026", status: "Despacho do juiz", descricao: "Outra descrição de teste para visualização." }
+                            { data: "22/04/2026", status: "Petição inicial protocolada", descricao: "Descrição de teste." },
+                            { data: "23/04/2026", status: "Despacho do juiz", descricao: "Outra descrição de teste." }
                         ]
                     },
                     {
@@ -213,24 +169,20 @@
                         numero_processo: "9876543-21.2026.8.00.0002",
                         tipo_acao: "Direito do Trabalho",
                         atualizacoes: [
-                            { data: "21/04/2026", status: "Fase de execução", descricao: "Descrição de teste para visualização do card." }
+                            { data: "21/04/2026", status: "Fase de execução", descricao: "Descrição de teste." }
                         ]
                     }
                 ];
-                globalData = mockFallback;
                 renderCarousel();
-                selectProcess(globalData[0].id, isLooping ? globalData.length : 0);
             } finally {
-                setTimeout(() => {
-                    document.getElementById('globalLoader').style.display = 'none';
-                }, 800);
+                setTimeout(() => { document.getElementById('globalLoader').style.display = 'none'; }, 800);
             }
         }
 
         function renderCarousel() {
             const carousel = document.getElementById('process-carousel');
             const dotsContainer = document.getElementById('carousel-dots');
-            
+
             let displayData = [...globalData];
             if (globalData.length > 1) {
                 displayData = [...globalData, ...globalData, ...globalData];
@@ -242,8 +194,8 @@
             }
 
             carousel.innerHTML = displayData.map((proc, index) => `
-                <div class="process-card bg-white dark:bg-zinc-900 p-6 rounded-[2.5rem] shadow-md cursor-pointer" 
-                     data-id="${proc.id}" data-index="${index}" id="card-idx-${index}" onclick="selectProcess('${proc.id}', ${index})">
+                <div class="process-card bg-white dark:bg-zinc-900 p-6 rounded-[2.5rem] shadow-md cursor-pointer"
+                     data-id="${toStr(proc.id)}" id="card-idx-${index}">
                     <p class="text-[9px] font-bold text-satinGold uppercase tracking-widest">${proc.tipo_acao}</p>
                     <h4 class="font-serif font-bold text-darkGold text-sm mt-1 truncate">${proc.numero_processo}</h4>
                     <div class="flex items-center gap-2 mt-4">
@@ -253,148 +205,138 @@
                 </div>
             `).join('');
 
+            // Eventos de toque/clique — sem onclick inline
+            document.querySelectorAll('.process-card').forEach(card => {
+                let touchMoved = false;
+                card.addEventListener('touchstart', () => { touchMoved = false; }, { passive: true });
+                card.addEventListener('touchmove', () => { touchMoved = true; }, { passive: true });
+                card.addEventListener('touchend', (e) => {
+                    if (!touchMoved) {
+                        e.preventDefault();
+                        selectProcess(card.getAttribute('data-id'));
+                    }
+                });
+                card.addEventListener('click', () => {
+                    selectProcess(card.getAttribute('data-id'));
+                });
+            });
+
             dotsContainer.innerHTML = globalData.map((_, i) => `<div class="dot" id="dot-${i}"></div>`).join('');
 
             if (isLooping) {
+                scrollLocked = true;
                 const cardWidth = carousel.offsetWidth * 0.85 + 16;
-                const centerOffset = globalData.length * cardWidth;
-                carousel.scrollLeft = centerOffset;
+                carousel.scrollLeft = globalData.length * cardWidth;
+                setTimeout(() => {
+                    scrollLocked = false;
+                    selectProcess(toStr(globalData[0].id));
+                }, 150);
+            } else {
+                // Pequeno delay para garantir que o DOM está pronto
+                setTimeout(() => { selectProcess(toStr(globalData[0].id)); }, 50);
             }
 
             setupDraggableCarousel(carousel);
-            setupCarouselObserver(carousel);
+            setupCarouselScroll(carousel);
         }
 
-        function setupCarouselObserver(carousel) {
-            const options = {
-                root: carousel,
-                threshold: 0.6
-            };
-
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        const id = entry.target.getAttribute('data-id');
-                        const index = entry.target.getAttribute('data-index');
-                        selectProcess(id, index);
-                    }
-                });
-            }, options);
-
-            document.querySelectorAll('.process-card').forEach(card => observer.observe(card));
-
+        function setupCarouselScroll(carousel) {
+            let scrollTimer = null;
             carousel.addEventListener('scroll', () => {
-                if (!isLooping) return;
-                const scrollLeft = carousel.scrollLeft;
-                const cardWidth = document.querySelector('.process-card').offsetWidth + 16;
-                const totalWidth = globalData.length * cardWidth;
-
-                if (scrollLeft <= 0) {
-                    carousel.scrollLeft = totalWidth;
-                } else if (scrollLeft >= carousel.scrollWidth - carousel.offsetWidth) {
-                    carousel.scrollLeft = carousel.scrollWidth - carousel.offsetWidth - totalWidth;
-                }
-            });
-
-            carousel.addEventListener('scroll', () => {
-                const cards = document.querySelectorAll('.process-card');
-                let closest = null;
-                let closestOffset = Infinity;
-
-                cards.forEach(card => {
-                    const rect = card.getBoundingClientRect();
-                    const center = window.innerWidth / 2;
-                    const offset = Math.abs(rect.left + rect.width / 2 - center);
-
-                    if (offset < closestOffset) {
-                        closestOffset = offset;
-                        closest = card;
+                if (scrollLocked) return;
+                if (isLooping) {
+                    const cardWidth = document.querySelector('.process-card').offsetWidth + 16;
+                    const totalWidth = globalData.length * cardWidth;
+                    if (carousel.scrollLeft <= 0) {
+                        carousel.scrollLeft = totalWidth;
+                    } else if (carousel.scrollLeft >= carousel.scrollWidth - carousel.offsetWidth) {
+                        carousel.scrollLeft = carousel.scrollWidth - carousel.offsetWidth - totalWidth;
                     }
-                });
-
-                if (closest) {
-                    const id = closest.getAttribute('data-id');
-                    const index = closest.getAttribute('data-index');
-                    selectProcess(id, index);
                 }
+                clearTimeout(scrollTimer);
+                scrollTimer = setTimeout(() => {
+                    if (scrollLocked) return;
+                    let closestCard = null;
+                    let closestOffset = Infinity;
+                    document.querySelectorAll('.process-card').forEach(card => {
+                        const rect = card.getBoundingClientRect();
+                        const offset = Math.abs(rect.left + rect.width / 2 - window.innerWidth / 2);
+                        if (offset < closestOffset) { closestOffset = offset; closestCard = card; }
+                    });
+                    if (closestCard) selectProcess(closestCard.getAttribute('data-id'));
+                }, 80);
             });
         }
 
         function setupDraggableCarousel(slider) {
-            let isDown = false;
-            let startX;
-            let scrollLeft;
-
+            let isDown = false, startX, scrollLeft;
             slider.addEventListener('mousedown', (e) => {
                 isDown = true;
-                slider.classList.add('active');
                 startX = e.pageX - slider.offsetLeft;
                 scrollLeft = slider.scrollLeft;
             });
-            slider.addEventListener('mouseleave', () => {
-                isDown = false;
-            });
-            slider.addEventListener('mouseup', () => {
-                isDown = false;
-            });
+            slider.addEventListener('mouseleave', () => { isDown = false; });
+            slider.addEventListener('mouseup', () => { isDown = false; });
             slider.addEventListener('mousemove', (e) => {
                 if (!isDown) return;
-                e.preventDefault();
-                const x = e.pageX - slider.offsetLeft;
-                const walk = (x - startX) * 1;
-                slider.scrollLeft = scrollLeft - walk;
+                const walk = e.pageX - slider.offsetLeft - startX;
+                if (Math.abs(walk) > 5) { e.preventDefault(); slider.scrollLeft = scrollLeft - walk; }
             });
         }
 
-        function selectProcess(id, elementIndex) {
-            const proc = globalData.find(p => p.id === id);
-            if(!proc) return;
+        function selectProcess(id) {
+            // Garante comparação como string — resolve bug quando API retorna id numérico
+            const idStr = toStr(id);
+            const proc = globalData.find(p => toStr(p.id) === idStr);
 
+            if (!proc) {
+                console.warn('selectProcess: processo não encontrado para id =', id, '| ids disponíveis:', globalData.map(p => p.id));
+                return;
+            }
+
+            // Atualiza nome
             document.getElementById('client-name-display').innerText = proc.cliente || "Usuário";
-            
-            document.querySelectorAll('.process-card').forEach(c => c.classList.remove('active'));
-            const selectedCard = document.getElementById(`card-idx-${elementIndex}`);
-            if(selectedCard) selectedCard.classList.add('active');
 
-            const actualIndex = elementIndex % globalData.length;
-            document.querySelectorAll('.dot').forEach((d, i) => {
-                d.classList.toggle('active', i === actualIndex);
+            // Ativa cards com esse id (pode haver 3 cópias no loop)
+            document.querySelectorAll('.process-card').forEach(card => {
+                card.classList.toggle('active', card.getAttribute('data-id') === idStr);
             });
 
-            const lastEvent = proc.atualizacoes[proc.atualizacoes.length - 1] || { status: "Nenhum", descricao: "Nenhuma descrição disponível" };
+            // Atualiza dots
+            const actualIndex = globalData.findIndex(p => toStr(p.id) === idStr);
+            document.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i === actualIndex));
+
+            // Status e eventos
+            const lastEvent = proc.atualizacoes[proc.atualizacoes.length - 1] || { status: "Nenhum" };
             document.getElementById('current-status-text').innerText = lastEvent.status;
             document.getElementById('event-count').innerText = proc.atualizacoes.length;
-            
-            const progressValue = proc.atualizacoes.length > 0 ? Math.min(proc.atualizacoes.length * 20, 100) : 0;
-            const circle = document.getElementById('progress-circle');
-            const pctText = document.getElementById('progress-percentage');
-            const radius = 28;
-            const circumference = 2 * Math.PI * radius;
-            const offset = circumference - (progressValue / 100) * circumference;
-            circle.style.strokeDashoffset = offset;
-            pctText.innerText = progressValue + '%';
 
-            const timeline = document.getElementById('timeline-container');
-            timeline.innerHTML = [...proc.atualizacoes].reverse().map((ev, index) => `
-                <div class="timeline-item relative bg-white dark:bg-zinc-900 p-6 rounded-[2rem] border border-satinGold/10 shadow-sm" style="animation-delay: ${index * 0.1}s">
+            // Progresso circular
+            const progressValue = Math.min(proc.atualizacoes.length * 20, 100);
+            const offset = (2 * Math.PI * 28) * (1 - progressValue / 100);
+            document.getElementById('progress-circle').style.strokeDashoffset = offset;
+            document.getElementById('progress-percentage').innerText = progressValue + '%';
+
+            // Timeline
+            document.getElementById('timeline-container').innerHTML = [...proc.atualizacoes].reverse().map((ev, i) => `
+                <div class="timeline-item relative bg-white dark:bg-zinc-900 p-6 rounded-[2rem] border border-satinGold/10 shadow-sm" style="animation-delay:${i * 0.1}s">
                     <div class="absolute -left-[41px] top-1/2 -translate-y-1/2 w-4 h-4 rounded-full gold-gradient border-4 border-pearl dark:border-softBlack shadow-sm"></div>
                     <p class="text-[9px] font-bold text-satinGold uppercase mb-1 tracking-widest">${ev.data}</p>
                     <h5 class="font-serif font-bold text-darkGold text-base mb-2 uppercase">${ev.status}</h5>
-                    <p class="text-xs opacity-70 leading-relaxed font-medium">${ev.descricao || "Descrição de teste para visualização do card."}</p>
+                    <p class="text-xs opacity-70 leading-relaxed font-medium">${ev.descricao || "Sem descrição."}</p>
                 </div>
             `).join('');
         }
 
         function toggleDarkMode() {
             const isDark = document.documentElement.classList.toggle('dark');
-            const themeIcon = document.getElementById('themeIcon');
             localStorage.setItem('ADV_GLOBAL_THEME', isDark ? 'dark' : 'light');
-            themeIcon.classList.replace(isDark ? 'fa-moon' : 'fa-sun', isDark ? 'fa-sun' : 'fa-moon');
+            document.getElementById('themeIcon').classList.replace(isDark ? 'fa-moon' : 'fa-sun', isDark ? 'fa-sun' : 'fa-moon');
         }
 
         document.addEventListener('contextmenu', e => e.preventDefault());
         document.addEventListener('keydown', e => {
-            if (e.key === "F12" || (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J" || e.key === "C"))) e.preventDefault();
+            if (e.key === "F12" || (e.ctrlKey && e.shiftKey && ["I","J","C"].includes(e.key))) e.preventDefault();
         });
 
         window.onload = init;
