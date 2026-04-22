@@ -165,7 +165,7 @@
     </main>
 
     <script>
-        const WEB_APP_URL = "https://api-advogada.siterefrigeracaoeliezer.workers.dev/api/v1"; 
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycby0i_SRE0F5z73Yj0NfI2Uu5u6z9G5g6v7B8N9M0L1K2J3I4H5G6F7E8D9C0B1A2/exec"; 
         const MASTER_API_KEY = "Adv_Seguro_2026_##";
         let globalData = [];
         let isLooping = false;
@@ -177,6 +177,7 @@
             try {
                 const res = await fetch(WEB_APP_URL, {
                     method: 'POST',
+                    mode: 'no-cors',
                     body: JSON.stringify({
                         api_key: MASTER_API_KEY,
                         action: 'timeline',
@@ -199,9 +200,9 @@
                 const mockFallback = [
                     {
                         id: "001",
-                        cliente: "Falha na sincronização",
-                        numero_processo: "0000000-00.0000.0.00.0000",
-                        tipo_acao: "Falha na sincronização",
+                        cliente: "Nome do Cliente 01",
+                        numero_processo: "1234567-89.2026.8.00.0001",
+                        tipo_acao: "Direito Civil",
                         atualizacoes: [
                             { data: "22/04/2026", status: "Petição inicial protocolada", descricao: "Ação distribuída com sucesso no tribunal." },
                             { data: "23/04/2026", status: "Despacho do juiz", descricao: "O juiz analisou o pedido liminar." }
@@ -209,7 +210,7 @@
                     },
                     {
                         id: "002",
-                        cliente: "Cliente Teste Loop",
+                        cliente: "Nome do Cliente 02",
                         numero_processo: "9876543-21.2026.8.00.0002",
                         tipo_acao: "Direito do Trabalho",
                         atualizacoes: [
@@ -278,7 +279,7 @@
                 clearTimeout(scrollTimeout);
                 scrollTimeout = setTimeout(() => {
                     updateActiveFromScroll(carousel);
-                }, 80ms);
+                }, 80);
             });
 
             updateActiveFromScroll(carousel);
