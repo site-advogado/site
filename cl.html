@@ -108,6 +108,12 @@
 
     <main class="pt-24 pb-20 px-4 max-w-lg mx-auto">
         
+        <section class="mb-6 text-center">
+            <h2 id="client-name-display" class="font-serif text-2xl font-bold text-darkGold uppercase">
+                Carregando...
+            </h2>
+        </section>
+        
         <section class="mb-8 mt-4 text-center">
             <h2 class="font-serif text-3xl font-bold text-darkGold uppercase tracking-tighter">Linha do Tempo</h2>
             <div class="w-12 h-1 gold-gradient mx-auto mt-2 rounded-full opacity-50"></div>
@@ -159,6 +165,7 @@
         const mockData = [
             {
                 id: "001",
+                cliente: "Marcos Oliveira",
                 numero: "5001234-88.2026.8.12.0001",
                 tipo: "Direito Trabalhista",
                 progresso: 75,
@@ -170,6 +177,7 @@
             },
             {
                 id: "002",
+                cliente: "Marcos Oliveira",
                 numero: "0800992-12.2025.8.12.0001",
                 tipo: "Direito do Consumidor",
                 progresso: 15,
@@ -206,6 +214,8 @@
 
         function selectProcess(id) {
             const proc = mockData.find(p => p.id === id);
+            
+            document.getElementById('client-name-display').innerText = proc.cliente;
             
             // UI Update - Cards
             document.querySelectorAll('.process-card').forEach(c => c.classList.remove('active'));
