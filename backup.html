@@ -208,9 +208,9 @@
 </div>
 
 <div id="modal-confirm" class="fixed inset-0 z-[200] hidden flex items-center justify-center p-4 modal-blur bg-black/80">
-    <div class="bg-pearl dark:bg-zinc-900 w-full max-sm p-8 rounded-[30px] border-2 border-satinGold text-center shadow-2xl">
+    <div class="bg-pearl dark:bg-zinc-900 w-full max-w-sm p-8 rounded-[30px] border-2 border-satinGold text-center shadow-2xl">
         <div class="w-16 h-16 gold-gradient rounded-full flex items-center justify-center text-white text-2xl mx-auto mb-4"><i class="fas fa-question"></i></div>
-        <h3 class="font-serif text-xl text-darkGold mb-2 uppercase">Confirmar?</h3>
+        <h3 class="font-serif text-xl text-darkGold mb-2 uppercase tracking-widest">Confirmar?</h3>
         <p class="text-sm opacity-70 mb-8 font-sans text-center">Deseja aplicar estas alterações?</p>
         <div class="flex gap-3">
             <button onclick="closeModal('modal-confirm')" class="flex-1 py-3 text-xs font-bold uppercase opacity-50">Não</button>
@@ -220,7 +220,7 @@
 </div>
 
 <div id="modal-delete-confirm" class="fixed inset-0 z-[250] hidden flex items-center justify-center p-4 modal-blur bg-black/80">
-    <div class="bg-pearl dark:bg-zinc-900 w-full max-sm p-8 rounded-[30px] border-2 border-satinGold text-center shadow-2xl">
+    <div class="bg-pearl dark:bg-zinc-900 w-full max-w-sm p-8 rounded-[30px] border-2 border-satinGold text-center shadow-2xl">
         <div class="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center text-white text-2xl mx-auto mb-4 shadow-lg"><i class="fas fa-exclamation-triangle"></i></div>
         <h3 class="font-serif text-xl text-red-600 mb-2 uppercase font-bold tracking-widest">ATENÇÃO!</h3>
         <p class="text-sm opacity-80 mb-8 font-sans text-center text-softBlack dark:text-pearl/70">Irá apagar <b>todas as informações</b> do cliente dentro do sistema permanentemente. Deseja continuar?</p>
@@ -232,7 +232,7 @@
 </div>
 
 <div id="modal-success" class="fixed inset-0 z-[300] hidden flex items-center justify-center p-4 modal-blur bg-black/60">
-    <div class="bg-pearl dark:bg-zinc-900 w-full max-sm p-10 rounded-[30px] border-2 border-satinGold text-center shadow-2xl">
+    <div class="bg-pearl dark:bg-zinc-900 w-full max-w-sm p-10 rounded-[30px] border-2 border-satinGold text-center shadow-2xl">
         <div class="w-20 h-20 gold-gradient rounded-full flex items-center justify-center text-white text-3xl mx-auto mb-6 shadow-lg"><i class="fas fa-check"></i></div>
         <h3 class="font-serif text-2xl text-darkGold mb-2 uppercase font-bold tracking-widest">Sucesso!</h3>
         <p class="text-sm opacity-80 mb-10 font-sans">Dados processados com sucesso.</p>
@@ -250,17 +250,17 @@ const MASTER_KEY = "Adv_Seguro_2026_##";
 let dbClients = [];
 let currentClientID = "";
 
-// Configurações de áreas
 const AREAS_DIREITO = [
-    "Direito da Família (Divórcios, Pensão, Guarda)",
-    "Direito Previdenciário (Aposentadoria, Auxílio-Doença, INSS)",
-    "Direito do Consumidor (Ações contra bancos, empresas de telefonia, indenizações)",
-    "Direito Imobiliário (Contratos, Reintegração de posse, Usucapião)",
-    "Direito Tributário (Impostos, Defesas fiscais)",
+    "Direito Trabalhista",
+    "Direito da Família",
+    "Direito Previdenciário",
+    "Direito do Consumidor",
+    "Direito Imobiliário",
+    "Direito Tributário",
     "Direito Penal / Criminal",
-    "Direito Sucessório (Inventários, Testamentos)",
-    "Direito Digital (LGPD, Crimes virtuais)",
-    "Direito Empresarial (Contratos sociais, Falências)"
+    "Direito Sucessório",
+    "Direito Digital",
+    "Direito Empresarial"
 ];
 
 function showSinc() { document.getElementById('globalLoader').classList.replace('hidden', 'flex'); }
@@ -306,9 +306,7 @@ function updateModalAreaSelect() {
     const checks = document.querySelectorAll('.settings-area-check:checked');
     const select = document.getElementById('c-tipo-acao');
     const visibleAreas = Array.from(checks).map(c => c.value);
-    
     localStorage.setItem('ADV_VISIBLE_AREAS', JSON.stringify(visibleAreas));
-    
     select.innerHTML = visibleAreas.map(area => `<option value="${area}">${area}</option>`).join('');
 }
 
@@ -338,7 +336,7 @@ function openModalNovoCliente() {
     document.getElementById('a-status').value = "Petição Inicial Protocolada"; 
     document.getElementById('a-desc').value = "";
     document.getElementById('c-notificar').checked = true;
-    updateModalAreaSelect(); // Atualiza a lista baseada nas preferências do perfil
+    updateModalAreaSelect(); 
     openModal('modal-client');
 }
 
@@ -399,7 +397,6 @@ async function saveNewClient() {
     } catch(e) { console.error(e); } finally { hideSinc(); }
 }
 
-// ... manter funções auxiliares (switchTab, openModal, closeModal, etc) iguaizinhos ...
 function openEditClient(id) {
     const c = dbClients.find(x => x.id == id);
     if(!c) return;
@@ -464,7 +461,7 @@ async function deleteClient(id) {
 
 async function saveProfileData() {
     showSinc();
-    updateModalAreaSelect(); // Salva as áreas visíveis nas preferências
+    updateModalAreaSelect(); 
     const data = { 
         action: "save_profile", 
         api_key: MASTER_KEY, 
