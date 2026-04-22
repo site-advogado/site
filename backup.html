@@ -144,7 +144,13 @@ window.onload = () => {
 async function carregarTimeline() {
     showLoading();
     const token = sessionStorage.getItem('ADV_AUTH_SESS');
-    if (!token) { sairTimeline(); return; }
+    
+    // CORREÇÃO: Verificação flexível do token para evitar expulsão imediata
+    if (!token) { 
+        console.warn("Sessão não encontrada.");
+        sairTimeline(); 
+        return; 
+    }
 
     try {
         const response = await fetch(URL_SCRIPT, {
@@ -155,18 +161,28 @@ async function carregarTimeline() {
                 token: token
             })
         });
+        
         const data = await response.json();
         
-        if (data.status === "expirado") {
+        // CORREÇÃO: Trata o retorno "expirado" ou erro de acesso para redirecionar apenas em falha real
+        if (data.status === "expirado" || data.status === "erro") {
             sairTimeline();
-        } else {
+        } else if (Array.isArray(data)) {
             organizeData(data);
+        } else {
+             // Caso venha um objeto mas não seja erro
+             organizeData([data]);
         }
         
-    } catch (e) { sairTimeline(); } finally { hideLoading(); }
+    } catch (e) { 
+        console.error("Erro na requisição:", e);
+        sairTimeline(); 
+    } finally { hideLoading(); }
 }
 
 function organizeData(data) {
+    if(!data || data.length === 0) return;
+    
     allProcessData = data.reduce((acc, current) => {
         const procId = current.numero_processo || "Processo Geral";
         acc[procId] = current;
@@ -195,11 +211,11 @@ function renderCarousel() {
         card.onclick = () => switchProcess(procId);
         
         card.innerHTML = `
-            <p class="text-[9px] font-bold text-satinGold uppercase tracking-widest">${processo.tipo_acao}</p>
+            <p class="text-[9px] font-bold text-satinGold uppercase tracking-widest">${processo.tipo_acao || 'Ação Judicial'}</p>
             <h3 class="font-serif font-bold text-darkGold text-sm truncate uppercase mt-1">${procId}</h3>
             <div class="flex items-center gap-2 mt-2">
                 <span class="w-2 h-2 rounded-full bg-satinGold animate-pulse"></span>
-                <p class="text-[10px] font-semibold opacity-70 uppercase truncate">${ultimo.status}</p>
+                <p class="text-[10px] font-semibold opacity-70 uppercase truncate">${ultimo.status || 'Atualizando...'}</p>
             </div>
         `;
         carousel.appendChild(card);
@@ -239,11 +255,12 @@ function updateClientMetrics(eventos) {
     document.getElementById('total-updates').innerText = eventos.length;
 
     let progresso = 15;
-    if (statusText.toLowerCase().includes("citação")) progresso = 30;
-    if (statusText.toLowerCase().includes("audiência")) progresso = 50;
-    if (statusText.toLowerCase().includes("sentença")) progresso = 75;
-    if (statusText.toLowerCase().includes("execução") || statusText.toLowerCase().includes("cálculos")) progresso = 90;
-    if (statusText.toLowerCase().includes("finalizado") || statusText.toLowerCase().includes("arquivado")) progresso = 100;
+    const lowerStatus = statusText.toLowerCase();
+    if (lowerStatus.includes("citação")) progresso = 30;
+    if (lowerStatus.includes("audiência")) progresso = 50;
+    if (lowerStatus.includes("sentença")) progresso = 75;
+    if (lowerStatus.includes("execução") || lowerStatus.includes("cálculos")) progresso = 90;
+    if (lowerStatus.includes("finalizado") || lowerStatus.includes("arquivado")) progresso = 100;
 
     const bar = document.getElementById('progress-bar');
     const txt = document.getElementById('progress-text');
@@ -261,7 +278,7 @@ function renderTimeline(eventos) {
         container.innerHTML += `<div class="relative bg-white dark:bg-zinc-800 p-5 rounded-2xl shadow-md border-l-4 border-satinGold mb-4">
             <p class="text-[10px] font-bold text-satinGold uppercase mb-1">${ev.data || ''}</p>
             <h4 class="font-serif font-bold text-lg text-darkGold">${ev.status || ''}</h4>
-            <p class="text-sm opacity-80 mt-2">${ev.descricao || 'Detalhes da movimentação processual.'}</p>
+            <p class="text-sm opacity-80 mt-2">${ev.descricao || 'Informação processual registrada no sistema de acompanhamento.'}</p>
         </div>`;
     });
 }
