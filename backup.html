@@ -38,6 +38,8 @@
         .layout-list .client-card { padding: 1.5rem 2rem; }
         .layout-grid { grid-template-columns: repeat(1, minmax(0, 1fr)) !important; }
         @media (min-width: 768px) { .layout-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; } }
+        
+        #modal-success { transition: opacity 0.5s ease-out; }
     </style>
 </head>
 <body class="bg-pearl dark:bg-softBlack text-softBlack dark:text-pearl min-h-screen font-sans transition-colors duration-300">
@@ -90,7 +92,7 @@
             <div class="space-y-4">
                 <label class="text-xs font-bold text-satinGold uppercase tracking-widest">Áreas de Atuação (Seletor do Modal)</label>
                 <div id="settings-area-list" class="grid grid-cols-1 sm:grid-cols-2 gap-2 p-4 bg-gray-50 dark:bg-zinc-800 rounded-2xl border border-satinGold/10">
-                    </div>
+                </div>
             </div>
 
             <div class="pt-6 border-t border-satinGold/20">
@@ -139,7 +141,7 @@
             <div class="space-y-1">
                 <label class="text-[10px] font-bold text-satinGold uppercase">Tipo de Ação</label>
                 <select id="c-tipo-acao" class="w-full p-3 rounded-xl border border-satinGold/20 dark:bg-zinc-800 text-sm font-semibold">
-                    </select>
+                </select>
             </div>
             <div class="space-y-1">
                 <label class="text-[10px] font-bold text-satinGold uppercase">N. Processo (ID)</label>
@@ -208,7 +210,7 @@
 </div>
 
 <div id="modal-confirm" class="fixed inset-0 z-[200] hidden flex items-center justify-center p-4 modal-blur bg-black/80">
-    <div class="bg-pearl dark:bg-zinc-900 w-full max-w-sm p-8 rounded-[30px] border-2 border-satinGold text-center shadow-2xl">
+    <div class="bg-pearl dark:bg-zinc-900 w-full max-w-xs p-8 rounded-[30px] border-2 border-satinGold text-center shadow-2xl">
         <div class="w-16 h-16 gold-gradient rounded-full flex items-center justify-center text-white text-2xl mx-auto mb-4"><i class="fas fa-question"></i></div>
         <h3 class="font-serif text-xl text-darkGold mb-2 uppercase tracking-widest">Confirmar?</h3>
         <p class="text-sm opacity-70 mb-8 font-sans text-center">Deseja aplicar estas alterações?</p>
@@ -220,10 +222,10 @@
 </div>
 
 <div id="modal-delete-confirm" class="fixed inset-0 z-[250] hidden flex items-center justify-center p-4 modal-blur bg-black/80">
-    <div class="bg-pearl dark:bg-zinc-900 w-full max-w-sm p-8 rounded-[30px] border-2 border-satinGold text-center shadow-2xl">
+    <div class="bg-pearl dark:bg-zinc-900 w-full max-w-xs p-8 rounded-[30px] border-2 border-satinGold text-center shadow-2xl">
         <div class="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center text-white text-2xl mx-auto mb-4 shadow-lg"><i class="fas fa-exclamation-triangle"></i></div>
         <h3 class="font-serif text-xl text-red-600 mb-2 uppercase font-bold tracking-widest">ATENÇÃO!</h3>
-        <p class="text-sm opacity-80 mb-8 font-sans text-center text-softBlack dark:text-pearl/70">Irá apagar <b>todas as informações</b> do cliente dentro do sistema permanentemente. Deseja continuar?</p>
+        <p class="text-sm opacity-80 mb-8 font-sans text-center text-softBlack dark:text-pearl/70">Irá apagar todos os dados permanentemente.</p>
         <div class="flex gap-3">
             <button onclick="closeModal('modal-delete-confirm')" class="flex-1 py-3 text-xs font-bold uppercase opacity-50">Cancelar</button>
             <button id="btn-confirm-delete" class="flex-1 gold-gradient text-white py-3 rounded-xl text-xs font-bold uppercase shadow-lg">Sim, Excluir</button>
@@ -232,11 +234,10 @@
 </div>
 
 <div id="modal-success" class="fixed inset-0 z-[300] hidden flex items-center justify-center p-4 modal-blur bg-black/60">
-    <div class="bg-pearl dark:bg-zinc-900 w-full max-w-sm p-10 rounded-[30px] border-2 border-satinGold text-center shadow-2xl">
+    <div class="bg-pearl dark:bg-zinc-900 w-full max-w-xs p-10 rounded-[30px] border-2 border-satinGold text-center shadow-2xl">
         <div class="w-20 h-20 gold-gradient rounded-full flex items-center justify-center text-white text-3xl mx-auto mb-6 shadow-lg"><i class="fas fa-check"></i></div>
         <h3 class="font-serif text-2xl text-darkGold mb-2 uppercase font-bold tracking-widest">Sucesso!</h3>
-        <p class="text-sm opacity-80 mb-10 font-sans">Dados processados com sucesso.</p>
-        <button onclick="closeModal('modal-success')" class="w-full gold-gradient text-white py-4 rounded-xl text-xs font-bold uppercase tracking-widest shadow-md">Fechar</button>
+        <p class="text-sm opacity-80 font-sans">Dados processados com sucesso.</p>
     </div>
 </div>
 
@@ -320,6 +321,14 @@ function carregarPerfil() {
         document.getElementById('config-phone').value = data.phone || "";
         document.getElementById('config-email').value = data.email_advogada || ""; 
         document.getElementById('config-desc').value = data.desc || "";
+        
+        if(data.areas_visiveis) {
+           const visible = data.areas_visiveis.split('|');
+           document.querySelectorAll('.settings-area-check').forEach(ck => {
+               ck.checked = visible.includes(ck.value);
+           });
+           updateModalAreaSelect();
+        }
     }).finally(() => hideSinc());
 }
 
@@ -391,7 +400,7 @@ async function saveNewClient() {
         const result = await res.json();
         if(result.status === "ok") {
             closeModal('modal-client');
-            openModal('modal-success');
+            showQuickSuccess();
             carregarClientes();
         }
     } catch(e) { console.error(e); } finally { hideSinc(); }
@@ -440,7 +449,7 @@ async function updateExistingClient() {
         const result = await res.json();
         if(result.status === "ok") {
             closeModal('modal-edit-client');
-            openModal('modal-success');
+            showQuickSuccess();
             carregarClientes();
         }
     } catch(e) { console.error(e); } finally { hideSinc(); }
@@ -461,7 +470,7 @@ async function deleteClient(id) {
 
 async function saveProfileData() {
     showSinc();
-    updateModalAreaSelect(); 
+    const visible = Array.from(document.querySelectorAll('.settings-area-check:checked')).map(c => c.value).join('|');
     const data = { 
         action: "save_profile", 
         api_key: MASTER_KEY, 
@@ -472,12 +481,25 @@ async function saveProfileData() {
         email: document.getElementById('config-email').value, 
         desc: document.getElementById('config-desc').value, 
         new_pass: document.getElementById('config-pass').value, 
-        new_secret: document.getElementById('check-change-secret').checked ? document.getElementById('config-new-secret').value : null 
+        new_secret: document.getElementById('check-change-secret').checked ? document.getElementById('config-new-secret').value : null,
+        areas_visiveis: visible
     };
     try { 
         await fetch(URL_SCRIPT, { method: "POST", credentials: "include", body: JSON.stringify(data) }); 
-        openModal('modal-success'); 
+        showQuickSuccess(); 
     } catch(e) {} finally { hideSinc(); }
+}
+
+function showQuickSuccess() {
+    const modal = document.getElementById('modal-success');
+    modal.classList.replace('hidden', 'flex');
+    modal.style.opacity = '1';
+    setTimeout(() => {
+        modal.style.opacity = '0';
+        setTimeout(() => {
+            modal.classList.replace('flex', 'hidden');
+        }, 500);
+    }, 1000);
 }
 
 function filterClients() { renderClients(); }
