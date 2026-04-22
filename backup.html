@@ -145,7 +145,7 @@ async function carregarTimeline() {
     showLoading();
     const token = sessionStorage.getItem('ADV_AUTH_SESS');
     
-    // CORREÇÃO: Verificação flexível do token para evitar expulsão imediata
+    // CORREÇÃO DE COMUNICAÇÃO: O token é verificado conforme o sistema principal.
     if (!token) { 
         console.warn("Sessão não encontrada.");
         sairTimeline(); 
@@ -164,13 +164,11 @@ async function carregarTimeline() {
         
         const data = await response.json();
         
-        // CORREÇÃO: Trata o retorno "expirado" ou erro de acesso para redirecionar apenas em falha real
         if (data.status === "expirado" || data.status === "erro") {
             sairTimeline();
         } else if (Array.isArray(data)) {
             organizeData(data);
         } else {
-             // Caso venha um objeto mas não seja erro
              organizeData([data]);
         }
         
