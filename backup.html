@@ -19,7 +19,6 @@
     }
     </script>  
     <style>  
-        /* 🚫 PROTEÇÕES DE INTERFACE EXTREMAS */
         body { -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
         img { pointer-events: none !important; -webkit-user-drag: none !important; }
         .gold-gradient { background: linear-gradient(135deg, #C5A059 0%, #A37E3B 100%); }  
@@ -27,28 +26,9 @@
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: #C5A059; border-radius: 10px; }
-
-        /* Estilos Carrossel */
-        #process-carousel {
-            display: flex;
-            overflow-x: auto;
-            scroll-snap-type: x mandatory;
-            gap: 12px;
-            padding-bottom: 15px;
-            scrollbar-width: none;
-        }
-        #process-carousel::-webkit-scrollbar { display: none; }
-        .process-card {
-            flex: 0 0 85%;
-            scroll-snap-align: center;
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
-        }
-        .process-card.active { 
-            border-color: #C5A059; 
-            transform: scale(1.02);
-            box-shadow: 0 10px 15px -3px rgba(197, 160, 89, 0.2);
-        }
+        .carousel-container { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 16px; padding-bottom: 20px; scrollbar-width: none; }
+        .carousel-container::-webkit-scrollbar { display: none; }
+        .process-card { min-width: 85%; scroll-snap-align: center; }
     </style>
 </head>  
 
@@ -73,37 +53,30 @@
 </header>  
 
 <main class="pt-28 pb-12 px-4 max-w-lg mx-auto">  
-    <section class="text-center mb-6">
-        <h2 class="font-serif text-2xl font-bold text-darkGold uppercase tracking-tighter">Meus Processos</h2>
-        <p class="text-[10px] opacity-50 uppercase font-bold tracking-widest mt-1">Deslize para alternar entre as ações</p>
+    
+    <section id="carousel-section" class="mb-8 hidden">
+        <h3 class="font-serif text-sm font-bold text-darkGold uppercase mb-4 tracking-widest">Seus Processos</h3>
+        <div id="process-carousel" class="carousel-container"></div>
     </section>
 
-    <div id="process-carousel" class="mb-8"></div>
+    <section id="progress-section" class="mb-10 bg-white dark:bg-zinc-800 p-6 rounded-3xl shadow-lg border border-satinGold/10">
+        <div class="flex justify-between items-end mb-2">
+            <span class="text-[10px] font-bold uppercase tracking-widest text-satinGold">Progresso do Caso</span>
+            <span id="progress-percent" class="font-serif font-bold text-darkGold">0%</span>
+        </div>
+        <div class="w-full bg-gray-200 dark:bg-gray-700 h-2 rounded-full overflow-hidden">
+            <div id="progress-bar" class="gold-gradient h-full transition-all duration-1000" style="width: 0%"></div>
+        </div>
+        <p id="progress-label" class="text-[9px] mt-2 opacity-60 uppercase text-center">Analisando estágio atual...</p>
+    </section>
 
-    <div id="client-dashboard" class="grid grid-cols-2 gap-3 mb-10">
-        <div class="col-span-2 bg-white dark:bg-zinc-800 p-6 rounded-[2rem] border border-satinGold/20 shadow-sm text-center">
-            <p class="text-[10px] font-bold text-satinGold uppercase tracking-widest mb-1">Status Atual</p>
-            <h2 id="client-main-status" class="text-xl font-serif text-darkGold font-bold uppercase">Sincronizando...</h2>
-        </div>
-        <div class="bg-white dark:bg-zinc-800 p-4 rounded-[2rem] border border-satinGold/20 shadow-sm text-center">
-            <p class="text-[9px] font-bold text-satinGold uppercase tracking-widest mb-1">Fase do Caso</p>
-            <div class="w-full bg-gray-200 dark:bg-zinc-700 h-2 rounded-full mt-3 overflow-hidden">
-                <div id="progress-bar" class="gold-gradient h-full transition-all duration-1000" style="width: 0%"></div>
-            </div>
-            <p id="progress-text" class="text-[10px] mt-2 font-bold opacity-60">0%</p>
-        </div>
-        <div class="bg-white dark:bg-zinc-800 p-4 rounded-[2rem] border border-satinGold/20 shadow-sm text-center">
-            <p class="text-[9px] font-bold text-satinGold uppercase tracking-widest mb-1">Movimentações</p>
-            <h2 id="total-updates" class="text-2xl font-serif text-darkGold mt-1">0</h2>
-            <p class="text-[8px] opacity-50 uppercase font-bold">Eventos registrados</p>
-        </div>
-    </div>
-
+    <section class="text-center mb-10">
+        <h2 class="font-serif text-2xl font-bold text-darkGold uppercase tracking-tighter">Movimentações</h2>
+    </section>
     <div class="border-l-4 border-satinGold/30 pl-6 ml-2 space-y-8" id="timeline-content"></div>  
 </main>  
 
 <script>
-// 🚫 PROTEÇÕES DE INTERFACE SILENCIOSAS (ANTI-INSPEÇÃO)
 document.addEventListener('contextmenu', e => e.preventDefault());
 document.addEventListener('selectstart', e => e.preventDefault());
 document.addEventListener('keydown', function(e) {
@@ -115,19 +88,14 @@ document.addEventListener('keydown', function(e) {
 
 const URL_SCRIPT = "https://api-advogada.siterefrigeracaoeliezer.workers.dev/api/v1"; 
 
-// ✅ VERIFICAÇÃO DE ENTRADA
 if (!sessionStorage.getItem('ADV_AUTH_SESS')) {
     window.location.href = "index.html";
 }
-
-let allProcessData = {}; 
-let currentProcessId = "";
 
 function showLoading() { document.getElementById('globalLoader').style.display = 'flex'; }
 function hideLoading() { document.getElementById('globalLoader').style.display = 'none'; }
 
 window.onload = () => { 
-    // Aplicação persistente do tema
     const themeIcon = document.getElementById('themeIcon');
     if (localStorage.getItem('ADV_GLOBAL_THEME') === 'dark') {
         document.documentElement.classList.add('dark');
@@ -145,144 +113,96 @@ async function carregarTimeline() {
     try {
         const response = await fetch(URL_SCRIPT, {
             method: "POST", credentials: "include", headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ action: "timeline", ip: "0.0.0.0" })
+            body: JSON.stringify({ action: "timeline", token: sessionStorage.getItem('ADV_AUTH_SESS') })
         });
-        
         const data = await response.json();
-        
-        // Verifica se a resposta do servidor é válida antes de processar
-        if (data.status === "expirado") {
-            sairTimeline();
-        } else if (Array.isArray(data)) {
-            organizeData(data);
-        } else {
-            console.error("Dados inválidos recebidos");
-            // Se não houver dados válidos, apenas para o loading para evitar loop de expulsão
-            hideLoading();
+        if (data.status === "expirado") sairTimeline();
+        else {
+            renderCarousel(data);
+            renderTimeline(data);
+            updateClientMetrics(data);
         }
-    } catch (e) { 
-        console.error("Erro na requisição:", e);
-        hideLoading();
-    }
+    } catch (e) { sairTimeline(); } finally { hideLoading(); }
 }
 
-function organizeData(data) {
-    // Agrupa eventos processuais da Coluna H (Atualizacoes) por ID da Coluna A
-    allProcessData = data.reduce((acc, current) => {
-        const procId = current.id || "Processo Geral";
-        let eventos = [];
-        try {
-            eventos = typeof current.atualizacoes === 'string' ? JSON.parse(current.atualizacoes) : current.atualizacoes;
-        } catch(e) {
-            eventos = [];
-        }
-        acc[procId] = eventos;
-        return acc;
-    }, {});
-
-    renderCarousel();
-    const firstProc = Object.keys(allProcessData)[0];
-    if(firstProc) switchProcess(firstProc);
-    hideLoading();
-}
-
-function renderCarousel() {
-    const carousel = document.getElementById('process-carousel');
-    carousel.innerHTML = '';
+function renderCarousel(eventos) {
+    const section = document.getElementById('carousel-section');
+    const container = document.getElementById('process-carousel');
     
-    Object.keys(allProcessData).forEach(procId => {
-        const eventos = allProcessData[procId];
-        const ultimo = eventos.length > 0 ? eventos[eventos.length - 1] : { status: "Sem Movimentação", descricao: "" };
-        
-        const card = document.createElement('div');
-        card.className = `process-card bg-white dark:bg-zinc-900 p-5 rounded-[2rem] shadow-lg text-left cursor-pointer`;
-        card.id = `card-${procId.replace(/\s+/g, '-')}`;
-        card.onclick = () => switchProcess(procId);
-        
-        card.innerHTML = `
-            <p class="text-[9px] font-bold text-satinGold uppercase tracking-widest">Processo ID</p>
-            <h3 class="font-serif font-bold text-darkGold text-sm truncate uppercase mt-1">${procId}</h3>
-            <div class="flex items-center gap-2 mt-2">
-                <span class="w-2 h-2 rounded-full bg-satinGold animate-pulse"></span>
-                <p class="text-[10px] font-semibold opacity-70 uppercase truncate">${ultimo.status}</p>
-            </div>
-        `;
-        carousel.appendChild(card);
+    // Simulação de múltiplos processos para visualização conforme solicitado
+    const processosSimulados = [
+        { id: '1', tipo: 'Trabalhista', numero: '0010234-55.2024.5.15.0001' },
+        { id: '2', tipo: 'Cível', numero: '1002345-12.2023.8.26.0100' }
+    ];
+
+    section.classList.remove('hidden');
+    container.innerHTML = '';
+    
+    processosSimulados.forEach(proc => {
+        container.innerHTML += `
+            <div class="process-card bg-white dark:bg-zinc-800 p-5 rounded-3xl shadow-xl border border-satinGold/20 flex flex-col justify-between">
+                <div>
+                    <span class="bg-satinGold/10 text-satinGold text-[9px] px-2 py-1 rounded-full font-bold uppercase">${proc.tipo}</span>
+                    <h4 class="font-serif text-darkGold font-bold mt-2">${proc.numero}</h4>
+                </div>
+                <div class="mt-4 flex justify-between items-center">
+                    <span class="text-[10px] opacity-50">Toque para selecionar</span>
+                    <i class="fas fa-chevron-right text-satinGold text-xs"></i>
+                </div>
+            </div>`;
     });
 }
 
-function switchProcess(procId) {
-    currentProcessId = procId;
-    
-    // Atualizar UI dos cards
-    document.querySelectorAll('.process-card').forEach(c => c.classList.remove('active'));
-    const cardElementId = `card-${procId.replace(/\s+/g, '-')}`;
-    const activeCard = document.getElementById(cardElementId);
-    if(activeCard) {
-        activeCard.classList.add('active');
-        activeCard.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-    }
-
-    const eventos = allProcessData[procId] || [];
-    renderTimeline(eventos);
-    updateClientMetrics(eventos);
-}
-
 function updateClientMetrics(eventos) {
-    const statusEl = document.getElementById('client-main-status');
-    const updateEl = document.getElementById('total-updates');
-    const barEl = document.getElementById('progress-bar');
-    const textEl = document.getElementById('progress-text');
-
-    if (!eventos || eventos.length === 0) {
-        statusEl.innerText = "Sem Dados";
-        updateEl.innerText = "0";
-        barEl.style.width = "0%";
-        textEl.innerText = "0% CONCLUÍDO";
-        return;
-    }
-
-    const ultimoEvento = eventos[eventos.length - 1];
-    const statusText = ultimoEvento.status || "";
+    const progressBar = document.getElementById('progress-bar');
+    const progressPercent = document.getElementById('progress-percent');
+    const progressLabel = document.getElementById('progress-label');
     
-    statusEl.innerText = statusText;
-    updateEl.innerText = eventos.length;
+    if (!eventos || eventos.length === 0) return;
 
-    let progresso = 15;
-    if (statusText.includes("Citação")) progresso = 30;
-    if (statusText.includes("Audiência")) progresso = 50;
-    if (statusText.includes("Sentença")) progresso = 75;
-    if (statusText.includes("Execução") || statusText.includes("Cálculos")) progresso = 90;
-    if (statusText.includes("Finalizado") || statusText.includes("Arquivado")) progresso = 100;
+    const ultimoStatus = eventos[eventos.length - 1].status.toLowerCase();
+    let porcentagem = 10;
+    let legenda = "Fase Inicial";
 
-    if(barEl && textEl) {
-        barEl.style.width = progresso + "%";
-        textEl.innerText = progresso + "% CONCLUÍDO";
+    if (ultimoStatus.includes("petição") || ultimoStatus.includes("inicial")) {
+        porcentagem = 20;
+        legenda = "Processo Protocolado";
+    } else if (ultimoStatus.includes("audiência") || ultimoStatus.includes("conciliação")) {
+        porcentagem = 50;
+        legenda = "Fase de Instrução";
+    } else if (ultimoStatus.includes("sentença") || ultimoStatus.includes("decisão")) {
+        porcentagem = 85;
+        legenda = "Fase de Decisão";
+    } else if (ultimoStatus.includes("finalizado") || ultimoStatus.includes("arquivado") || ultimoStatus.includes("pago")) {
+        porcentagem = 100;
+        legenda = "Caso Concluído";
     }
+
+    progressBar.style.width = `${porcentagem}%`;
+    progressPercent.innerText = `${porcentagem}%`;
+    progressLabel.innerText = legenda;
 }
 
 function renderTimeline(eventos) {
     const container = document.getElementById('timeline-content');
     container.innerHTML = '';
     
-    if(eventos.length === 0) {
-        container.innerHTML = '<p class="text-center opacity-50 text-sm">Nenhuma atualização registrada para este processo.</p>';
-        return;
-    }
-
-    [...eventos].reverse().forEach(ev => {
-        container.innerHTML += `<div class="relative bg-white dark:bg-zinc-800 p-5 rounded-2xl shadow-md border-l-4 border-satinGold mb-4">
-            <p class="text-[10px] font-bold text-satinGold uppercase mb-1">${ev.data || ''}</p>
-            <h4 class="font-serif font-bold text-lg text-darkGold">${ev.status || ''}</h4>
-            <p class="text-sm opacity-80 mt-2">${ev.descricao || 'Movimentação registrada no sistema.'}</p>
-        </div>`;
+    [...eventos].reverse().forEach((ev, index) => {
+        const isFirst = index === 0;
+        container.innerHTML += `
+            <div class="relative ${isFirst ? 'scale-105' : 'opacity-80'} transition-all duration-500">
+                <div class="absolute -left-[31px] top-2 w-4 h-4 rounded-full border-2 border-pearl dark:border-softBlack ${isFirst ? 'bg-satinGold shadow-[0_0_10px_#C5A059]' : 'bg-gray-400'}"></div>
+                <div class="bg-white dark:bg-zinc-800 p-5 rounded-2xl shadow-md border-l-4 border-satinGold relative">
+                    <div class="absolute top-4 -left-2 w-4 h-4 bg-white dark:bg-zinc-800 rotate-45 border-l border-b border-satinGold/10"></div>
+                    <p class="text-[10px] font-bold text-satinGold uppercase mb-1">${ev.data || ''}</p>
+                    <h4 class="font-serif font-bold text-lg text-darkGold leading-tight">${ev.status || ''}</h4>
+                    <p class="text-sm opacity-80 mt-2 leading-relaxed">${ev.descricao || 'O status do seu processo foi atualizado. Clique para ver detalhes.'}</p>
+                </div>
+            </div>`;
     });
 }
 
-function sairTimeline() { 
-    sessionStorage.removeItem('ADV_AUTH_SESS'); 
-    window.location.href = "index.html"; 
-}
+function sairTimeline() { sessionStorage.removeItem('ADV_AUTH_SESS'); window.location.href = "index.html"; }
 
 function toggleDarkMode() {
     const isDark = document.documentElement.classList.toggle('dark');
