@@ -163,17 +163,23 @@ async function carregarTimeline() {
 }
 
 function organizeData(data) {
-    // Agrupa eventos por número de processo vindo da planilha
+    // Agrupa eventos processuais da Coluna H (Atualizacoes) por ID da Coluna A
     allProcessData = data.reduce((acc, current) => {
-        const procId = current.numero_processo || "Processo Geral";
-        if (!acc[procId]) acc[procId] = [];
-        acc[procId].push(current);
+        const procId = current.id || "Processo Geral";
+        // A planilha traz as atualizações em formato JSON na coluna H
+        let eventos = [];
+        try {
+            eventos = typeof current.atualizacoes === 'string' ? JSON.parse(current.atualizacoes) : current.atualizacoes;
+        } catch(e) {
+            eventos = [];
+        }
+        acc[procId] = eventos;
         return acc;
     }, {});
 
     renderCarousel();
     const firstProc = Object.keys(allProcessData)[0];
-    switchProcess(firstProc);
+    if(firstProc) switchProcess(firstProc);
 }
 
 function renderCarousel() {
@@ -182,7 +188,7 @@ function renderCarousel() {
     
     Object.keys(allProcessData).forEach(procId => {
         const eventos = allProcessData[procId];
-        const ultimo = [...eventos].reverse()[0];
+        const ultimo = eventos.length > 0 ? eventos[eventos.length - 1] : { status: "Sem Movimentação", descricao: "" };
         
         const card = document.createElement('div');
         card.className = `process-card bg-white dark:bg-zinc-900 p-5 rounded-[2rem] shadow-lg text-left cursor-pointer`;
@@ -212,16 +218,21 @@ function switchProcess(procId) {
         activeCard.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
     }
 
-    const eventos = allProcessData[procId];
+    const eventos = allProcessData[procId] || [];
     renderTimeline(eventos);
     updateClientMetrics(eventos);
 }
 
 function updateClientMetrics(eventos) {
-    if (!eventos || eventos.length === 0) return;
+    if (!eventos || eventos.length === 0) {
+        document.getElementById('client-main-status').innerText = "Sem Dados";
+        document.getElementById('total-updates').innerText = "0";
+        document.getElementById('progress-bar').style.width = "0%";
+        document.getElementById('progress-text').innerText = "0% CONCLUÍDO";
+        return;
+    }
 
-    const timelineReversa = [...eventos].reverse();
-    const ultimoEvento = timelineReversa[0];
+    const ultimoEvento = eventos[eventos.length - 1];
     const statusText = ultimoEvento.status || "";
     
     document.getElementById('client-main-status').innerText = statusText;
@@ -246,11 +257,17 @@ function updateClientMetrics(eventos) {
 function renderTimeline(eventos) {
     const container = document.getElementById('timeline-content');
     container.innerHTML = '';
+    
+    if(eventos.length === 0) {
+        container.innerHTML = '<p class="text-center opacity-50 text-sm">Nenhuma atualização registrada para este processo.</p>';
+        return;
+    }
+
     [...eventos].reverse().forEach(ev => {
         container.innerHTML += `<div class="relative bg-white dark:bg-zinc-800 p-5 rounded-2xl shadow-md border-l-4 border-satinGold mb-4">
             <p class="text-[10px] font-bold text-satinGold uppercase mb-1">${ev.data || ''}</p>
             <h4 class="font-serif font-bold text-lg text-darkGold">${ev.status || ''}</h4>
-            <p class="text-sm opacity-80 mt-2">${ev.descricao || 'Detalhes da movimentação processual.'}</p>
+            <p class="text-sm opacity-80 mt-2">${ev.descricao || 'Movimentação registrada.'}</p>
         </div>`;
     });
 }
