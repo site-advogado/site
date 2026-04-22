@@ -47,6 +47,7 @@
             gap: 16px;
             padding: 10px 0 20px 0;
             scrollbar-width: none;
+            justify-content: center;
         }
         #process-carousel::-webkit-scrollbar { display: none; }
         
@@ -104,9 +105,9 @@
 
     <main class="pt-24 pb-20 px-4 max-w-lg mx-auto">
         
-        <section class="mb-6 animate-pulse">
+        <section class="mb-6 animate-pulse text-center">
             <p class="text-[10px] font-bold text-satinGold uppercase tracking-[0.3em] mb-1">Bem-vindo(a)</p>
-            <h2 id="client-name-display" class="font-serif text-2xl font-bold text-softBlack dark:text-pearl uppercase">
+            <h2 id="client-name-display" class="font-serif text-2xl font-bold text-darkGold uppercase">
                 Carregando...
             </h2>
         </section>
@@ -210,6 +211,11 @@
 
         function renderCarousel() {
             const carousel = document.getElementById('process-carousel');
+            if (globalData.length > 1) {
+                carousel.style.justifyContent = "flex-start";
+            } else {
+                carousel.style.justifyContent = "center";
+            }
             carousel.innerHTML = globalData.map(proc => `
                 <div class="process-card bg-white dark:bg-zinc-900 p-6 rounded-[2.5rem] shadow-md cursor-pointer" 
                      id="card-${proc.id}" onclick="selectProcess('${proc.id}')">
