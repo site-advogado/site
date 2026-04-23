@@ -637,5 +637,264 @@ function triggerConfirm(tipo) {
 function toggleNewSecretField() { const check = document.getElementById('check-change-secret'); document.getElementById('container-new-secret').classList.toggle('hidden', !check.checked); }
 function logoutAdmin() { sessionStorage.removeItem('ADV_AUTH_SESS'); window.location.href = "index.html"; }
 </script>
+
+<script>
+    
+// CONFIGURAÇÕES GERAIS
+const SPREADSHEET_ID = "13LCC6DBy9Wott3I2jeJ6-krz7KquK2tt8i3LMY_vBrA"; 
+const NOME_ABA = "admin";
+const MASTER_API_KEY = "Adv_Seguro_2026_##";
+const SESSAO_EXPIRA_MIN = 3;
+
+function doPost(e) {
+  const lock = LockService.getScriptLock();
+  try {
+    lock.waitLock(10000);
+    const data = JSON.parse(e.postData.contents);
+
+    if (!data.api_key || data.api_key !== MASTER_API_KEY) {
+      return resposta({ status: "erro", message: "Acesso negado." });
+    }
+
+    const sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(NOME_ABA);
+    const dados = sheet.getDataRange().getValues();
+
+    switch (data.action) {
+      case 'bio':
+        return resposta({
+          status: "sucesso",
+          name: dados[2][11], 
+          oab: dados[2][12], 
+          desc: dados[2][13],
+          phone: dados[2][14], 
+          img: dados[2][15], 
+          email_advogada: dados[2][8],
+          areas_visiveis: dados[2][5]
+        });
+      case 'login':
+        return login(data, dados, sheet);
+      case 'timeline':
+        return carregarTimeline(data, dados);
+      case 'save_profile':
+        return salvarPerfil(data, sheet);
+      case 'listar_clientes':
+        return listarClientes(dados);
+      case 'save_client':
+        return salvarNovoCliente(data, sheet, dados);
+      case 'update_client_timeline':
+        return atualizarTimelineCliente(data, sheet, dados);
+      case 'delete_client':
+        return excluirCliente(data, sheet, dados);
+      default:
+        return resposta({ status: "erro", message: "Ação inválida." });
+    }
+  } catch (err) {
+    return resposta({ status: "erro", message: "Erro interno: " + err.toString() });
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function login(data, dados, sheet) {
+  const cache = CacheService.getScriptCache();
+  const entradaUsuario = String(data.usuario || "").replace(/\s+/g, '').toLowerCase();
+  let palavraSecreta = String(dados[2][10] || "").trim().replace(/\s+/g, '').toLowerCase();
+
+  if (data.passo !== "verificar" && !data.senha && entradaUsuario === palavraSecreta && entradaUsuario !== "") {
+    return resposta({ status: "abrir_modal_admin" });
+  }
+
+  if (data.senha) {
+    if (entradaUsuario === String(dados[2][8]).toLowerCase() && String(data.senha) === String(dados[2][9])) {
+      const tokenAdmin = Utilities.getUuid();
+      cache.put(tokenAdmin, JSON.stringify({ admin: true, ip: data.ip }), 3600);
+      return resposta({ status: "sucesso", token: tokenAdmin });
+    }
+    return resposta({ status: "erro", message: "Senha incorreta." });
+  }
+
+  if (data.passo === "solicitar") {
+    const existe = dados.some(row => String(row[4]).toLowerCase() === entradaUsuario);
+    if (!existe) return resposta({ status: "erro", message: "E-mail não cadastrado." });
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    cache.put("otp_" + entradaUsuario, otp, 300);
+    MailApp.sendEmail(entradaUsuario, "Código de Acesso", "Seu código: " + otp);
+
+    return resposta({ status: "codigo_enviado" });
+  }
+
+  if (data.passo === "verificar") {
+    const salvo = cache.get("otp_" + entradaUsuario);
+    if (salvo && salvo === data.codigo) {
+      const token = Utilities.getUuid();
+      cache.put(token, JSON.stringify({ email: entradaUsuario, ip: data.ip }), SESSAO_EXPIRA_MIN * 60);
+      return resposta({ status: "ok", token: token });
+    }
+    return resposta({ status: "erro", message: "Código inválido." });
+  }
+}
+
+function carregarTimeline(data, dados) {
+  if (!data.email) return resposta([]);
+  const emailUser = String(data.email).toLowerCase().trim();
+  const processos = dados.filter(r => String(r[4]).toLowerCase() === emailUser);
+  if (processos.length === 0) return resposta([]);
+  
+  const listaFinal = processos.map(row => {
+    let bruto = row[7] || "[]";
+    let timeline = [];
+    try {
+      timeline = bruto.startsWith('[') ? JSON.parse(bruto) : [JSON.parse(bruto)];
+    } catch(e) { timeline = []; }
+    
+    let infoC = { tipo: "", numero: "" };
+    try {
+      infoC = JSON.parse(row[2]);
+    } catch(e) {
+      infoC = { tipo: "Ação Judicial", numero: row[5] || "" };
+    }
+    
+    return {
+      id: row[0],
+      cliente: row[1],
+      tipo_acao: infoC.tipo,
+      numero_processo: infoC.numero,
+      obs: row[16] || "", // Coluna Q
+      notificar: row[6] || "NAO",
+      atualizacoes: timeline
+    };
+  });
+  return resposta(listaFinal);
+}
+
+function listarClientes(dados) {
+  const clientes = [];
+  for (let i = 1; i < dados.length; i++) {
+    if (dados[i][0] === "") continue;
+    
+    let timeline = [];
+    try {
+      timeline = JSON.parse(dados[i][7] || "[]");
+    } catch (e) { timeline = []; }
+    
+    let infoC = { tipo: "", numero: "" };
+    try {
+      infoC = JSON.parse(dados[i][2]);
+    } catch(e) {
+      infoC = { tipo: "Ação Judicial", numero: dados[i][5] || "" };
+    }
+
+    clientes.push({
+      id: dados[i][0],
+      nome: dados[i][1],
+      tipo_acao: infoC.tipo,
+      numero_processo: infoC.numero,
+      email: dados[i][4],
+      notificar: dados[i][6] || "NAO",
+      obs: dados[i][16] || "", // Lê da coluna Q
+      timeline: timeline
+    });
+  }
+  return resposta(clientes);
+}
+
+function salvarNovoCliente(data, sheet, dados) {
+  const id = Utilities.getUuid();
+  const timeline = JSON.stringify([{
+    data: new Date().toISOString(),
+    status: data.status,
+    descricao: data.descricao
+  }]);
+  
+  const infoProcesso = JSON.stringify({
+    tipo: data.tipo_acao,
+    numero: data.numero_processo
+  });
+
+  sheet.appendRow([
+    id,
+    data.nome,
+    infoProcesso,
+    "", 
+    data.email,
+    data.numero_processo,
+    data.notificar,
+    timeline,
+    "", "", "", "", "", "", "", "",
+    data.obs || "" 
+  ]);
+
+  if (data.notificar === "SIM") {
+    try {
+      MailApp.sendEmail(data.email, "Novo Processo Cadastrado", "Olá " + data.nome + ",\nSeu processo foi cadastrado com sucesso.");
+    } catch(e) {}
+  }
+  return resposta({ status: "ok" });
+}
+
+function atualizarTimelineCliente(data, sheet, dados) {
+  const index = dados.findIndex(r => r[0] == data.id);
+  if (index === -1) return resposta({ status: "erro", message: "Cliente não encontrado." });
+
+  let timeline = [];
+  try {
+    timeline = JSON.parse(dados[index][7] || "[]");
+  } catch(e) { timeline = []; }
+
+  if (data.is_new_card) {
+    timeline.push({
+      data: new Date().toISOString(),
+      status: data.status_atual,
+      descricao: data.novo_texto
+    });
+    
+    if (data.notificar === "SIM") {
+      try {
+        MailApp.sendEmail(data.email, "Atualização em seu Processo", "Olá,\nHouve uma nova atualização em seu processo.");
+      } catch(e) {}
+    }
+  } else {
+    if (timeline.length > 0) {
+      timeline[timeline.length - 1].status = data.status_atual;
+      timeline[timeline.length - 1].descricao = data.novo_texto;
+      timeline[timeline.length - 1].data = new Date().toISOString();
+    }
+  }
+
+  sheet.getRange(index + 1, 5).setValue(data.email); 
+  sheet.getRange(index + 1, 7).setValue(data.notificar || "NAO"); 
+  sheet.getRange(index + 1, 8).setValue(JSON.stringify(timeline)); 
+  sheet.getRange(index + 1, 17).setValue(data.obs || ""); 
+  
+  return resposta({ status: "ok" });
+}
+
+function excluirCliente(data, sheet, dados) {
+  const index = dados.findIndex(r => r[0] == data.id);
+  if (index === -1) return resposta({ status: "erro", message: "ID inexistente." });
+  sheet.getRange(index + 1, 1, 1, sheet.getLastColumn()).clearContent();
+  return resposta({ status: "ok" });
+}
+
+function salvarPerfil(data, sheet) {
+  sheet.getRange("L3").setValue(data.name);
+  sheet.getRange("M3").setValue(data.oab);
+  sheet.getRange("P3").setValue(data.img);
+  sheet.getRange("O3").setValue(data.phone);
+  sheet.getRange("I3").setValue(data.email);
+  sheet.getRange("N3").setValue(data.desc);
+  sheet.getRange("F3").setValue(data.areas_visiveis);
+  
+  if (data.new_pass) sheet.getRange("J3").setValue(data.new_pass);
+  if (data.new_secret) sheet.getRange("K3").setValue(data.new_secret);
+  
+  return resposta({ status: "ok" });
+}
+
+function resposta(obj) {
+  return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);
+}
+</script>
 </body>
 </html>
