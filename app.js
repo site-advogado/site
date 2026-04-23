@@ -1,58 +1,106 @@
-// Configuração Tailwind (Deve vir primeiro)
-window.tailwind && (tailwind.config = {  
-    darkMode: 'class',  
-    theme: { extend: { colors: { pearl: '#FDFCF8', softBlack: '#1A1A1A', satinGold: '#C5A059', darkGold: '#A37E3B' }, fontFamily: { serif: ['Cinzel', 'serif'], sans: ['Montserrat', 'sans-serif'] } } }  
-});
-
-
-// Limpeza ao fechar, voltar ou atualizar
-window.addEventListener('pagehide', () => {
-    sessionStorage.removeItem('ADV_KEY_ACCESS');
-});
-
 const _0x4a21 = ["v1", "api", "dev", "workers", "siterefrigeracaoeliezer", "api-advogada"];
 const URL_SCRIPT = `https://${_0x4a21[5]}.${_0x4a21[4]}.${_0x4a21[3]}.${_0x4a21[2]}/${_0x4a21[1]}/${_0x4a21[0]}`;
 
 let countdownInterval;
 let deferredPrompt;
 
-// Inicialização de Tema
-const aplicarTema = () => {
-    const isDark = localStorage.getItem('ADV_GLOBAL_THEME') === 'dark';
-    document.documentElement.classList.toggle('dark', isDark);
-    document.documentElement.classList.toggle('light', !isDark);
-    const icon = document.getElementById('themeIcon');
-    if (icon) {
-        icon.classList.replace(isDark ? 'fa-moon' : 'fa-sun', isDark ? 'fa-sun' : 'fa-moon');
-    }
+// Configuração Tailwind
+tailwind.config = {  
+    darkMode: 'class',  
+    theme: {  
+        extend: {  
+            colors: {  
+                pearl: '#FDFCF8',  
+                softBlack: '#1A1A1A',  
+                satinGold: '#C5A059',  
+                darkGold: '#A37E3B'  
+            },  
+            fontFamily: {  
+                serif: ['Cinzel', 'serif'],  
+                sans: ['Montserrat', 'sans-serif'],  
+            }  
+        }  
+    }  
 };
-aplicarTema();
 
-function showLoading() { document.getElementById('globalLoader')?.classList.replace('hidden', 'flex'); }
-function hideLoading() { document.getElementById('globalLoader')?.classList.replace('flex', 'hidden'); }
+// Inicialização de Tema
+if (localStorage.getItem('ADV_GLOBAL_THEME') === 'dark') {
+    document.documentElement.classList.add('dark');
+    document.documentElement.classList.remove('light');
+} else {
+    document.documentElement.classList.add('light');
+    document.documentElement.classList.remove('dark');
+}
+
+// Proteção de Acesso Direto (Trava de Segurança)
+if (window.location.pathname.includes('manutencao.html')) {
+    if (sessionStorage.getItem('ADV_KEY_ACCESS') !== 'true') {
+        window.location.href = "index.html";
+    }
+}
+
+// Limpeza de sessão ao fechar ou voltar
+window.addEventListener('beforeunload', () => {
+    if (window.location.pathname.includes('manutencao.html')) {
+        sessionStorage.removeItem('ADV_KEY_ACCESS');
+    }
+});
+
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    const installBtn = document.getElementById('installApp');
+    if (installBtn) {
+        installBtn.classList.remove('hidden');
+        installBtn.classList.add('flex');
+    }
+});
+
+function showLoading() { document.getElementById('globalLoader').classList.replace('hidden', 'flex'); }
+function hideLoading() { document.getElementById('globalLoader').classList.replace('flex', 'hidden'); }
+
+function fetchBio() {  
+    showLoading();
+    fetch(URL_SCRIPT, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "bio" })
+    })  
+    .then(res => res.json())  
+    .then(data => {  
+        document.getElementById('bio-name').textContent = data.name || "Sincronização falhou";  
+        document.getElementById('bio-oab').textContent = data.oab || "OAB/MS 000.000";  
+        document.getElementById('bio-desc').textContent = data.desc || "Sincronização falhou";  
+        document.getElementById('bio-img').src = data.img || "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiGaEVTw5lfLFBN6DQyXlxRH5jYjaFoYWedjR0xPphZ31_Khb5h5IZcoGgFuUv4tYZtVaz7sZ-CiF7jZAYqot3DGcrvqZM9lcgnz-PQK4N9IkNJCJ6nPyRyd4R0ZpLoGpL1jqgG63NMVrcjVSvE-KXQIJ68ty0tNVRS3TC0-PUK1vAVPx28CfwZcmje1nhY/w424-h424/logo.png";  
+        const cleanPhone = (data.phone || "").toString().replace(/\D/g, '');  
+        document.getElementById('bio-phone').href = `https://wa.me/55${cleanPhone}`;  
+        document.getElementById('bio-email').href = `mailto:${data.email}`;  
+    }).finally(() => hideLoading());
+}  
 
 async function handleClientSearch() {  
-    const inputUsuario = document.getElementById('searchCpf')?.value.trim();  
+    const inputUsuario = document.getElementById('searchCpf').value.trim();  
     if (!inputUsuario) return showErrorModal("Por favor, preencha o campo.");  
 
     showLoading();
     try {
         const response = await fetch(URL_SCRIPT, {
             method: "POST",
+            credentials: "include", 
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ action: "login", usuario: inputUsuario, passo: "solicitar" })
         });
         const data = await response.json();
 
-        if (data.status === "abrir_manutencao") {
-            sessionStorage.setItem('ADV_KEY_ACCESS', 'true'); // Gera a chave temporária
-            window.location.href = "manutencao.html";
+        if (data.status === "abrir_manutencao" && data.redirect) {
+            sessionStorage.setItem('ADV_KEY_ACCESS', 'true');
+            window.location.href = data.redirect;
             return;
         }
 
         if (data.status === "codigo_enviado") {
-            document.getElementById('modalCode')?.classList.replace('hidden', 'flex');
-            startTimer(180);
+            openModal();
         } else {
             showErrorModal(data.message || "Usuário não encontrado.");
         }
@@ -65,71 +113,102 @@ function startTimer(duration) {
     clearInterval(countdownInterval);
     countdownInterval = setInterval(() => {
         remaining--;
-        const timerEl = document.getElementById('timer');
         if (remaining <= 0) {
             clearInterval(countdownInterval);
-            if (timerEl) timerEl.parentElement.textContent = "CÓDIGO EXPIRADO";
+            document.getElementById('timerLabel').textContent = "CÓDIGO EXPIRADO";
             return;
         }
-        if (timerEl) {
-            let m = Math.floor(remaining / 60);
-            let s = remaining % 60;
-            timerEl.textContent = `${m}:${s < 10 ? '0' : ''}${s}`;
-        }
+        let minutes = Math.floor(remaining / 60);
+        let seconds = remaining % 60;
+        document.getElementById('timer').textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
     }, 1000);
 }
 
-function showErrorModal(msg) {
-    const errEl = document.getElementById('errorMessage');
-    if (errEl) errEl.textContent = msg;
-    document.getElementById('modalError')?.classList.replace('hidden', 'flex');
+function openModal() {
+    document.getElementById('modalCode').classList.replace('hidden', 'flex');
+    startTimer(180);  
 }
 
-async function realizarLoginAdmin() {
-    const user = document.getElementById('adminUser')?.value.toLowerCase().replace(/\s+/g, '');
-    const pass = document.getElementById('adminPass')?.value;
-    if(!user) return alert("Preencha o usuário.");
+function closeModal() {
+    document.getElementById('modalCode').classList.replace('flex', 'hidden');
+    clearInterval(countdownInterval);
+}
 
+async function confirmCode() {
+    const code = document.getElementById('inputOtp').value.trim();
+    const email = document.getElementById('searchCpf').value.trim();
     showLoading();
     try {
         const res = await fetch(URL_SCRIPT, {
             method: "POST",
+            credentials: "include",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ action: "login", usuario: user, senha: pass })
+            body: JSON.stringify({ action: "login", usuario: email, codigo: code, passo: "verificar" })
         });
         const data = await res.json();
-        if(data.status === "sucesso") {
-            sessionStorage.setItem('ADV_AUTH_SESS', 'true');
-            window.location.href = "configuracao.html";
+        if (data.status === "ok") {
+            closeModal();
+            sessionStorage.setItem('ADV_USER_EMAIL', email);
+            window.location.href = "linha-tempo.html";
         } else {
-            alert(data.message || "Acesso negado.");
+            showErrorModal(data.message || "Código inválido.");
         }
-    } catch (e) { alert("Erro de conexão."); }
+    } catch(e) { showErrorModal("Erro na conexão."); }
     finally { hideLoading(); }
 }
 
-// Eventos
-document.addEventListener('DOMContentLoaded', () => {
-    aplicarTema();
-    document.getElementById('btnSearch')?.addEventListener('click', handleClientSearch);
-    document.getElementById('themeToggle')?.addEventListener('click', () => {
-        const isDark = !document.documentElement.classList.contains('dark');
-        localStorage.setItem('ADV_GLOBAL_THEME', isDark ? 'dark' : 'light');
-        aplicarTema();
-    });
+function showErrorModal(msg) {
+    document.getElementById('errorMessage').textContent = msg;
+    document.getElementById('modalError').classList.replace('hidden', 'flex');
+}
+
+function closeErrorModal() { document.getElementById('modalError').classList.replace('flex', 'hidden'); }
+
+function toggleDarkMode() {
+    const isDark = document.documentElement.classList.toggle('dark');
+    const themeIcon = document.getElementById('themeIcon');
     
-    // Botão de login na página de manutenção
-    document.querySelector('button[onclick*="realizarLoginAdmin"]')?.addEventListener('click', (e) => {
-        e.preventDefault();
-        realizarLoginAdmin();
+    if (isDark) {
+        localStorage.setItem('ADV_GLOBAL_THEME', 'dark');
+        if (themeIcon) themeIcon.classList.replace('fa-moon', 'fa-sun');
+    } else {
+        localStorage.setItem('ADV_GLOBAL_THEME', 'light');
+        if (themeIcon) themeIcon.classList.replace('fa-sun', 'fa-moon');
+    }
+}
+
+// Event Listeners e Onload
+window.addEventListener('load', () => {
+    const themeIcon = document.getElementById('themeIcon');
+    if (localStorage.getItem('ADV_GLOBAL_THEME') === 'dark') {
+        if (themeIcon) themeIcon.classList.replace('fa-moon', 'fa-sun');
+    } else {
+        if (themeIcon) themeIcon.classList.replace('fa-sun', 'fa-moon');
+    }
+    fetchBio(); 
+    sessionStorage.removeItem('ADV_SESSION_TOKEN'); 
+    sessionStorage.removeItem('ADV_AUTH_SESS');
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('installApp')?.addEventListener('click', async () => {
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') {
+                document.getElementById('installApp').classList.add('hidden');
+            }
+            deferredPrompt = null;
+        }
     });
 
-    // Fechar modais
-    document.querySelectorAll('[onclick*="closeModal"], [onclick*="closeErrorModal"]').forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.getElementById('modalCode')?.classList.replace('flex', 'hidden');
-            document.getElementById('modalError')?.classList.replace('flex', 'hidden');
-            clearInterval(countdownInterval);
-        });
+    document.getElementById('themeIcon')?.parentElement?.addEventListener('click', toggleDarkMode);
+    document.getElementById('btnSearch')?.addEventListener('click', handleClientSearch);
+    document.querySelector('#modalCode button.gold-gradient')?.addEventListener('click', confirmCode);
+    document.querySelector('#modalCode button:not(.gold-gradient)')?.addEventListener('click', closeModal);
+    document.querySelector('#modalError button')?.addEventListener('click', closeErrorModal);
+    
+    document.getElementById('searchCpf')?.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') handleClientSearch();
     });
 });
