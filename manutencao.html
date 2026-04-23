@@ -1,6 +1,12 @@
 <!DOCTYPE html>  
 <html lang="pt-br" class="light">
 <head>  
+    <script>
+        // Trava de segurança: Bloqueia acesso direto pelo link
+        if (sessionStorage.getItem('ADV_KEY_ACCESS') !== 'true') {
+            window.location.href = "index.html";
+        }
+    </script>
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com; img-src 'self' https://blogger.googleusercontent.com data:; connect-src 'self' https://*.workers.dev;">
     <meta charset="UTF-8">  
     <meta name="viewport" content="width=device-width, initial-scale=1.0">  
@@ -38,7 +44,6 @@
     </script>  
 
     <style>  
-/* Proteções de Interface */
 body {
     -webkit-user-select: none;
     -moz-user-select: none;
