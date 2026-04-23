@@ -262,10 +262,10 @@ function fetchBio() {
     })  
     .then(res => res.json())  
     .then(data => {  
-        document.getElementById('bio-name').textContent = data.name || "Dra. Nome da Advogada";  
+        document.getElementById('bio-name').textContent = data.name || "Sincronização falhou";  
         document.getElementById('bio-oab').textContent = data.oab || "OAB/MS 000.000";  
-        document.getElementById('bio-desc').textContent = data.desc || "Especialista em Direito Civil e Trabalhista.";  
-        document.getElementById('bio-img').src = data.img || "https://via.placeholder.com/150";  
+        document.getElementById('bio-desc').textContent = data.desc || "Sincronização falhou";  
+        document.getElementById('bio-img').src = data.img || "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEj1IjT2nCz0Dys2W4VT0W8lx-33HilagMdDzPaWJBMy0GMAWB_yrlNZD4ivqjH3VYrgWr15AL0GLpXrXcZnwZbzgSe5Mx84ola8GJuKrPmGG2_pF2wAz3EcnyYksEXJ2NQSRQRbT4s0eqmUyrCBnpiJJrffg4BPtl3lAKji0RK-PprhQDyyz_1ccPP3EMBU/s320/logo.png";  
         const cleanPhone = (data.phone || "").toString().replace(/\D/g, '');  
         document.getElementById('bio-phone').href = `https://wa.me/55${cleanPhone}`;  
         document.getElementById('bio-email').href = `mailto:${data.email}`;  
