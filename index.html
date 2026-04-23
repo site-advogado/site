@@ -188,25 +188,7 @@ window.onload = () => {
     sessionStorage.removeItem('ADV_AUTH_SESS');
 };  
 
-function fetchBio() {  
-    showLoading();
-    fetch(URL_SCRIPT, {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "bio" })
-    })  
-    .then(res => res.json())  
-    .then(data => {  
-        document.getElementById('bio-name').textContent = data.name || "Dra. Nome da Advogada";  
-        document.getElementById('bio-oab').textContent = data.oab || "OAB/MS 000.000";  
-        document.getElementById('bio-desc').textContent = data.desc || "Especialista em Direito.";  
-        document.getElementById('bio-img').src = data.img || "https://via.placeholder.com/150";  
-        const cleanPhone = (data.phone || "").toString().replace(/\D/g, '');  
-        document.getElementById('bio-phone').href = `https://wa.me/55${cleanPhone}`;  
-        document.getElementById('bio-email').href = `mailto:${data.email_advogada}`;  
-    }).finally(() => hideLoading());
-}  
+function fetchBio() {
 
 async function handleClientSearch() {  
     const inputUsuario = document.getElementById('searchCpf').value.trim();  
