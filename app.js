@@ -32,6 +32,20 @@ if (localStorage.getItem('ADV_GLOBAL_THEME') === 'dark') {
     document.documentElement.classList.remove('dark');
 }
 
+// Proteção de Acesso Direto (Trava de Segurança)
+if (window.location.pathname.includes('manutencao.html')) {
+    if (sessionStorage.getItem('ADV_KEY_ACCESS') !== 'true') {
+        window.location.href = "index.html";
+    }
+}
+
+// Limpeza de sessão ao fechar ou voltar
+window.addEventListener('beforeunload', () => {
+    if (window.location.pathname.includes('manutencao.html')) {
+        sessionStorage.removeItem('ADV_KEY_ACCESS');
+    }
+});
+
 window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
@@ -177,7 +191,6 @@ window.addEventListener('load', () => {
 });
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Botão Instalar
     document.getElementById('installApp')?.addEventListener('click', async () => {
         if (deferredPrompt) {
             deferredPrompt.prompt();
@@ -189,22 +202,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Botão Dark Mode
     document.getElementById('themeIcon')?.parentElement?.addEventListener('click', toggleDarkMode);
-
-    // Botão Pesquisar
     document.getElementById('btnSearch')?.addEventListener('click', handleClientSearch);
-
-    // Botão Validar OTP
-    document.querySelector('#modalCode button[onclick="confirmCode()"]')?.addEventListener('click', confirmCode);
-    
-    // Botão Cancelar OTP
-    document.querySelector('#modalCode button[onclick="closeModal()"]')?.addEventListener('click', closeModal);
-
-    // Botão Entendido Erro
+    document.querySelector('#modalCode button.gold-gradient')?.addEventListener('click', confirmCode);
+    document.querySelector('#modalCode button:not(.gold-gradient)')?.addEventListener('click', closeModal);
     document.querySelector('#modalError button')?.addEventListener('click', closeErrorModal);
     
-    // Suporte a teclas (Enter na busca)
     document.getElementById('searchCpf')?.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') handleClientSearch();
     });
