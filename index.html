@@ -1,5 +1,5 @@
 <!DOCTYPE html>  
-<html lang="pt-br" class="light"> 
+<html lang="pt-br" class="light">
 <head>  
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -163,8 +163,6 @@ img {
 </div>
 
 
-
-
 <script>
 
 const _0x4a21 = ["v1", "api", "dev", "workers", "siterefrigeracaoeliezer", "api-advogada"];
@@ -231,7 +229,7 @@ async function realizarLoginAdmin() {
         const data = await response.json();
         if(data.status === "sucesso") {
             sessionStorage.setItem('ADV_AUTH_SESS', 'true');
-            setTimeout(() => { window.location.href = "c-onfi-gura-cao.html"; }, 500);
+            setTimeout(() => { window.location.href = "configuracao.html"; }, 500);
         } else {
             alert(data.message || "Acesso negado.");
         }
@@ -338,8 +336,8 @@ async function confirmCode() {
         const data = await res.json();
         if (data.status === "ok") {
             closeModal();
-            sessionStorage.setItem('ADV_AUTH_SESS', 'true');
-            setTimeout(() => { window.location.href = "backup.html"; }, 500);
+            localStorage.setItem('ADV_USER_EMAIL', email);
+            window.location.href = "linha-tempo.html";
         } else {
             showErrorModal(data.message || "Código inválido.");
         }
