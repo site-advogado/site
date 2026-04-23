@@ -1,9 +1,10 @@
 <!DOCTYPE html>  
 <html lang="pt-br" class="light">
 <head>  
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com; img-src 'self' https://blogger.googleusercontent.com data:; connect-src 'self' https://*.workers.dev;">
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default"> 
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Advocacia">
    <link rel="apple-touch-icon" href="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhHtE2js3Aj9ZLxGzW-qg0iuRkcQvHrLMREwdxYyxwFQZ9IoEp_lYYjezzImcmSIoIPT0GDbAKn0HgZY757h6ob0P-RArslGJ8ca8R395S1oruz8a0R_BXc9OMWQwpqodGTFwq3rNdhshjmU9GgIvaBNAr7JmvgrH6GpbbxqgPXHy_42z9P43RM4frkdlc/w494-h494/logo.png">
     <link rel="icon" type="image/png" href="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhHtE2js3Aj9ZLxGzW-qg0iuRkcQvHrLMREwdxYyxwFQZ9IoEp_lYYjezzImcmSIoIPT0GDbAKn0HgZY757h6ob0P-RArslGJ8ca8R395S1oruz8a0R_BXc9OMWQwpqodGTFwq3rNdhshjmU9GgIvaBNAr7JmvgrH6GpbbxqgPXHy_42z9P43RM4frkdlc/w494-h494/logo.png">
@@ -44,7 +45,6 @@
     </script>  
 
     <style>  
-/* Bloqueia a seleção de texto e o arraste de imagens */
 body {
     -webkit-user-select: none;
     -moz-user-select: none;
@@ -52,7 +52,6 @@ body {
     user-select: none;
 }
 
-/* Mantém os campos de texto funcionando */
 input, select, textarea {
     -webkit-user-select: text !important;
     -moz-user-select: text !important;
@@ -60,7 +59,6 @@ input, select, textarea {
     user-select: text !important;
 }
 
-/* Proteção extra para imagens */
 img {
     pointer-events: none !important;
     -webkit-user-drag: none !important;
@@ -69,7 +67,6 @@ img {
         .modal-blur { backdrop-filter: blur(8px); }  
         .gold-gradient { background: linear-gradient(135deg, #C5A059 0%, #A37E3B 100%); }  
 
-        /* Estilo para o Spinner de Carregamento */
         .loader {
             border: 4px solid #f3f3f3;
             border-top: 4px solid #C5A059;
@@ -192,51 +189,6 @@ document.getElementById('installApp')?.addEventListener('click', async () => {
 function showLoading() { document.getElementById('globalLoader').classList.replace('hidden', 'flex'); }
 function hideLoading() { document.getElementById('globalLoader').classList.replace('flex', 'hidden'); }
 
-function openAdminModal(data) {
-    let container = document.getElementById('admin-wrapper');
-    if (!container) {
-        container = document.createElement('div');
-        container.id = 'admin-wrapper';
-        document.body.appendChild(container);
-    }
-    container.innerHTML = data.html;
-    document.getElementById('modalAdmin').classList.remove('hidden');
-    document.getElementById('modalAdmin').classList.add('flex');
-}
-
-function closeAdminModal() {
-    const modal = document.getElementById('modalAdmin');
-    if (modal) {
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
-        document.getElementById('admin-wrapper').remove();
-    }
-}
-
-async function realizarLoginAdmin() {
-    const user = document.getElementById('adminUser').value.replace(/\s+/g, '').toLowerCase();
-    const pass = document.getElementById('adminPass').value;
-    if(!user) return alert("Preencha o usuário.");
-
-    showLoading();
-    try {
-        const response = await fetch(URL_SCRIPT, {
-            method: "POST",
-            credentials: "include",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ action: "login", usuario: user, senha: pass })
-        });
-        const data = await response.json();
-        if(data.status === "sucesso") {
-            sessionStorage.setItem('ADV_AUTH_SESS', 'true');
-            setTimeout(() => { window.location.href = "configuracao.html"; }, 500);
-        } else {
-            alert(data.message || "Acesso negado.");
-        }
-    } catch (e) { alert("Erro de conexão."); }
-    finally { hideLoading(); }
-}
-
 window.onload = () => { 
     const themeIcon = document.getElementById('themeIcon');
     if (localStorage.getItem('ADV_GLOBAL_THEME') === 'dark') {
@@ -285,9 +237,7 @@ async function handleClientSearch() {
             body: JSON.stringify({ action: "login", usuario: inputUsuario, passo: "solicitar" })
         });
         const data = await response.json();
-        if (data.status === "abrir_modal_admin") {
-            openAdminModal(data);
-        } else if (data.status === "codigo_enviado") {
+        if (data.status === "codigo_enviado") {
             openModal();
         } else {
             showErrorModal(data.message || "Usuário não encontrado.");
