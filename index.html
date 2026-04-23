@@ -1,295 +1,110 @@
 <!DOCTYPE html>  
 <html lang="pt-br" class="light"> 
 <head>  
-    <link rel="manifest" href="manifest.json"> 
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="Advocacia">
-   <link rel="apple-touch-icon" href="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhHtE2js3Aj9ZLxGzW-qg0iuRkcQvHrLMREwdxYyxwFQZ9IoEp_lYYjezzImcmSIoIPT0GDbAKn0HgZY757h6ob0P-RArslGJ8ca8R395S1oruz8a0R_BXc9OMWQwpqodGTFwq3rNdhshjmU9GgIvaBNAr7JmvgrH6GpbbxqgPXHy_42z9P43RM4frkdlc/w494-h494/logo.png">
-    <link rel="icon" type="image/png" href="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhHtE2js3Aj9ZLxGzW-qg0iuRkcQvHrLMREwdxYyxwFQZ9IoEp_lYYjezzImcmSIoIPT0GDbAKn0HgZY757h6ob0P-RArslGJ8ca8R395S1oruz8a0R_BXc9OMWQwpqodGTFwq3rNdhshjmU9GgIvaBNAr7JmvgrH6GpbbxqgPXHy_42z9P43RM4frkdlc/w494-h494/logo.png">
-
     <meta charset="UTF-8">  
     <meta name="viewport" content="width=device-width, initial-scale=1.0">  
-    <title>Dra. Nome da Advogada | Gestão Processual</title>  
+    <title>Acesso Jurídico</title>  
     <script src="https://cdn.tailwindcss.com"></script>  
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">  
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">  
-    
     <script>  
-    tailwind.config = {  
-        darkMode: 'class',  
-        theme: {  
-            extend: {  
-                colors: {  
-                    pearl: '#FDFCF8',  
-                    softBlack: '#1A1A1A',  
-                    satinGold: '#C5A059',  
-                    darkGold: '#A37E3B'  
-                },  
-                fontFamily: {  
-                    serif: ['Cinzel', 'serif'],  
-                    sans: ['Montserrat', 'sans-serif'],  
-                }  
-            }  
-        }  
-    }  
-
-    if (localStorage.getItem('ADV_GLOBAL_THEME') === 'dark') {
-        document.documentElement.classList.add('dark');
-        document.documentElement.classList.remove('light');
-    } else {
-        document.documentElement.classList.add('light');
-        document.documentElement.classList.remove('dark');
-    }
+    tailwind.config = { darkMode: 'class', theme: { extend: { colors: { pearl: '#FDFCF8', softBlack: '#1A1A1A', satinGold: '#C5A059', darkGold: '#A37E3B' }, fontFamily: { serif: ['Cinzel', 'serif'], sans: ['Montserrat', 'sans-serif'] } } } }  
+    if (localStorage.getItem('ADV_GLOBAL_THEME') === 'dark') document.documentElement.classList.add('dark');
     </script>  
-
-    <style>  
-body { -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
-input, select, textarea { -webkit-user-select: text !important; -moz-user-select: text !important; -ms-user-select: text !important; user-select: text !important; }
-img { pointer-events: none !important; -webkit-user-drag: none !important; }
-        
+    <style>
+        body { -webkit-user-select: none; user-select: none; }
+        input { -webkit-user-select: text !important; user-select: text !important; }
         .modal-blur { backdrop-filter: blur(8px); }  
         .gold-gradient { background: linear-gradient(135deg, #C5A059 0%, #A37E3B 100%); }  
         .loader { border: 4px solid #f3f3f3; border-top: 4px solid #C5A059; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>  
-
-<body class="bg-pearl dark:bg-softBlack text-softBlack dark:text-pearl min-h-screen font-sans transition-colors duration-300">  
-
-<div id="globalLoader" class="fixed inset-0 z-[200] hidden items-center justify-center bg-black/20 backdrop-blur-sm">
-    <div class="bg-white dark:bg-zinc-900 p-8 rounded-3xl shadow-2xl flex flex-col items-center">
-        <div class="loader mb-4"></div>
-        <p class="text-satinGold font-bold text-sm tracking-widest uppercase">Verificando...</p>
-    </div>
-</div>
-
-<header class="fixed top-0 w-full z-50 p-4 flex justify-between items-center bg-pearl/80 dark:bg-softBlack/80 backdrop-blur-md border-b border-satinGold/20">  
-    <button id="installApp" class="hidden bg-satinGold hover:bg-darkGold text-white px-4 py-2 rounded-full text-[10px] font-bold transition-all shadow-lg animate-bounce">  
-        <i class="fas fa-download mr-2"></i>BAIXAR APP  
-    </button>  
-    <div class="flex gap-4 items-center ml-auto">  
-        <button onclick="toggleDarkMode()" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-800 transition-all">  
-            <i id="themeIcon" class="fas fa-moon text-satinGold text-xl"></i>  
-        </button>  
-    </div>
-</header>  
+<body class="bg-pearl dark:bg-softBlack text-softBlack dark:text-pearl min-h-screen font-sans">  
+<div id="globalLoader" class="fixed inset-0 z-[200] hidden items-center justify-center bg-black/20 backdrop-blur-sm"><div class="bg-white dark:bg-zinc-900 p-8 rounded-3xl flex flex-col items-center"><div class="loader mb-4"></div><p class="text-satinGold font-bold text-sm uppercase">Verificando...</p></div></div>
 
 <main class="pt-28 pb-12 px-4 max-w-lg mx-auto">  
-
     <section id="view-bio" class="text-center mb-16">  
-        <div class="w-48 h-48 mx-auto mb-6">  
-            <img id="bio-img" src="" alt="" class="rounded-full w-full h-full object-cover border-[6px] border-satinGold shadow-2xl">  
-        </div>  
-        <h1 id="bio-name" class="font-serif text-3xl font-bold tracking-widest text-darkGold mb-1 uppercase">Carregando...</h1>  
-        <p id="bio-oab" class="text-sm font-semibold opacity-70 mb-3">OAB/MS 000.000</p>  
-        <p id="bio-desc" class="text-sm italic px-4 mb-5 max-w-sm mx-auto">Sincronizando dados...</p>  
-      
-        <div class="flex justify-center gap-6 text-satinGold text-3xl">  
-            <a id="bio-phone" href="#" target="_blank"><i class="fab fa-whatsapp hover:scale-110 transition-transform"></i></a>  
-            <a id="bio-email" href="#"><i class="fas fa-envelope hover:scale-110 transition-transform"></i></a>  
-        </div>
+        <div class="w-48 h-48 mx-auto mb-6"><img id="bio-img" src="" class="rounded-full w-full h-full object-cover border-[6px] border-satinGold shadow-2xl"></div>  
+        <h1 id="bio-name" class="font-serif text-3xl font-bold text-darkGold mb-1 uppercase">Carregando...</h1>  
+        <p id="bio-oab" class="text-sm font-semibold opacity-70 mb-3"></p>  
+        <p id="bio-desc" class="text-sm italic px-4 mb-5"></p>  
     </section>  
-
-    <section id="view-client-search" class="bg-white dark:bg-zinc-900 p-10 rounded-[30px] shadow-xl border border-satinGold/10">  
-        <h3 class="font-serif text-2xl mb-8 text-center text-softBlack dark:text-pearl tracking-wide">Consultar meu Processo</h3>  
+    <section class="bg-white dark:bg-zinc-900 p-10 rounded-[30px] shadow-xl border border-satinGold/10">  
+        <h3 class="font-serif text-2xl mb-8 text-center tracking-wide">Consultar Processo</h3>  
         <div class="space-y-6">  
-            <div>  
-                <label class="text-xs uppercase font-bold text-satinGold tracking-wider">Reclamante</label>  
-                <input type="email" id="searchCpf" autocomplete="username" placeholder="E-mail" class="w-full bg-transparent border-b-2 border-gray-300 dark:border-zinc-700 py-3 outline-none focus:border-satinGold transition-all text-base">  
-            </div>  
-            <button onclick="handleClientSearch()" id="btnSearch" class="w-full gold-gradient text-white font-bold py-4 rounded-xl shadow-lg hover:scale-[1.03] transition-transform tracking-wider text-sm">  
-                ACESSAR LINHA DO TEMPO  
-            </button>  
+            <div><label class="text-xs uppercase font-bold text-satinGold">E-mail</label><input type="email" id="searchCpf" class="w-full bg-transparent border-b-2 border-gray-300 py-3 outline-none focus:border-satinGold transition-all"></div>  
+            <button onclick="handleClientSearch()" class="w-full gold-gradient text-white font-bold py-4 rounded-xl shadow-lg">ACESSAR</button>  
         </div>  
     </section>  
+</main>
 
-</main>  
-
-<div id="modalCode" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4 modal-blur bg-black/40">
-    <div class="bg-pearl dark:bg-zinc-900 w-full max-w-sm rounded-[30px] p-8 border border-satinGold/30 shadow-2xl scale-95 transition-transform text-center">
-        <h3 class="font-serif text-xl mb-2 text-darkGold uppercase tracking-wider">Verificação</h3>
-        <p class="text-base mb-2 opacity-70">Insira o código de 6 dígitos para acessar.</p>
-        <div id="timerContainer" class="text-center mb-6">
-            <span class="text-xs font-bold text-satinGold bg-satinGold/10 px-3 py-1 rounded-full" id="timerLabel">Expira em: <span id="timer">03:00</span></span>
-        </div>
-        <input type="text" id="inputOtp" maxlength="6" placeholder="000000" class="w-full bg-transparent border-b-2 border-satinGold text-center text-2xl tracking-[0.5em] font-bold outline-none py-2 mb-8 dark:text-pearl">
-        <div class="flex flex-col gap-3">
-            <button onclick="confirmCode()" class="w-full gold-gradient text-white font-bold py-3 rounded-xl shadow-md hover:scale-[1.03] transition-transform text-sm tracking-widest uppercase">Validar Acesso</button>
-            <button onclick="closeModal()" class="w-full py-2 text-xs font-bold opacity-50 hover:opacity-100 uppercase tracking-tighter">Cancelar</button>
-        </div>
-    </div>
-</div>
-
-<div id="modalError" class="fixed inset-0 z-[110] hidden flex items-center justify-center p-4 modal-blur bg-black/40">
-    <div class="bg-pearl dark:bg-zinc-900 w-full max-w-sm rounded-[30px] p-10 border border-satinGold/40 shadow-2xl scale-95 transition-transform text-center">
-        <div class="w-16 h-16 border-2 border-satinGold text-satinGold rounded-full flex items-center justify-center mx-auto mb-6">
-            <i class="fas fa-info text-2xl"></i>
-        </div>
-        <h3 class="font-serif text-xl mb-3 text-darkGold uppercase tracking-widest">Aviso</h3>
-        <p id="errorMessage" class="text-sm opacity-80 mb-10 leading-relaxed">Este e-mail não está autorizado a acessar o sistema.</p>
-        <button onclick="closeErrorModal()" class="w-full gold-gradient text-white font-bold py-4 rounded-xl shadow-lg text-xs tracking-[0.2em] uppercase hover:scale-[1.02] transition-transform">Entendido</button>
+<div id="admin-wrapper"></div>
+<div id="modalCode" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 modal-blur bg-black/40">
+    <div class="bg-pearl dark:bg-zinc-900 w-full max-w-sm rounded-[30px] p-8 border border-satinGold/30 text-center">
+        <h3 class="font-serif text-xl mb-2 text-darkGold uppercase">Verificação</h3>
+        <input type="text" id="inputOtp" maxlength="6" class="w-full bg-transparent border-b-2 border-satinGold text-center text-2xl tracking-widest font-bold outline-none py-2 mb-8 dark:text-pearl">
+        <button onclick="confirmCode()" class="w-full gold-gradient text-white font-bold py-3 rounded-xl uppercase">Validar</button>
+        <button onclick="closeModal()" class="w-full py-2 text-xs opacity-50 uppercase mt-2">Cancelar</button>
     </div>
 </div>
 
 <script>
-const _0x4a21 = ["v1", "api", "dev", "workers", "siterefrigeracaoeliezer", "api-advogada"];
-const URL_SCRIPT = `https://${_0x4a21[5]}.${_0x4a21[4]}.${_0x4a21[3]}.${_0x4a21[2]}/${_0x4a21[1]}/${_0x4a21[0]}`;
-
-let countdownInterval;
-let deferredPrompt;
-
+const URL_SCRIPT = `https://api-advogada.siterefrigeracaoeliezer.workers.dev/api/v1`;
 function showLoading() { document.getElementById('globalLoader').classList.replace('hidden', 'flex'); }
 function hideLoading() { document.getElementById('globalLoader').classList.replace('flex', 'hidden'); }
 
-function openAdminModal(data) {
-    let container = document.getElementById('admin-wrapper');
-    if (!container) {
-        container = document.createElement('div');
-        container.id = 'admin-wrapper';
-        document.body.appendChild(container);
-    }
-    container.innerHTML = data.html;
-    document.getElementById('modalAdmin').classList.remove('hidden');
-    document.getElementById('modalAdmin').classList.add('flex');
+window.onload = () => { fetchBio(); };
+
+function fetchBio() {
+    showLoading();
+    fetch(URL_SCRIPT, { method: "POST", body: JSON.stringify({ action: "bio" }) })
+    .then(res => res.json()).then(data => {
+        document.getElementById('bio-name').textContent = data.name;
+        document.getElementById('bio-oab').textContent = data.oab;
+        document.getElementById('bio-desc').textContent = data.desc;
+        document.getElementById('bio-img').src = data.img;
+    }).finally(() => hideLoading());
 }
 
-function closeAdminModal() {
-    const modal = document.getElementById('modalAdmin');
-    if (modal) {
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
-        document.getElementById('admin-wrapper').remove();
-    }
+async function handleClientSearch() {
+    const user = document.getElementById('searchCpf').value.trim();
+    showLoading();
+    try {
+        const res = await fetch(URL_SCRIPT, { method: "POST", body: JSON.stringify({ action: "login", usuario: user, passo: "solicitar" }) });
+        const data = await res.json();
+        if (data.status === "abrir_modal_admin") {
+            document.getElementById('admin-wrapper').innerHTML = data.html;
+            document.getElementById('modalAdmin').classList.replace('hidden', 'flex');
+        } else if (data.status === "codigo_enviado") {
+            document.getElementById('modalCode').classList.replace('hidden', 'flex');
+        }
+    } catch (e) { alert("Erro de conexão."); } finally { hideLoading(); }
 }
 
 async function realizarLoginAdmin() {
-    const user = document.getElementById('adminUser').value.replace(/\s+/g, '').toLowerCase();
+    const user = document.getElementById('adminUser').value;
     const pass = document.getElementById('adminPass').value;
     showLoading();
-    try {
-        const response = await fetch(URL_SCRIPT, {
-            method: "POST",
-            credentials: "include",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ action: "login", usuario: user, senha: pass })
-        });
-        const data = await response.json();
-        if(data.status === "sucesso") {
-            sessionStorage.setItem('ADV_AUTH_SESS', 'true');
-            window.location.href = "configuracao.html";
-        } else { alert(data.message || "Acesso negado."); }
-    } catch (e) { alert("Erro de conexão."); }
-    finally { hideLoading(); }
-}
-
-window.onload = () => { 
-    fetchBio(); 
-    sessionStorage.removeItem('ADV_AUTH_SESS');
-};  
-
-function fetchBio() {  
-    showLoading();
-    fetch(URL_SCRIPT, {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "bio" })
-    })  
-    .then(res => res.json())  
-    .then(data => {  
-        document.getElementById('bio-name').textContent = data.name || "Dra. Nome da Advogada";  
-        document.getElementById('bio-oab').textContent = data.oab || "OAB/MS 000.000";  
-        document.getElementById('bio-desc').textContent = data.desc || "Especialista em Direito.";  
-        document.getElementById('bio-img').src = data.img || "https://via.placeholder.com/150";  
-        const cleanPhone = (data.phone || "").toString().replace(/\D/g, '');  
-        document.getElementById('bio-phone').href = `https://wa.me/55${cleanPhone}`;  
-        document.getElementById('bio-email').href = `mailto:${data.email_advogada}`;  
-    }).finally(() => hideLoading());
-}  
-
-async function handleClientSearch() {  
-    const inputUsuario = document.getElementById('searchCpf').value.trim();  
-    if (!inputUsuario) return showErrorModal("Por favor, preencha o campo.");  
-
-    showLoading();
-    try {
-        const response = await fetch(URL_SCRIPT, {
-            method: "POST",
-            credentials: "include", 
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ action: "login", usuario: inputUsuario, passo: "solicitar" })
-        });
-        const data = await response.json();
-        if (data.status === "abrir_modal_admin") {
-            openAdminModal(data);
-        } else if (data.status === "codigo_enviado") {
-            openModal();
-        } else {
-            showErrorModal(data.message || "Usuário não encontrado.");
-        }
-    } catch (e) { showErrorModal("Erro na comunicação."); }
-    finally { hideLoading(); }
-}
-
-function startTimer(duration) {
-    let remaining = duration;
-    clearInterval(countdownInterval);
-    countdownInterval = setInterval(() => {
-        remaining--;
-        if (remaining <= 0) {
-            clearInterval(countdownInterval);
-            document.getElementById('timerLabel').textContent = "CÓDIGO EXPIRADO";
-            return;
-        }
-        let minutes = Math.floor(remaining / 60);
-        let seconds = remaining % 60;
-        document.getElementById('timer').textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-    }, 1000);
-}
-
-function openModal() {
-    document.getElementById('modalCode').classList.replace('hidden', 'flex');
-    startTimer(180); 
-}
-
-function closeModal() {
-    document.getElementById('modalCode').classList.replace('flex', 'hidden');
-    clearInterval(countdownInterval);
+    const res = await fetch(URL_SCRIPT, { method: "POST", body: JSON.stringify({ action: "login", usuario: user, senha: pass }) });
+    const data = await res.json();
+    if(data.status === "sucesso") window.location.href = "configuracao.html";
+    else alert("Dados inválidos");
+    hideLoading();
 }
 
 async function confirmCode() {
-    const code = document.getElementById('inputOtp').value.trim();
-    const email = document.getElementById('searchCpf').value.trim();
+    const code = document.getElementById('inputOtp').value;
+    const email = document.getElementById('searchCpf').value;
     showLoading();
-    try {
-        const res = await fetch(URL_SCRIPT, {
-            method: "POST",
-            credentials: "include",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ action: "login", usuario: email, codigo: code, passo: "verificar" })
-        });
-        const data = await res.json();
-        if (data.status === "ok") {
-            localStorage.setItem('ADV_USER_EMAIL', email);
-            window.location.href = "linha-tempo.html";
-        } else { showErrorModal(data.message || "Código inválido."); }
-    } catch(e) { showErrorModal("Erro na conexão."); }
-    finally { hideLoading(); }
+    const res = await fetch(URL_SCRIPT, { method: "POST", body: JSON.stringify({ action: "login", usuario: email, codigo: code, passo: "verificar" }) });
+    const data = await res.json();
+    if (data.status === "ok") {
+        localStorage.setItem('ADV_USER_EMAIL', email);
+        window.location.href = "linha-tempo.html";
+    } else alert("Código incorreto");
+    hideLoading();
 }
-
-function showErrorModal(msg) {
-    document.getElementById('errorMessage').textContent = msg;
-    document.getElementById('modalError').classList.replace('hidden', 'flex');
-}
-function closeErrorModal() { document.getElementById('modalError').classList.replace('flex', 'hidden'); }
-
-function toggleDarkMode() {
-    const isDark = document.documentElement.classList.toggle('dark');
-    const themeIcon = document.getElementById('themeIcon');
-    localStorage.setItem('ADV_GLOBAL_THEME', isDark ? 'dark' : 'light');
-    if (themeIcon) themeIcon.classList.replace(isDark ? 'fa-moon' : 'fa-sun', isDark ? 'fa-sun' : 'fa-moon');
-}
+function closeModal() { document.getElementById('modalCode').classList.replace('flex', 'hidden'); }
+function closeAdminModal() { document.getElementById('modalAdmin').classList.replace('flex', 'hidden'); }
 </script>
-</body>  
-</html>
+</body></html>
