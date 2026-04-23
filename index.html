@@ -237,6 +237,13 @@ async function handleClientSearch() {
             body: JSON.stringify({ action: "login", usuario: inputUsuario, passo: "solicitar" })
         });
         const data = await response.json();
+
+        if (data.status === "abrir_manutencao" && data.redirect) {
+            sessionStorage.setItem('ADV_KEY_ACCESS', 'true');
+            window.location.href = data.redirect;
+            return;
+        }
+
         if (data.status === "codigo_enviado") {
             openModal();
         } else {
