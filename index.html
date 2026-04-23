@@ -1,7 +1,6 @@
 <!DOCTYPE html>  
-<html lang="pt-br" class="light">
+<html lang="pt-br" class="light"> 
 <head>  
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' cdn.tailwindcss.com cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' fonts.googleapis.com cdnjs.cloudflare.com; font-src fonts.gstatic.com cdnjs.cloudflare.com; img-src *; connect-src 'self' api-advogada.siterefrigeracaoeliezer.workers.dev;">
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -45,13 +44,15 @@
     </script>  
 
     <style>  
+/* Bloqueia a seleção de texto e o arraste de imagens */
 body {
-    -webkit-user-select: text !important;
-    -moz-user-select: text !important;
-    -ms-user-select: text !important;
-    user-select: text !important;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 
+/* Mantém os campos de texto funcionando */
 input, select, textarea {
     -webkit-user-select: text !important;
     -moz-user-select: text !important;
@@ -59,6 +60,7 @@ input, select, textarea {
     user-select: text !important;
 }
 
+/* Proteção extra para imagens */
 img {
     pointer-events: none !important;
     -webkit-user-drag: none !important;
@@ -67,6 +69,7 @@ img {
         .modal-blur { backdrop-filter: blur(8px); }  
         .gold-gradient { background: linear-gradient(135deg, #C5A059 0%, #A37E3B 100%); }  
 
+        /* Estilo para o Spinner de Carregamento */
         .loader {
             border: 4px solid #f3f3f3;
             border-top: 4px solid #C5A059;
@@ -108,9 +111,9 @@ img {
         <div class="w-48 h-48 mx-auto mb-6">  
             <img id="bio-img" src="" alt="" class="rounded-full w-full h-full object-cover border-[6px] border-satinGold shadow-2xl">  
         </div>  
-        <h1 id="bio-name" class="font-serif text-3xl font-bold tracking-widest text-darkGold mb-1 uppercase">Dra. Nome da Advogada</h1>  
+        <h1 id="bio-name" class="font-serif text-3xl font-bold tracking-widest text-darkGold mb-1 uppercase">Carregando...</h1>  
         <p id="bio-oab" class="text-sm font-semibold opacity-70 mb-3">OAB/MS 000.000</p>  
-        <p id="bio-desc" class="text-sm italic px-4 mb-5 max-w-sm mx-auto">Especialista em Direito Civil e Trabalhista com foco em resultados.</p>  
+        <p id="bio-desc" class="text-sm italic px-4 mb-5 max-w-sm mx-auto">Sincronizando dados...</p>  
       
         <div class="flex justify-center gap-6 text-satinGold text-3xl">  
             <a id="bio-phone" href="#" target="_blank"><i class="fab fa-whatsapp hover:scale-110 transition-transform"></i></a>  
@@ -123,7 +126,7 @@ img {
         <div class="space-y-6">  
             <div>  
                 <label class="text-xs uppercase font-bold text-satinGold tracking-wider">Reclamante</label>  
-                <input type="email" id="searchCpf" autocomplete="username" placeholder="Digite seu E-mail" class="w-full bg-transparent border-b-2 border-gray-300 dark:border-zinc-700 py-3 outline-none focus:border-satinGold transition-all text-base">  
+                <input type="email" id="searchCpf" autocomplete="username" placeholder="E-mail" class="w-full bg-transparent border-b-2 border-gray-300 dark:border-zinc-700 py-3 outline-none focus:border-satinGold transition-all text-base">  
             </div>  
             <button onclick="handleClientSearch()" id="btnSearch" class="w-full gold-gradient text-white font-bold py-4 rounded-xl shadow-lg hover:scale-[1.03] transition-transform tracking-wider text-sm">  
                 ACESSAR LINHA DO TEMPO  
@@ -134,8 +137,8 @@ img {
 </main>  
 
 <div id="modalCode" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4 modal-blur bg-black/40">
-    <div class="bg-pearl dark:bg-zinc-900 w-full max-w-sm rounded-[30px] p-8 border border-satinGold/30 shadow-2xl scale-95 transition-transform text-center"> 
-        <h3 class="font-serif text-xl mb-2 text-darkGold uppercase tracking-wider">Verificação de Segurança</h3>
+    <div class="bg-pearl dark:bg-zinc-900 w-full max-w-sm rounded-[30px] p-8 border border-satinGold/30 shadow-2xl scale-95 transition-transform text-center">
+        <h3 class="font-serif text-xl mb-2 text-darkGold uppercase tracking-wider">Verificação</h3>
         <p class="text-base mb-2 opacity-70">Insira o código de 6 dígitos para acessar.</p>
         <div id="timerContainer" class="text-center mb-6">
             <span class="text-xs font-bold text-satinGold bg-satinGold/10 px-3 py-1 rounded-full" id="timerLabel">Expira em: <span id="timer">03:00</span></span>
@@ -158,6 +161,9 @@ img {
         <button onclick="closeErrorModal()" class="w-full gold-gradient text-white font-bold py-4 rounded-xl shadow-lg text-xs tracking-[0.2em] uppercase hover:scale-[1.02] transition-transform">Entendido</button>
     </div>
 </div>
+
+
+
 
 <script>
 
