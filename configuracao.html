@@ -333,7 +333,8 @@ window.onload = () => {
         if (themeIcon) themeIcon.classList.replace('fa-moon', 'fa-sun');
     }
     initAreaSettings();
-    carregarPerfil(); carregarClientes();
+    carregarPerfil(); 
+    carregarClientes();
 };
 
 function initAreaSettings() {
@@ -376,7 +377,10 @@ function carregarPerfil() {
 function carregarClientes() {
     showSinc();
     fetch(URL_SCRIPT, { method: "POST", credentials: "include", body: JSON.stringify({ action: "listar_clientes" }) })
-    .then(res => res.json()).then(data => { dbClients = data; renderClients(); }).finally(() => hideSinc());
+    .then(res => res.json()).then(data => { 
+        dbClients = Array.isArray(data) ? data : []; 
+        renderClients(); 
+    }).finally(() => hideSinc());
 }
 
 function openModalNovoCliente() {
@@ -397,65 +401,63 @@ function renderClients() {
     const filtered = dbClients.filter(c => c.nome.toLowerCase().includes(searchNome));
     
     [...filtered].reverse().forEach((c) => {
-        const timelineRev = [...c.timeline].reverse();
+        const timelineRev = Array.isArray(c.timeline) ? [...c.timeline].reverse() : [];
         const card = timelineRev[0]; 
-        if (card) {
-            const isFinalizado = card.status.includes("Finalizado");
-            
-            const cardDiv = document.createElement('div');
-            cardDiv.className = `bg-white dark:bg-zinc-900 p-6 rounded-[25px] border border-satinGold/10 client-card shadow-sm flex justify-between items-center text-left ${isFinalizado ? 'card-finalizado' : ''}`;
-            
-            const infoDiv = document.createElement('div');
-            const nameH = document.createElement('h4');
-            nameH.className = 'font-bold text-darkGold text-lg mb-0.5 uppercase';
-            nameH.textContent = c.nome;
-            
-            const wrapDiv = document.createElement('div');
-            wrapDiv.className = 'flex flex-col';
-            
-            const metaDiv = document.createElement('div');
-            metaDiv.className = 'flex items-center gap-2 mb-1';
-            const typeSpan = document.createElement('span');
-            typeSpan.className = 'text-[10px] font-bold text-satinGold uppercase bg-satinGold/10 px-2 py-0.5 rounded-full';
-            typeSpan.textContent = c.tipo_acao || 'Ação';
-            const procSpan = document.createElement('span');
-            procSpan.className = 'text-[10px] opacity-50 font-bold';
-            procSpan.textContent = c.numero_processo || 'S/N';
-            metaDiv.appendChild(typeSpan);
-            metaDiv.appendChild(procSpan);
-            
-            const statusP = document.createElement('p');
-            statusP.className = 'text-[11px] uppercase font-bold text-softBlack dark:text-pearl tracking-wider leading-tight';
-            statusP.textContent = card.status;
-            
-            const detailSpan = document.createElement('span');
-            detailSpan.className = 'text-[9px] opacity-40 font-bold uppercase mt-1';
-          
-            
-            wrapDiv.appendChild(metaDiv);
-            wrapDiv.appendChild(statusP);
-            wrapDiv.appendChild(detailSpan);
-            infoDiv.appendChild(nameH);
-            infoDiv.appendChild(wrapDiv);
-            
-            const actionsDiv = document.createElement('div');
-            actionsDiv.className = 'flex gap-2';
-            const editBtn = document.createElement('button');
-            editBtn.className = 'w-10 h-10 rounded-full bg-gray-100 dark:bg-zinc-800 text-satinGold hover:bg-satinGold hover:text-white transition-all shadow-sm flex items-center justify-center';
-            editBtn.innerHTML = '<i class="fas fa-pen text-sm"></i>';
-            editBtn.onclick = () => openEditClient(c.id);
-            const delBtn = document.createElement('button');
-            delBtn.className = 'w-10 h-10 rounded-full bg-red-50 dark:bg-red-900/20 text-red-400 hover:bg-red-500 hover:text-white transition-all shadow-sm flex items-center justify-center';
-            delBtn.innerHTML = '<i class="fas fa-trash-alt text-sm"></i>';
-            delBtn.onclick = () => deleteClient(c.id);
-            
-            actionsDiv.appendChild(editBtn);
-            actionsDiv.appendChild(delBtn);
-            
-            cardDiv.appendChild(infoDiv);
-            cardDiv.appendChild(actionsDiv);
-            list.appendChild(cardDiv);
-        }
+        
+        const cardDiv = document.createElement('div');
+        const isFinalizado = card && card.status.includes("Finalizado");
+        cardDiv.className = `bg-white dark:bg-zinc-900 p-6 rounded-[25px] border border-satinGold/10 client-card shadow-sm flex justify-between items-center text-left ${isFinalizado ? 'card-finalizado' : ''}`;
+        
+        const infoDiv = document.createElement('div');
+        const nameH = document.createElement('h4');
+        nameH.className = 'font-bold text-darkGold text-lg mb-0.5 uppercase';
+        nameH.textContent = c.nome;
+        
+        const wrapDiv = document.createElement('div');
+        wrapDiv.className = 'flex flex-col';
+        
+        const metaDiv = document.createElement('div');
+        metaDiv.className = 'flex items-center gap-2 mb-1';
+        const typeSpan = document.createElement('span');
+        typeSpan.className = 'text-[10px] font-bold text-satinGold uppercase bg-satinGold/10 px-2 py-0.5 rounded-full';
+        typeSpan.textContent = c.tipo_acao || 'Ação';
+        const procSpan = document.createElement('span');
+        procSpan.className = 'text-[10px] opacity-50 font-bold';
+        procSpan.textContent = c.numero_processo || 'S/N';
+        metaDiv.appendChild(typeSpan);
+        metaDiv.appendChild(procSpan);
+        
+        const statusP = document.createElement('p');
+        statusP.className = 'text-[11px] uppercase font-bold text-softBlack dark:text-pearl tracking-wider leading-tight';
+        statusP.textContent = card ? card.status : "Sem Status";
+        
+        const detailSpan = document.createElement('span');
+        detailSpan.className = 'text-[9px] opacity-40 font-bold uppercase mt-1';
+        detailSpan.textContent = `Descrição: Visualização técnica de card de cliente no sistema.`;
+        
+        wrapDiv.appendChild(metaDiv);
+        wrapDiv.appendChild(statusP);
+        wrapDiv.appendChild(detailSpan);
+        infoDiv.appendChild(nameH);
+        infoDiv.appendChild(wrapDiv);
+        
+        const actionsDiv = document.createElement('div');
+        actionsDiv.className = 'flex gap-2';
+        const editBtn = document.createElement('button');
+        editBtn.className = 'w-10 h-10 rounded-full bg-gray-100 dark:bg-zinc-800 text-satinGold hover:bg-satinGold hover:text-white transition-all shadow-sm flex items-center justify-center';
+        editBtn.innerHTML = '<i class="fas fa-pen text-sm"></i>';
+        editBtn.onclick = () => openEditClient(c.id);
+        const delBtn = document.createElement('button');
+        delBtn.className = 'w-10 h-10 rounded-full bg-red-50 dark:bg-red-900/20 text-red-400 hover:bg-red-500 hover:text-white transition-all shadow-sm flex items-center justify-center';
+        delBtn.innerHTML = '<i class="fas fa-trash-alt text-sm"></i>';
+        delBtn.onclick = () => deleteClient(c.id);
+        
+        actionsDiv.appendChild(editBtn);
+        actionsDiv.appendChild(delBtn);
+        
+        cardDiv.appendChild(infoDiv);
+        cardDiv.appendChild(actionsDiv);
+        list.appendChild(cardDiv);
     });
 }
 
