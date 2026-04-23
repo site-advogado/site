@@ -2,10 +2,24 @@
 <html lang="pt-br" class="light">
 <head>  
     <script>
-        // Trava de segurança: Bloqueia acesso direto pelo link
+        // Trava de segurança: Bloqueia acesso direto e limpa ao atualizar ou voltar
         if (sessionStorage.getItem('ADV_KEY_ACCESS') !== 'true') {
             window.location.href = "index.html";
         }
+
+        // Detecta atualização, fechamento ou navegação para trás
+        window.addEventListener('beforeunload', function () {
+            sessionStorage.removeItem('ADV_KEY_ACCESS');
+            sessionStorage.removeItem('ADV_AUTH_SESS');
+        });
+
+        // Bloqueio extra para garantir redirecionamento no refresh
+        window.onpageshow = function(event) {
+            if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
+                sessionStorage.removeItem('ADV_KEY_ACCESS');
+                window.location.href = "index.html";
+            }
+        };
     </script>
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com; img-src 'self' https://blogger.googleusercontent.com data:; connect-src 'self' https://*.workers.dev;">
     <meta charset="UTF-8">  
