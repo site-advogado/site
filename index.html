@@ -266,7 +266,7 @@ function fetchBio() {
         document.getElementById('bio-name').textContent = data.name || "Sincronização falhou";  
         document.getElementById('bio-oab').textContent = data.oab || "OAB/MS 000.000";  
         document.getElementById('bio-desc').textContent = data.desc || "Sincronização falhou";  
-        document.getElementById('bio-img').src = data.img || "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEj1IjT2nCz0Dys2W4VT0W8lx-33HilagMdDzPaWJBMy0GMAWB_yrlNZD4ivqjH3VYrgWr15AL0GLpXrXcZnwZbzgSe5Mx84ola8GJuKrPmGG2_pF2wAz3EcnyYksEXJ2NQSRQRbT4s0eqmUyrCBnpiJJrffg4BPtl3lAKji0RK-PprhQDyyz_1ccPP3EMBU/s320/logo.png";  
+        document.getElementById('bio-img').src = data.img || "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiGaEVTw5lfLFBN6DQyXlxRH5jYjaFoYWedjR0xPphZ31_Khb5h5IZcoGgFuUv4tYZtVaz7sZ-CiF7jZAYqot3DGcrvqZM9lcgnz-PQK4N9IkNJCJ6nPyRyd4R0ZpLoGpL1jqgG63NMVrcjVSvE-KXQIJ68ty0tNVRS3TC0-PUK1vAVPx28CfwZcmje1nhY/w424-h424/logo.png";  
         const cleanPhone = (data.phone || "").toString().replace(/\D/g, '');  
         document.getElementById('bio-phone').href = `https://wa.me/55${cleanPhone}`;  
         document.getElementById('bio-email').href = `mailto:${data.email}`;  
