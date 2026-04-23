@@ -337,7 +337,7 @@ async function confirmCode() {
         const data = await res.json();
         if (data.status === "ok") {
             closeModal();
-            localStorage.setItem('ADV_USER_EMAIL', email);
+            sessionStorage.setItem('ADV_USER_EMAIL', email);
             window.location.href = "linha-tempo.html";
         } else {
             showErrorModal(data.message || "Código inválido.");
