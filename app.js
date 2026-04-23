@@ -4,13 +4,6 @@ window.tailwind && (tailwind.config = {
     theme: { extend: { colors: { pearl: '#FDFCF8', softBlack: '#1A1A1A', satinGold: '#C5A059', darkGold: '#A37E3B' }, fontFamily: { serif: ['Cinzel', 'serif'], sans: ['Montserrat', 'sans-serif'] } } }  
 });
 
-// TRAVA DE SEGURANÇA IMEDIATA (Executa antes de qualquer renderização)
-if (window.location.pathname.includes('manutencao.html')) {
-    if (sessionStorage.getItem('ADV_KEY_ACCESS') !== 'true') {
-        document.documentElement.style.display = 'none'; // Esconde a página totalmente
-        window.location.href = "index.html";
-    }
-}
 
 // Limpeza ao fechar, voltar ou atualizar
 window.addEventListener('pagehide', () => {
