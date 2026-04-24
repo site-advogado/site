@@ -278,7 +278,7 @@
 
       <div class="info-row">
         <i class="fas fa-envelope"></i>
-        <span><strong>E-mail administrativo</strong> — é o usuário que você digitará para entrar no painel. Também é exibido no perfil público da advogada.</span>
+        <span><strong>E-mail administrativo</strong> — é o usuário que você digitará para entrar no painel. Preferencialmente, não deve coincidir com o e-mail público do advogado.</span>
       </div>
       <div class="info-row">
         <i class="fas fa-lock"></i>
@@ -397,10 +397,17 @@
 <script>
   const URL_API = 'https://api-advogada.siterefrigeracaoeliezer.workers.dev';
 
-  /* ── Tema ── */
-  const isDark = localStorage.getItem('ADV_GLOBAL_THEME') !== 'light';
-  document.documentElement.classList.toggle('dark', isDark);
-
+// --- Tema ---
+function toggleDarkMode() {
+    const isDark = document.documentElement.classList.toggle('dark');
+    const themeIcon = document.getElementById('themeIcon');
+    if (isDark) {
+        localStorage.setItem('ADV_GLOBAL_THEME', 'dark');
+        if (themeIcon) themeIcon.classList.replace('fa-moon', 'fa-sun');
+    } else {
+        localStorage.setItem('ADV_GLOBAL_THEME', 'light');
+        if (themeIcon) themeIcon.classList.replace('fa-sun', 'fa-moon');
+    }
   /* ── Helpers ── */
   function showLoading()  { document.getElementById('globalLoader').classList.add('flex'); }
   function hideLoading()  { document.getElementById('globalLoader').classList.remove('flex'); }
