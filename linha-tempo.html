@@ -129,8 +129,6 @@
   </main>
 
   <script>
-    // ── Nenhuma api_key ou e-mail no frontend.
-    // Autenticação exclusivamente via cookie HttpOnly (Worker + JWT).
     const URL_API    = 'https://api-advogada.siterefrigeracaoeliezer.workers.dev/api/v1';
     const URL_SESSAO = 'https://api-advogada.siterefrigeracaoeliezer.workers.dev/api/verificar-sessao';
 
@@ -159,7 +157,6 @@
 
     async function init() {
       try {
-        // 1. Verificar sessão — o Worker lê o cookie e valida o JWT
         const sessRes  = await fetch(URL_SESSAO, { method: 'GET', credentials: 'include' });
         const sessData = await sessRes.json();
 
@@ -168,7 +165,6 @@
           return;
         }
 
-        // 2. Buscar timeline — NÃO enviamos e-mail; o Worker extrai do JWT (IDOR fix)
         const res  = await fetch(URL_API, {
           method: 'POST', credentials: 'include',
           headers: { 'Content-Type': 'application/json' },
@@ -210,7 +206,6 @@
         carousel.style.justifyContent = 'center';
       }
 
-      // Construir cards via template + preencher com textContent (XSS safe)
       carousel.innerHTML = displayData.map((_, index) =>
         `<div class="process-card bg-white dark:bg-zinc-900 p-6 rounded-[2.5rem] shadow-md cursor-pointer"
               data-index="${index}" id="card-idx-${index}">
@@ -228,7 +223,7 @@
         if (!card) return;
         card.querySelector('._tipo').textContent = proc.tipo_acao       || 'Processo';
         card.querySelector('._num').textContent  = proc.numero_processo || 'S/N';
-        card.querySelector('._obs').textContent  = proc.obs             || 'Sem observações adicionais';
+        card.querySelector('._obs').textContent  = proc.obs              || 'Sem observações adicionais';
         card.dataset.id = String(proc.id);
       });
 
@@ -236,7 +231,7 @@
         let touchMoved = false;
         card.addEventListener('touchstart', () => { touchMoved = false; }, { passive: true });
         card.addEventListener('touchmove',  () => { touchMoved = true;  }, { passive: true });
-        card.addEventListener('touchend',   (e) => { if (!touchMoved) { e.preventDefault(); selectProcess(card.dataset.id); } });
+        card.addEventListener('touchend',    (e) => { if (!touchMoved) { e.preventDefault(); selectProcess(card.dataset.id); } });
         card.addEventListener('click',      ()  => selectProcess(card.dataset.id));
       });
 
@@ -315,7 +310,6 @@
       document.getElementById('progress-circle').style.strokeDashoffset = (2 * Math.PI * 28) * (1 - pct / 100);
       document.getElementById('progress-percentage').textContent         = pct + '%';
 
-      // Renderizar via DOM — sem innerHTML de dados externos
       const container = document.getElementById('timeline-container');
       container.innerHTML = '';
       [...atualizacoes].reverse().forEach((ev, i) => {
