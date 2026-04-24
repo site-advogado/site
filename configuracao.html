@@ -116,6 +116,7 @@
   </section>
 </main>
 
+<!-- Modal Novo Cliente -->
 <div id="modal-client" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4 modal-blur bg-black/60">
   <div class="bg-pearl dark:bg-zinc-900 w-full max-w-xl p-8 rounded-[40px] border border-satinGold/30 shadow-2xl">
     <div class="flex justify-between items-center mb-6">
@@ -150,6 +151,7 @@
   </div>
 </div>
 
+<!-- Modal Editar Cliente -->
 <div id="modal-edit-client" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4 modal-blur bg-black/60">
   <div class="bg-pearl dark:bg-zinc-900 w-full max-w-xl p-8 rounded-[40px] border border-satinGold/30 shadow-2xl">
     <div class="flex justify-between items-center mb-6">
@@ -184,6 +186,7 @@
   </div>
 </div>
 
+<!-- Modal Confirmação -->
 <div id="modal-confirm" class="fixed inset-0 z-[200] hidden flex items-center justify-center p-4 modal-blur bg-black/80">
   <div class="bg-pearl dark:bg-zinc-900 w-full max-w-sm p-8 rounded-[30px] border-2 border-satinGold text-center shadow-2xl">
     <div class="w-16 h-16 gold-gradient rounded-full flex items-center justify-center text-white text-2xl mx-auto mb-4"><i class="fas fa-question"></i></div>
@@ -196,6 +199,7 @@
   </div>
 </div>
 
+<!-- Modal Excluir -->
 <div id="modal-delete-confirm" class="fixed inset-0 z-[250] hidden flex items-center justify-center p-4 modal-blur bg-black/80">
   <div class="bg-pearl dark:bg-zinc-900 w-full max-w-sm p-8 rounded-[30px] border-2 border-satinGold text-center shadow-2xl">
     <div class="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center text-white text-2xl mx-auto mb-4 shadow-lg"><i class="fas fa-exclamation-triangle"></i></div>
@@ -208,6 +212,7 @@
   </div>
 </div>
 
+<!-- Modal Sucesso -->
 <div id="modal-success" class="fixed inset-0 z-[300] hidden flex items-center justify-center p-4 modal-blur bg-black/60 opacity-0 pointer-events-none transition-opacity duration-500">
   <div class="bg-pearl dark:bg-zinc-900 w-full max-w-sm p-10 rounded-[30px] border-2 border-satinGold text-center shadow-2xl">
     <div class="w-20 h-20 gold-gradient rounded-full flex items-center justify-center text-white text-3xl mx-auto mb-6 shadow-lg"><i class="fas fa-check"></i></div>
@@ -270,12 +275,12 @@
     showSinc();
     fetch(URL_API,{ method:'POST', credentials:'include', headers:{'Content-Type':'application/json'}, body:JSON.stringify({action:'bio'}) })
     .then(r=>r.json()).then(data=>{
-      document.getElementById('config-name').value  = data.name            || '';
-      document.getElementById('config-oab').value   = data.oab             || '';
-      document.getElementById('config-img').value   = data.img             || '';
-      document.getElementById('config-phone').value = data.phone           || '';
+      document.getElementById('config-name').value  = data.name           || '';
+      document.getElementById('config-oab').value   = data.oab            || '';
+      document.getElementById('config-img').value   = data.img            || '';
+      document.getElementById('config-phone').value = data.phone          || '';
       document.getElementById('config-email').value = data.email_advogada || '';
-      document.getElementById('config-desc').value  = data.desc            || '';
+      document.getElementById('config-desc').value  = data.desc           || '';
       const av = data.areas_visiveis || '';
       document.querySelectorAll('.settings-area-check').forEach(ck=>{ ck.checked=av.split('|').includes(ck.value); });
       updateModalAreaSelect(av);
@@ -344,7 +349,7 @@
     currentClientID = String(c.id);
     document.getElementById('edit-c-nome').value      = c.nome            || '';
     document.getElementById('edit-c-num-proc').value  = c.numero_processo || '';
-    document.getElementById('edit-c-email').value      = c.email           || '';
+    document.getElementById('edit-c-email').value     = c.email           || '';
     document.getElementById('edit-c-obs').value       = c.obs             || '';
     document.getElementById('edit-notificar').checked = c.notificar==='SIM';
     const last = Array.isArray(c.timeline)&&c.timeline.length>0 ? c.timeline[c.timeline.length-1] : {status:'Petição Inicial Protocolada',descricao:''};
