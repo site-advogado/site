@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="pt-br" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dra. Advogada | Gestao Processual</title>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com; img-src 'self' https://blogger.googleusercontent.com data:; connect-src 'self' https://*.workers.dev;">
+    <link rel="manifest" href="manifest.json">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=Montserrat:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+
+    <script>
+    tailwind.config = {
+        darkMode: 'class',
+        theme: {
+            extend: {
+                colors: {
+                    pearl: '#FAF8F3',
+                    cream: '#F5F0E8',
+                    softBlack: '#0D0D0D',
+                    satinGold: '#C5A059',
+                    darkGold: '#9A7535',
+                    lightGold: '#E8C97A',
+                    warmGray: '#8C8070',
+                },
+                fontFamily: {
+                    serif: ['Cormorant Garamond', 'serif'],
+                    sans: ['Montserrat', 'sans-serif'],
+                }
+            }
+        }
+    }
+    if (localStorage.getItem('ADV_GLOBAL_THEME') === 'dark') {
+        document.documentElement.classList.add('dark');
+    } else {
+        document.documentElement.classList.add('light');
+    }
+    </script>
+
+    <style>
+        :root { --gold: #C5A059; --gold-dark: #9A7535; --gold-light: #E8C97A; }
+        * { box-sizing: border-box; }
+        body { background-color: #FAF8F3; }
+        .dark body { background-color: #080705; }
+
+        input, select, textarea { -webkit-user-select: text !important; user-select: text !important; }
+        img { pointer-events: none !important; -webkit-user-drag: none !important; }
+
+        /* Background texture */
+        .bg-texture {
+            position: fixed; inset: 0; pointer-events: none; z-index: 0;
+            background-image:
+                radial-gradient(circle at 20% 20%, rgba(197,160,89,0.04) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(197,160,89,0.04) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(197,160,89,0.02) 0%, transparent 70%);
+        }
+
+        /* Animated border gradient */
+        @keyframes borderGlow {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        /* Gold lines */
+        .gold-line { height: 1px; background: linear-gradient(90deg, transparent, var(--gold), transparent); }
+
+        /* Gold gradient bg */
+        .gold-gradient { background: linear-gradient(135deg, #C5A059 0%, #E8C97A 50%, #9A7535 100%); }
+
+        .gold-text {
+            background: linear-gradient(135deg, #C5A059, #E8C97A, #9A7535);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Glass header */
+        .glass-header {
+            background: rgba(250, 248, 243, 0.82);
+            backdrop-filter: blur(24px) saturate(180%);
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
+            border-bottom: 1px solid rgba(197, 160, 89, 0.18);
+        }
+        .dark .glass-header {
+            background: rgba(8, 7, 5, 0.85);
+            border-bottom: 1px solid rgba(197, 160, 89, 0.12);
+        }
+
+        /* Profile photo ring */
+        .profile-outer {
+            padding: 3px;
+            background: conic-gradient(from 0deg, #C5A059, #E8C97A, #9A7535, #E8C97A, #C5A059);
+            border-radius: 50%;
+            animation: spinSlow 8s linear infinite;
+        }
+        @keyframes spinSlow {
+            from { transform: rotate(0deg); }
+            to   { transform: rotate(360deg); }
+        }
+        .profile-inner {
+            border-radius: 50%;
+            padding: 4px;
+            background: #FAF8F3;
+        }
+        .dark .profile-inner { background: #080705; }
+        .profile-img {
+            border-radius: 50%;
+            width: 100%; height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* Luxury card */
+        .luxury-card {
+            background: rgba(255,255,255,0.88);
+            border: 1px solid rgba(197,160,89,0.18);
+            border-radius: 32px;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+        }
+        .dark .luxury-card {
+            background: rgba(18,15,10,0.92);
+            border-color: rgba(197,160,89,0.13);
+        }
+        .luxury-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 1.5px;
+            background: linear-gradient(90deg, transparent, #C5A059, #E8C97A, #C5A059, transparent);
+        }
+        .luxury-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 32px 80px rgba(197,160,89,0.1), 0 8px 20px rgba(0,0,0,0.06);
+        }
+
+        /* Corner ornaments */
+        .corner { position: absolute; width: 28px; height: 28px; border-color: rgba(197,160,89,0.25); border-style: solid; }
+        .c-tl { top: 20px; left: 20px; border-width: 1px 0 0 1px; }
+        .c-tr { top: 20px; right: 20px; border-width: 1px 1px 0 0; }
+        .c-bl { bottom: 20px; left: 20px; border-width: 0 0 1px 1px; }
+        .c-br { bottom: 20px; right: 20px; border-width: 0 1px 1px 0; }
+
+        /* Premium input */
+        .premium-input {
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid rgba(140,128,112,0.3);
+            padding: 14px 0 10px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 13px;
+            font-weight: 300;
+            color: #0D0D0D;
+            width: 100%;
+            outline: none;
+            transition: border-color 0.35s ease;
+            letter-spacing: 0.05em;
+        }
+        .dark .premium-input { color: #FAF8F3; border-bottom-color: rgba(197,160,89,0.2); }
+        .premium-input:focus { border-bottom-color: var(--gold); }
+        .premium-input::placeholder { color: rgba(140,128,112,0.55); font-size: 12px; letter-spacing: 0.1em; }
+
+        /* Premium label */
+        .premium-label {
+            display: block;
+            font-size: 8.5px;
+            font-weight: 600;
+            letter-spacing: 0.28em;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 2px;
+        }
+
+        /* Button premium */
+        .btn-premium {
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, #B8923F 0%, #E8C97A 50%, #9A7535 100%);
+            background-size: 200%;
+            color: #fff;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.3em;
+            padding: 18px 32px;
+            border-radius: 100px;
+            border: none;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: transform 0.35s ease, box-shadow 0.35s ease;
+            width: 100%;
+        }
+        .btn-premium::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent);
+            transition: left 0.5s ease;
+        }
+        .btn-premium:hover::before { left: 100%; }
+        .btn-premium:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 16px 48px rgba(197,160,89,0.45);
+        }
+        .btn-premium:active { transform: translateY(0); }
+
+        /* Social icons */
+        .social-icon {
+            width: 54px; height: 54px;
+            border: 1px solid rgba(197,160,89,0.28);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--gold);
+            font-size: 18px;
+            transition: all 0.35s cubic-bezier(0.25,0.8,0.25,1);
+            position: relative; overflow: hidden;
+            text-decoration: none;
+        }
+        .social-icon::after {
+            content: '';
+            position: absolute; inset: 0;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #C5A059, #E8C97A);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .social-icon:hover::after { opacity: 1; }
+        .social-icon:hover { border-color: transparent; color: #fff; transform: translateY(-4px); box-shadow: 0 12px 32px rgba(197,160,89,0.4); }
+        .social-icon i { position: relative; z-index: 1; }
+
+        /* Loader */
+        .loader-ring {
+            width: 44px; height: 44px;
+            border: 2px solid rgba(197,160,89,0.12);
+            border-top: 2px solid #C5A059;
+            border-radius: 50%;
+            animation: spin 0.75s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Ornamental divider */
+        .orn-divider { display: flex; align-items: center; gap: 10px; }
+        .orn-line { flex: 1; height: 1px; }
+        .orn-line-l { background: linear-gradient(90deg, transparent, rgba(197,160,89,0.3)); }
+        .orn-line-r { background: linear-gradient(90deg, rgba(197,160,89,0.3), transparent); }
+        .orn-diamond { width: 5px; height: 5px; background: var(--gold); transform: rotate(45deg); flex-shrink: 0; }
+
+        /* Modal */
+        .modal-overlay { backdrop-filter: blur(14px); background: rgba(0,0,0,0.58); }
+        .modal-card {
+            background: #FAF8F3;
+            border: 1px solid rgba(197,160,89,0.22);
+            border-radius: 36px;
+            position: relative; overflow: hidden;
+        }
+        .dark .modal-card { background: #100E09; border-color: rgba(197,160,89,0.18); }
+        .modal-card::before {
+            content: '';
+            position: absolute; top: 0; left: 0; right: 0;
+            height: 1.5px;
+            background: linear-gradient(90deg, transparent, #C5A059, #E8C97A, #C5A059, transparent);
+        }
+
+        /* OTP input */
+        .otp-input {
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid rgba(197,160,89,0.35);
+            text-align: center;
+            font-size: 30px;
+            font-weight: 600;
+            letter-spacing: 0.6em;
+            padding: 10px 0;
+            color: var(--gold);
+            width: 100%;
+            outline: none;
+            transition: border-color 0.3s;
+            font-family: 'Montserrat', sans-serif;
+        }
+        .otp-input:focus { border-bottom-color: var(--gold); }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(28px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: scale(0.95); }
+            to   { opacity: 1; transform: scale(1); }
+        }
+        .anim-up     { animation: fadeInUp 0.7s cubic-bezier(0.25,0.8,0.25,1) both; }
+        .anim-scale  { animation: fadeInScale 0.6s cubic-bezier(0.25,0.8,0.25,1) both; }
+        .d1 { animation-delay: 0.08s; }
+        .d2 { animation-delay: 0.18s; }
+        .d3 { animation-delay: 0.30s; }
+        .d4 { animation-delay: 0.44s; }
+        .d5 { animation-delay: 0.58s; }
+
+        /* Tagline badge */
+        .tagline-badge {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: rgba(197,160,89,0.07);
+            border: 1px solid rgba(197,160,89,0.22);
+            border-radius: 100px;
+            padding: 7px 18px;
+            font-size: 9px; font-weight: 500;
+            letter-spacing: 0.22em;
+            color: var(--gold);
+            text-transform: uppercase;
+        }
+
+        /* Theme toggle */
+        .theme-toggle {
+            width: 44px; height: 44px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            border: 1px solid rgba(197,160,89,0.22);
+            background: transparent; cursor: pointer;
+            transition: all 0.3s; color: var(--gold);
+        }
+        .theme-toggle:hover {
+            background: rgba(197,160,89,0.08);
+            border-color: rgba(197,160,89,0.5);
+        }
+
+        /* Install btn */
+        .install-btn {
+            display: none; align-items: center; gap: 8px;
+            background: linear-gradient(135deg, #C5A059, #9A7535);
+            color: #fff; border: none;
+            padding: 10px 20px; border-radius: 100px;
+            font-size: 9px; font-weight: 600;
+            letter-spacing: 0.2em; text-transform: uppercase;
+            cursor: pointer;
+            animation: pulse 2s infinite;
+        }
+        .install-btn.show { display: flex; }
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(197,160,89,0.3); }
+            50% { box-shadow: 0 0 0 8px rgba(197,160,89,0); }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(197,160,89,0.35); border-radius: 4px; }
+
+        /* Bio section */
+        .bio-name {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(26px, 6vw, 36px);
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            line-height: 1.2;
+        }
+    </style>
+</head>
+
+<body class="bg-pearl dark:bg-softBlack text-softBlack dark:text-pearl min-h-screen font-sans transition-colors duration-300">
+
+    <!-- Background texture -->
+    <div class="bg-texture"></div>
+
+    <!-- Global Loader -->
+    <div id="globalLoader" class="fixed inset-0 z-[200] hidden items-center justify-center" style="background:rgba(0,0,0,0.25);backdrop-filter:blur(8px);">
+        <div class="bg-pearl dark:bg-zinc-900 px-12 py-10 rounded-[28px] shadow-2xl flex flex-col items-center gap-4" style="border:1px solid rgba(197,160,89,0.2);">
+            <div class="loader-ring"></div>
+            <p class="text-satinGold font-semibold text-[10px] tracking-[0.3em] uppercase">Verificando</p>
+            <div class="flex gap-1">
+                <span class="w-1 h-1 rounded-full bg-satinGold opacity-60" style="animation: bounce 1s 0s infinite;"></span>
+                <span class="w-1 h-1 rounded-full bg-satinGold opacity-60" style="animation: bounce 1s 0.15s infinite;"></span>
+                <span class="w-1 h-1 rounded-full bg-satinGold opacity-60" style="animation: bounce 1s 0.3s infinite;"></span>
+            </div>
+        </div>
+    </div>
+    <style>
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-4px); }
+        }
+    </style>
+
+    <!-- Header -->
+    <header class="fixed top-0 w-full z-50 glass-header px-6 py-4 flex items-center justify-between">
+        <button id="installApp" class="install-btn">
+            <i class="fas fa-arrow-down text-[10px]"></i>
+            <span>Instalar App</span>
+        </button>
+
+        <div class="flex-1 flex justify-center">
+            <div class="orn-divider w-32 opacity-40">
+                <div class="orn-line orn-line-l"></div>
+                <div class="orn-diamond"></div>
+                <div class="orn-diamond" style="width:3px;height:3px;opacity:0.5;"></div>
+                <div class="orn-diamond"></div>
+                <div class="orn-line orn-line-r"></div>
+            </div>
+        </div>
+
+        <button onclick="toggleDarkMode()" class="theme-toggle">
+            <i id="themeIcon" class="fas fa-moon text-base"></i>
+        </button>
+    </header>
+
+    <!-- Main -->
+    <main class="relative z-10 pt-24 pb-16 px-4 max-w-md mx-auto">
+
+        <!-- Bio Section -->
+        <section class="text-center mb-14">
+
+            <!-- Tagline -->
+            <div class="anim-up d1 flex justify-center mb-8">
+                <div class="tagline-badge">
+                    <i class="fas fa-balance-scale text-[10px]"></i>
+                    <span>Advocacia de Excelência</span>
+                </div>
+            </div>
+
+            <!-- Profile Photo -->
+            <div class="anim-up d2 flex justify-center mb-7">
+                <div class="profile-outer" style="width:180px;height:180px;">
+                    <div class="profile-inner" style="width:100%;height:100%;">
+                        <img id="bio-img"
+                             src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiGaEVTw5lfLFBN6DQyXlxRH5jYjaFoYWedjR0xPphZ31_Khb5h5IZcoGgFuUv4tYZtVaz7sZ-CiF7jZAYqot3DGcrvqZM9lcgnz-PQK4N9IkNJCJ6nPyRyd4R0ZpLoGpL1jqgG63NMVrcjVSvE-KXQIJ68ty0tNVRS3TC0-PUK1vAVPx28CfwZcmje1nhY/w424-h424/logo.png"
+                             alt="Foto da Advogada"
+                             class="profile-img">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Name -->
+            <div class="anim-up d3">
+                <h1 id="bio-name" class="bio-name gold-text mb-2">Carregando...</h1>
+                <div class="orn-divider w-48 mx-auto my-3">
+                    <div class="orn-line orn-line-l"></div>
+                    <div class="orn-diamond"></div>
+                    <div class="orn-line orn-line-r"></div>
+                </div>
+                <p id="bio-oab" class="text-xs font-medium tracking-[0.22em] uppercase opacity-50 mb-4">OAB/MS 000.000</p>
+            </div>
+
+            <!-- Description -->
+            <div class="anim-up d4">
+                <p id="bio-desc" class="text-sm font-light leading-relaxed opacity-65 px-6 max-w-xs mx-auto mb-8" style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:16px;">
+                    Sincronizando dados...
+                </p>
+            </div>
+
+            <!-- Social Icons -->
+            <div class="anim-up d5 flex justify-center gap-5">
+                <a id="bio-phone" href="#" target="_blank" class="social-icon" title="WhatsApp">
+                    <i class="fab fa-whatsapp"></i>
+                </a>
+                <a id="bio-email" href="#" class="social-icon" title="E-mail">
+                    <i class="fas fa-envelope"></i>
+                </a>
+            </div>
+
+        </section>
+
+        <!-- Gold line separator -->
+        <div class="anim-up d5 gold-line my-10 mx-8 opacity-40"></div>
+
+        <!-- Login Card -->
+        <section class="anim-scale d5 luxury-card p-10 mb-6">
+            <!-- Corner ornaments -->
+            <span class="corner c-tl"></span>
+            <span class="corner c-tr"></span>
+            <span class="corner c-bl"></span>
+            <span class="corner c-br"></span>
+
+            <!-- Header card -->
+            <div class="text-center mb-9">
+                <div class="w-12 h-12 rounded-full gold-gradient flex items-center justify-center mx-auto mb-5 shadow-lg">
+                    <i class="fas fa-search text-white text-sm"></i>
+                </div>
+                <h3 class="font-serif text-2xl font-semibold tracking-wide text-softBlack dark:text-pearl mb-1">
+                    Consultar Processo
+                </h3>
+                <p class="text-xs opacity-40 tracking-widest uppercase font-light">Acesso seguro e privado</p>
+            </div>
+
+            <!-- Ornamental divider -->
+            <div class="orn-divider mb-8">
+                <div class="orn-line orn-line-l"></div>
+                <div class="orn-diamond" style="opacity:0.4;"></div>
+                <div class="orn-line orn-line-r"></div>
+            </div>
+
+            <!-- Input -->
+            <div class="mb-8">
+                <label class="premium-label" for="searchCpf">
+                    <i class="fas fa-user-circle mr-1 opacity-70"></i>
+                    Reclamante
+                </label>
+                <input
+                    type="email"
+                    id="searchCpf"
+                    autocomplete="username"
+                    placeholder="Seu e-mail cadastrado"
+                    class="premium-input"
+                >
+            </div>
+
+            <!-- Button -->
+            <button onclick="handleClientSearch()" id="btnSearch" class="btn-premium">
+                <i class="fas fa-timeline mr-2 opacity-80"></i>
+                Acessar Linha do Tempo
+            </button>
+
+            <!-- Footer note -->
+            <p class="text-center text-[10px] opacity-30 tracking-widest uppercase mt-6 font-light">
+                Protegido por criptografia
+            </p>
+
+        </section>
+
+        <!-- Bottom ornament -->
+        <div class="flex justify-center mt-10 opacity-25">
+            <div class="orn-divider w-40">
+                <div class="orn-line orn-line-l"></div>
+                <div class="orn-diamond"></div>
+                <div class="orn-diamond" style="width:3px;height:3px;margin:0 2px;"></div>
+                <div class="orn-diamond"></div>
+                <div class="orn-line orn-line-r"></div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ===================== Modal: OTP ===================== -->
+    <div id="modalCode" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 modal-overlay">
+        <div class="modal-card w-full max-w-sm p-10 text-center" style="animation: fadeInScale 0.35s ease both;">
+
+            <span class="corner c-tl"></span>
+            <span class="corner c-tr"></span>
+            <span class="corner c-bl"></span>
+            <span class="corner c-br"></span>
+
+            <!-- Icon -->
+            <div class="w-14 h-14 rounded-full gold-gradient flex items-center justify-center mx-auto mb-6 shadow-lg">
+                <i class="fas fa-lock-open text-white text-lg"></i>
+            </div>
+
+            <h3 class="font-serif text-2xl font-semibold tracking-wider text-softBlack dark:text-pearl mb-2 uppercase">
+                Verificação
+            </h3>
+            <p class="text-xs opacity-50 tracking-wider mb-6 font-light leading-relaxed">
+                Insira o código de 6 dígitos<br>enviado para seu e-mail.
+            </p>
+
+            <!-- Timer -->
+            <div class="mb-7">
+                <span class="text-[10px] font-semibold tracking-[0.2em] uppercase" style="color:var(--gold);background:rgba(197,160,89,0.08);border:1px solid rgba(197,160,89,0.2);padding:5px 14px;border-radius:100px;" id="timerLabel">
+                    Expira em <span id="timer">03:00</span>
+                </span>
+            </div>
+
+            <!-- OTP Input -->
+            <input type="text" id="inputOtp" maxlength="6" placeholder="• • • • • •" class="otp-input mb-8">
+
+            <!-- Buttons -->
+            <button onclick="confirmCode()" class="btn-premium mb-3">
+                <i class="fas fa-check mr-2 opacity-80"></i>
+                Validar Acesso
+            </button>
+            <button onclick="closeModal()" class="w-full py-2 text-[10px] font-semibold opacity-30 hover:opacity-70 uppercase tracking-[0.25em] transition-opacity">
+                Cancelar
+            </button>
+        </div>
+    </div>
+
+    <!-- ===================== Modal: Erro / Aviso ===================== -->
+    <div id="modalError" class="fixed inset-0 z-[110] hidden items-center justify-center p-4 modal-overlay">
+        <div class="modal-card w-full max-w-sm p-10 text-center" style="animation: fadeInScale 0.35s ease both;">
+
+            <span class="corner c-tl"></span>
+            <span class="corner c-tr"></span>
+            <span class="corner c-bl"></span>
+            <span class="corner c-br"></span>
+
+            <!-- Icon -->
+            <div class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6" style="border:1.5px solid rgba(197,160,89,0.4);">
+                <i class="fas fa-info-circle text-3xl" style="color:var(--gold);"></i>
+            </div>
+
+            <h3 class="font-serif text-xl font-semibold uppercase tracking-[0.2em] mb-3" style="color:var(--gold-dark);">
+                Aviso
+            </h3>
+
+            <div class="orn-divider mb-5">
+                <div class="orn-line orn-line-l"></div>
+                <div class="orn-diamond" style="opacity:0.4;"></div>
+                <div class="orn-line orn-line-r"></div>
+            </div>
+
+            <p id="errorMessage" class="text-sm opacity-70 leading-relaxed mb-9 font-light">
+                Este e-mail nao esta autorizado.
+            </p>
+
+            <button onclick="closeErrorModal()" class="btn-premium">
+                <i class="fas fa-check mr-2 opacity-80"></i>
+                Entendido
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const URL_SCRIPT = 'https://api-advogada.siterefrigeracaoeliezer.workers.dev/api/v1';
+        let countdownInterval;
+        let deferredPrompt;
+
+        // --- PWA Install ---
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            const btn = document.getElementById('installApp');
+            btn.classList.add('show');
+        });
+
+        document.getElementById('installApp')?.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    document.getElementById('installApp').classList.remove('show');
+                }
+                deferredPrompt = null;
+            }
+        });
+
+        // --- Loaders ---
+        function showLoading() {
+            const el = document.getElementById('globalLoader');
+            el.style.display = 'flex';
+        }
+        function hideLoading() {
+            const el = document.getElementById('globalLoader');
+            el.style.display = 'none';
+        }
+
+        // --- Init ---
+        window.onload = () => {
+            const themeIcon = document.getElementById('themeIcon');
+            if (localStorage.getItem('ADV_GLOBAL_THEME') === 'dark') {
+                document.documentElement.classList.add('dark');
+                if (themeIcon) { themeIcon.classList.remove('fa-moon'); themeIcon.classList.add('fa-sun'); }
+            }
+            fetchBio();
+        };
+
+        // --- Bio ---
+        function fetchBio() {
+            showLoading();
+            fetch(URL_SCRIPT, {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'bio' })
+            })
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('bio-name').textContent = data.name || 'Dra. Advogada';
+                document.getElementById('bio-oab').textContent = data.oab || 'OAB/MS 000.000';
+                document.getElementById('bio-desc').textContent = data.desc || 'Advocacia especializada com compromisso, ética e excelência.';
+                document.getElementById('bio-img').src = data.img || 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiGaEVTw5lfLFBN6DQyXlxRH5jYjaFoYWedjR0xPphZ31_Khb5h5IZcoGgFuUv4tYZtVaz7sZ-CiF7jZAYqot3DGcrvqZM9lcgnz-PQK4N9IkNJCJ6nPyRyd4R0ZpLoGpL1jqgG63NMVrcjVSvE-KXQIJ68ty0tNVRS3TC0-PUK1vAVPx28CfwZcmje1nhY/w424-h424/logo.png';
+                const cleanPhone = (data.phone || '').toString().replace(/\D/g, '');
+                document.getElementById('bio-phone').href = 'https://wa.me/55' + cleanPhone;
+                document.getElementById('bio-email').href = 'mailto:' + data.email;
+            })
+            .catch(() => {
+                document.getElementById('bio-name').textContent = 'Erro ao carregar';
+            })
+            .finally(() => hideLoading());
+        }
+
+        // --- Step 1: Request OTP ---
+        async function handleClientSearch() {
+            const email = document.getElementById('searchCpf').value.trim();
+            if (!email) return showErrorModal('Por favor, preencha o campo com seu e-mail.');
+            showLoading();
+            try {
+                const res = await fetch(URL_SCRIPT, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'login', usuario: email, passo: 'solicitar' })
+                });
+                const data = await res.json();
+                if (data.status === 'ir_para_admin') {
+                    window.location.href = 'manutencao.html';
+                    return;
+                }
+                if (data.status === 'codigo_enviado') {
+                    openModal();
+                } else {
+                    showErrorModal(data.message || 'Usuario nao encontrado.');
+                }
+            } catch (e) {
+                showErrorModal('Erro na comunicacao. Tente novamente.');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // --- Timer ---
+        function startTimer(duration) {
+            let remaining = duration;
+            clearInterval(countdownInterval);
+            countdownInterval = setInterval(() => {
+                remaining--;
+                if (remaining <= 0) {
+                    clearInterval(countdownInterval);
+                    document.getElementById('timerLabel').innerHTML = '<span style="color:var(--gold);">Codigo Expirado</span>';
+                    return;
+                }
+                const m = Math.floor(remaining / 60);
+                const s = remaining % 60;
+                document.getElementById('timer').textContent = m + ':' + (s < 10 ? '0' : '') + s;
+            }, 1000);
+        }
+
+        function openModal() {
+            const m = document.getElementById('modalCode');
+            m.style.display = 'flex';
+            startTimer(180);
+        }
+
+        function closeModal() {
+            document.getElementById('modalCode').style.display = 'none';
+            clearInterval(countdownInterval);
+        }
+
+        // --- Step 2: Confirm OTP ---
+        async function confirmCode() {
+            const email = document.getElementById('searchCpf').value.trim();
+            const codigo = document.getElementById('inputOtp').value.trim();
+            if (!codigo) return showErrorModal('Digite o codigo de verificacao.');
+            showLoading();
+            try {
+                const res = await fetch(URL_SCRIPT, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'login', usuario: email, codigo, passo: 'verificar' })
+                });
+                const data = await res.json();
+                if (data.status === 'ok') {
+                    closeModal();
+                    window.location.href = 'linha-tempo.html';
+                } else {
+                    showErrorModal(data.message || 'Codigo invalido ou expirado.');
+                }
+            } catch (e) {
+                showErrorModal('Erro na conexao.');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // --- Error modal ---
+        function showErrorModal(msg) {
+            document.getElementById('errorMessage').textContent = msg;
+            document.getElementById('modalError').style.display = 'flex';
+        }
+        function closeErrorModal() {
+            document.getElementById('modalError').style.display = 'none';
+        }
+
+        // --- Theme toggle ---
+        function toggleDarkMode() {
+            const isDark = document.documentElement.classList.toggle('dark');
+            const icon = document.getElementById('themeIcon');
+            if (isDark) {
+                localStorage.setItem('ADV_GLOBAL_THEME', 'dark');
+                icon.classList.remove('fa-moon'); icon.classList.add('fa-sun');
+            } else {
+                localStorage.setItem('ADV_GLOBAL_THEME', 'light');
+                icon.classList.remove('fa-sun'); icon.classList.add('fa-moon');
+            }
+        }
+    </script>
+
+</body>
+</html>
