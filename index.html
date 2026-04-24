@@ -213,7 +213,7 @@ function fetchBio() {
     })
     .then(res => res.json())
     .then(data => {
-        document.getElementById('bio-name').textContent = data.name || 'Sincronização falhou';
+        document.getElementById('bio-name').textContent = data.name || 'Falha na conexão';
         document.getElementById('bio-oab').textContent = data.oab || 'OAB/MS 000.000';
         document.getElementById('bio-desc').textContent = data.desc || '';
         document.getElementById('bio-img').src = data.img || 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiGaEVTw5lfLFBN6DQyXlxRH5jYjaFoYWedjR0xPphZ31_Khb5h5IZcoGgFuUv4tYZtVaz7sZ-CiF7jZAYqot3DGcrvqZM9lcgnz-PQK4N9IkNJCJ6nPyRyd4R0ZpLoGpL1jqgG63NMVrcjVSvE-KXQIJ68ty0tNVRS3TC0-PUK1vAVPx28CfwZcmje1nhY/w424-h424/logo.png';
