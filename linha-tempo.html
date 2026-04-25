@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-br" class="light">
 <head>
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com; img-src 'self' https://blogger.googleusercontent.com data:; connect-src 'self' https://*.workers.dev;">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' *; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com; img-src 'self' * data:; connect-src 'self' https://api-advogada.siterefrigeracaoeliezer.workers.dev https://*.workers.dev;">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Minha Linha do Tempo | Gestão Jurídica</title>
@@ -53,6 +53,18 @@
     ::-webkit-scrollbar-thumb { background: #C5A059; border-radius: 10px; }
     .dot { width:8px; height:8px; border-radius:50%; background-color:#C5A059; opacity:0.3; transition:opacity 0.3s; }
     .dot.active { opacity:1; transform:scale(1.2); }
+
+    /* Glossário modal */
+    .glossary-modal { backdrop-filter: blur(12px); }
+    .glossary-btn {
+      width: 18px; height: 18px; border-radius: 50%;
+      border: 1.5px solid #C5A059; color: #C5A059;
+      font-size: 9px; font-weight: bold;
+      display: inline-flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all 0.2s; margin-left: 4px;
+      flex-shrink: 0; vertical-align: middle;
+    }
+    .glossary-btn:hover { background: #C5A059; color: white; }
   </style>
 </head>
 <body class="bg-pearl dark:bg-softBlack text-softBlack dark:text-pearl min-h-screen font-sans transition-colors duration-300">
@@ -61,6 +73,21 @@
     <div class="bg-white dark:bg-zinc-900 p-8 rounded-[2.5rem] shadow-2xl flex flex-col items-center border border-satinGold/20">
       <div class="loader mb-4"></div>
       <p class="text-satinGold font-bold text-[10px] tracking-[0.3em] uppercase">Sincronizando dados</p>
+    </div>
+  </div>
+
+  <!-- Modal Glossário Jurídico -->
+  <div id="modal-glossario" class="fixed inset-0 z-[300] hidden flex items-center justify-center p-4 glossary-modal bg-black/50">
+    <div class="bg-pearl dark:bg-zinc-900 w-full max-w-sm p-8 rounded-[30px] border border-satinGold/30 shadow-2xl text-center">
+      <div class="w-12 h-12 gold-gradient rounded-full flex items-center justify-center mx-auto mb-4 shadow">
+        <i class="fas fa-book-open text-white text-sm"></i>
+      </div>
+      <h4 id="glossario-termo" class="font-serif text-xl text-darkGold uppercase tracking-widest mb-3">Termo</h4>
+      <p id="glossario-def" class="text-sm leading-relaxed opacity-70 mb-8"></p>
+      <button onclick="fecharGlossario()"
+        class="w-full gold-gradient text-white font-bold py-3 rounded-xl text-xs uppercase tracking-widest hover:scale-[1.02] transition-transform shadow-lg">
+        Entendido
+      </button>
     </div>
   </div>
 
@@ -117,6 +144,8 @@
           </svg>
           <span id="progress-percentage" class="absolute font-bold text-[11px]">0%</span>
         </div>
+        <!-- Fase atual label -->
+        <p id="fase-label" class="text-[8px] text-center font-bold text-satinGold uppercase tracking-widest mt-2 opacity-70"></p>
       </div>
       <div class="bg-white dark:bg-zinc-900 p-5 rounded-[2rem] border border-satinGold/10 shadow-sm flex flex-col justify-center items-center">
         <p class="text-[9px] font-bold text-satinGold uppercase tracking-widest mb-1">Eventos</p>
@@ -129,8 +158,6 @@
   </main>
 
   <script>
-    // ── Nenhuma api_key ou e-mail no frontend.
-    // Autenticação exclusivamente via cookie HttpOnly (Worker + JWT).
     const URL_API    = 'https://api-advogada.siterefrigeracaoeliezer.workers.dev/api/v1';
     const URL_SESSAO = 'https://api-advogada.siterefrigeracaoeliezer.workers.dev/api/verificar-sessao';
 
@@ -138,6 +165,56 @@
     let isLooping    = false;
     let scrollLocked = false;
 
+    // ── Glossário Jurídico ────────────────────────────────────
+    const GLOSSARIO = {
+      'petição inicial':        'Documento formal que dá início ao processo judicial. É a primeira peça apresentada pelo advogado ao juiz, descrevendo os fatos, os direitos violados e os pedidos do cliente.',
+      'citação':                'Ato pelo qual o réu (a parte contrária) é oficialmente comunicado da existência do processo e chamado a se defender. Sem a citação, o processo não avança.',
+      'audiência de conciliação': 'Reunião promovida pelo juiz para tentar um acordo entre as partes antes do julgamento. É uma oportunidade de resolver o conflito de forma mais rápida e amigável.',
+      'audiência de instrução':  'Etapa do processo em que são ouvidas as testemunhas e as partes. É nessa fase que o juiz coleta as provas para tomar sua decisão.',
+      'sentença':                'Decisão final do juiz de primeira instância sobre o processo. Nela, o magistrado acolhe ou rejeita os pedidos feitos na Petição Inicial.',
+      'execução':                'Fase em que a decisão judicial é efetivamente cumprida. Após ganhar o processo, o cliente passa a receber o que foi determinado pelo juiz.',
+      'recurso':                 'Pedido formal para que uma instância superior revise a decisão do juiz. É utilizado quando uma das partes discorda da sentença proferida.',
+      'prazo':                   'Período de tempo definido pela lei ou pelo juiz para que uma determinada ação seja realizada pelas partes ou pelo próprio tribunal.',
+      'arquivamento':            'Encerramento definitivo do processo após o cumprimento de todas as obrigações. Significa que a causa foi totalmente resolvida.',
+      'cálculos':                'Fase em que um perito ou contador calcula o valor exato a ser recebido pelo cliente, considerando juros, correção monetária e honorários.',
+    };
+
+    function abrirGlossario(termoKey) {
+      const termo = termoKey;
+      const def   = GLOSSARIO[termoKey.toLowerCase()] || 'Definição não disponível para este termo.';
+      document.getElementById('glossario-termo').textContent = termo;
+      document.getElementById('glossario-def').textContent   = def;
+      document.getElementById('modal-glossario').classList.replace('hidden', 'flex');
+    }
+
+    function fecharGlossario() {
+      document.getElementById('modal-glossario').classList.replace('flex', 'hidden');
+    }
+
+    // Detecta termos do glossário em um texto e retorna a chave encontrada (ou null)
+    function detectarTermoGlossario(texto) {
+      const lower = (texto || '').toLowerCase();
+      return Object.keys(GLOSSARIO).find(k => lower.includes(k)) || null;
+    }
+
+    // ── Tabela de Fases ───────────────────────────────────────
+    const FASES_LABEL = {
+      10:  'Petição Inicial',
+      30:  'Fase de Conhecimento',
+      60:  'Sentença / Recursos',
+      90:  'Execução / Cálculos',
+      100: 'Processo Finalizado',
+    };
+
+    function getFaseLabel(pct) {
+      // Encontra o label mais próximo
+      const keys = Object.keys(FASES_LABEL).map(Number).sort((a,b)=>a-b);
+      let closest = keys[0];
+      for (const k of keys) { if (pct >= k) closest = k; }
+      return FASES_LABEL[closest] || '';
+    }
+
+    // ── Utils ─────────────────────────────────────────────────
     function formatDateOnly(iso) {
       if (!iso) return '';
       try {
@@ -159,7 +236,6 @@
 
     async function init() {
       try {
-        // 1. Verificar sessão — o Worker lê o cookie e valida o JWT
         const sessRes  = await fetch(URL_SESSAO, { method: 'GET', credentials: 'include' });
         const sessData = await sessRes.json();
 
@@ -168,7 +244,6 @@
           return;
         }
 
-        // 2. Buscar timeline — NÃO enviamos e-mail; o Worker extrai do JWT (IDOR fix)
         const res  = await fetch(URL_API, {
           method: 'POST', credentials: 'include',
           headers: { 'Content-Type': 'application/json' },
@@ -210,7 +285,6 @@
         carousel.style.justifyContent = 'center';
       }
 
-      // Construir cards via template + preencher com textContent (XSS safe)
       carousel.innerHTML = displayData.map((_, index) =>
         `<div class="process-card bg-white dark:bg-zinc-900 p-6 rounded-[2.5rem] shadow-md cursor-pointer"
               data-index="${index}" id="card-idx-${index}">
@@ -311,11 +385,23 @@
       document.getElementById('current-status-text').textContent = lastEvent.status;
       document.getElementById('event-count').textContent         = atualizacoes.length;
 
-      const pct    = Math.min(atualizacoes.length * 20, 100);
-      document.getElementById('progress-circle').style.strokeDashoffset = (2 * Math.PI * 28) * (1 - pct / 100);
-      document.getElementById('progress-percentage').textContent         = pct + '%';
+      // ── Progresso baseado em fase_atual (do info_processo) ──
+      let pct = 10; // padrão
+      try {
+        const info = JSON.parse(proc.info_processo || '{}');
+        if (info.fase_atual && !isNaN(parseInt(info.fase_atual))) {
+          pct = Math.min(Math.max(parseInt(info.fase_atual), 0), 100);
+        }
+      } catch { /* mantém padrão */ }
 
-      // Renderizar via DOM — sem innerHTML de dados externos
+      document.getElementById('progress-circle').style.strokeDashoffset =
+        (2 * Math.PI * 28) * (1 - pct / 100);
+      document.getElementById('progress-percentage').textContent = pct + '%';
+
+      const faseLabel = document.getElementById('fase-label');
+      if (faseLabel) faseLabel.textContent = getFaseLabel(pct);
+
+      // ── Renderizar timeline via DOM — sem innerHTML de dados externos ──
       const container = document.getElementById('timeline-container');
       container.innerHTML = '';
       [...atualizacoes].reverse().forEach((ev, i) => {
@@ -330,15 +416,35 @@
         pData.className = 'text-[9px] font-bold text-satinGold uppercase mb-1 tracking-widest';
         pData.textContent = formatDateOnly(ev.data);
 
+        // Header do status com botão de glossário
+        const headerRow = document.createElement('div');
+        headerRow.className = 'flex items-center gap-1 mb-2';
+
         const h5 = document.createElement('h5');
-        h5.className = 'font-serif font-bold text-darkGold text-base mb-2 uppercase';
+        h5.className = 'font-serif font-bold text-darkGold text-base uppercase';
         h5.textContent = ev.status || '';
+
+        headerRow.appendChild(h5);
+
+        // Verifica se o status tem termo no glossário
+        const termoKey = detectarTermoGlossario(ev.status);
+        if (termoKey) {
+          const glossBtn = document.createElement('button');
+          glossBtn.className = 'glossary-btn';
+          glossBtn.textContent = '?';
+          glossBtn.title = 'O que significa isso?';
+          glossBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            abrirGlossario(termoKey);
+          });
+          headerRow.appendChild(glossBtn);
+        }
 
         const pDesc = document.createElement('p');
         pDesc.className = 'text-xs opacity-70 leading-relaxed font-medium';
         pDesc.textContent = ev.descricao || 'Sem descrição.';
 
-        wrap.append(dot, pData, h5, pDesc);
+        wrap.append(dot, pData, headerRow, pDesc);
         container.appendChild(wrap);
       });
     }
@@ -352,6 +458,11 @@
     document.addEventListener('contextmenu', e => e.preventDefault());
     document.addEventListener('keydown', e => {
       if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && ['I','J','C'].includes(e.key))) e.preventDefault();
+    });
+
+    // Fechar glossário clicando no backdrop
+    document.getElementById('modal-glossario').addEventListener('click', function(e) {
+      if (e.target === this) fecharGlossario();
     });
 
     window.addEventListener('DOMContentLoaded', () => {
