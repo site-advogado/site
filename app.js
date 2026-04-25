@@ -1,4 +1,3 @@
-<script>
   const URL_API = 'https://api-advogada.siterefrigeracaoeliezer.workers.dev/api/v1';
   let countdownInterval;
   let deferredPrompt;
@@ -153,6 +152,3 @@
     document.getElementById('themeIcon').classList.replace(isDark ? 'fa-moon' : 'fa-sun', isDark ? 'fa-sun' : 'fa-moon');
     fetchBio();
   });
-</script>
-</body>
-</html>
