@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-br" class="light">
 <head>
-<meta http-equiv="Content-Security-Policy" content="default-src 'self' *; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com; img-src 'self' * data:; connect-src 'self' https://api-advogada.siterefrigeracaoeliezer.workers.dev https://*.workers.dev;">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' *; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com; img-src 'self' * data:; connect-src 'self' https://api-advogada.siterefrigeracaoeliezer.workers.dev https://*.workers.dev;">
   <meta name="apple-mobile-web-app-title" content="Advocacia">
   <link rel="apple-touch-icon" href="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhHtE2js3Aj9ZLxGzW-qg0iuRkcQvHrLMREwdxYyxwFQZ9IoEp_lYYjezzImcmSIoIPT0GDbAKn0HgZY757h6ob0P-RArslGJ8ca8R395S1oruz8a0R_BXc9OMWQwpqodGTFwq3rNdhshjmU9GgIvaBNAr7JmvgrH6GpbbxqgPXHy_42z9P43RM4frkdlc/w494-h494/logo.png">
   <link rel="icon" type="image/png" href="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhHtE2js3Aj9ZLxGzW-qg0iuRkcQvHrLMREwdxYyxwFQZ9IoEp_lYYjezzImcmSIoIPT0GDbAKn0HgZY757h6ob0P-RArslGJ8ca8R395S1oruz8a0R_BXc9OMWQwpqodGTFwq3rNdhshjmU9GgIvaBNAr7JmvgrH6GpbbxqgPXHy_42z9P43RM4frkdlc/w494-h494/logo.png">
@@ -37,10 +37,18 @@
     .gold-gradient { background: linear-gradient(135deg, #C5A059 0%, #A37E3B 100%); }
     .loader { border: 4px solid #f3f3f3; border-top: 4px solid #C5A059; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
     @keyframes spin { 0%{transform:rotate(0deg);} 100%{transform:rotate(360deg);} }
+
+    /* Hint banner pulse */
+    @keyframes subtlePulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(197,160,89,0.3); }
+      50%       { box-shadow: 0 0 0 8px rgba(197,160,89,0); }
+    }
+    .hint-pulse { animation: subtlePulse 2.5s ease-in-out infinite; }
   </style>
 </head>
 <body class="bg-pearl dark:bg-softBlack text-softBlack dark:text-pearl min-h-screen font-sans transition-colors duration-300">
 
+<!-- Loader Global -->
 <div id="globalLoader" class="fixed inset-0 z-[200] hidden items-center justify-center bg-black/20 backdrop-blur-sm">
   <div class="bg-white dark:bg-zinc-900 p-8 rounded-3xl shadow-2xl flex flex-col items-center">
     <div class="loader mb-4"></div>
@@ -61,6 +69,24 @@
 
 <main class="pt-28 pb-12 px-4 max-w-lg mx-auto">
 
+  <!-- ── Banner: Primeiro Acesso (visível se sistema não configurado) ── -->
+  <div id="admin-hint" class="hidden mb-6 hint-pulse">
+    <div class="bg-darkGold/10 border border-darkGold/40 rounded-2xl p-4 flex items-start gap-3">
+      <div class="w-8 h-8 gold-gradient rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 shadow">
+        <i class="fas fa-key text-white text-xs"></i>
+      </div>
+      <div>
+        <p class="text-[10px] font-bold text-darkGold uppercase tracking-widest mb-1">Configuração Inicial</p>
+        <p class="text-xs text-softBlack/70 dark:text-pearl/60 leading-relaxed">
+          Sistema não configurado. Para acessar o painel administrativo e definir suas credenciais, 
+          digite <span class="font-bold text-darkGold bg-darkGold/10 px-1.5 py-0.5 rounded font-mono">admin</span> 
+          no campo abaixo e clique em <em>Acessar</em>.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Bio ── -->
   <section id="view-bio" class="text-center mb-16">
     <div class="w-48 h-48 mx-auto mb-6">
       <img id="bio-img" src="" alt="" class="rounded-full w-full h-full object-cover border-[6px] border-satinGold shadow-2xl">
@@ -74,6 +100,7 @@
     </div>
   </section>
 
+  <!-- ── Busca ── -->
   <section id="view-client-search" class="bg-white dark:bg-zinc-900 p-10 rounded-[30px] shadow-xl border border-satinGold/10">
     <h3 class="font-serif text-2xl mb-8 text-center text-softBlack dark:text-pearl tracking-wide">Consultar meu Processo</h3>
     <div class="space-y-6">
@@ -97,9 +124,11 @@
     <h3 class="font-serif text-xl mb-2 text-darkGold uppercase tracking-wider">Verificação</h3>
     <p class="text-base mb-2 opacity-70">Insira o código de 6 dígitos enviado ao seu e-mail.</p>
     <div id="timerContainer" class="text-center mb-6">
-      <span class="text-xs font-bold text-satinGold bg-satinGold/10 px-3 py-1 rounded-full" id="timerLabel">Expira em: <span id="timer">03:00</span></span>
+      <span class="text-xs font-bold text-satinGold bg-satinGold/10 px-3 py-1 rounded-full">
+        Expira em: <span id="timer">03:00</span>
+      </span>
     </div>
-    <input type="text" id="inputOtp" maxlength="6" placeholder="000000"
+    <input type="text" id="inputOtp" maxlength="6" placeholder="000000" inputmode="numeric"
       class="w-full bg-transparent border-b-2 border-satinGold text-center text-2xl tracking-[0.5em] font-bold outline-none py-2 mb-8 dark:text-pearl"
       onkeydown="if(event.key==='Enter') confirmCode()">
     <div class="flex flex-col gap-3">
