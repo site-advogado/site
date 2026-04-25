@@ -65,13 +65,25 @@ async function handleClientSearch() {
       body: JSON.stringify({ action: 'login', usuario: email, passo: 'solicitar' })
     });
     const data = await res.json();
-    if (data.status === 'codigo_enviado') openOtpModal();
-    else showErrorModal(data.message || 'Usuário não encontrado.');
-  } catch {
-    showErrorModal('Erro na comunicação com o servidor.');
-  } finally { hideLoading(); }
-}
 
+    // ESTA É A CORREÇÃO:
+    if (data.status === 'ir_para_admin' || data.status === 'abrir_manutencao') {
+      // Redireciona para a página de setup/manutenção
+      window.location.href = 'manutencao.html'; 
+      return;
+    }
+
+    if (data.status === 'codigo_enviado') {
+      openOtpModal();
+    } else {
+      showErrorModal(data.message || 'Usuário não encontrado.');
+    }
+  } catch (err) {
+    showErrorModal('Erro na comunicação com o servidor.');
+  } finally {
+    hideLoading();
+  }
+}
 // ── Tema ──────────────────────────────────────────────────
 function toggleDarkMode() {
   const isDark = document.documentElement.classList.toggle('dark');
